@@ -7,10 +7,10 @@
 ## 2. Ветка и PR
 
 - Ветка: `feature/su-001-core-game-loop`
-- PR: будет добавлен после push
-- Коммит: будет добавлен после финального commit
+- PR: https://github.com/KostGame/fool-journey/pull/4
+- Коммит: `f26ce1c373ceea94ee140dce5416ba28471b9cad`
 - Pages URL: `https://kostgame.github.io/fool-journey/`
-- Статус Pages: для этой ветки ещё не проверялся
+- Статус Pages: workflow подготовлен, деплой на `main` запустится после merge
 
 ## 3. Что реализовано
 
@@ -74,4 +74,4 @@
 
 ## 9. Можно ли проверять и мержить PR
 
-Пока нельзя. Нужно завершить push, открыть обычный Open PR и дождаться зелёного CI.
+Да. PR открыт как обычный Open PR, локальные проверки пройдены, CI зелёный.
