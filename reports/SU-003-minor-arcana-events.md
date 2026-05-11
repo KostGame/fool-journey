@@ -7,10 +7,11 @@
 ## 2. Ветка и PR
 
 - Ветка: `feature/su-003-minor-arcana-events`
-- PR: будет добавлен после push
-- Коммит: будет добавлен после финального commit
+- PR: [#9](https://github.com/KostGame/fool-journey/pull/9)
+- Коммит PR: `f732374`
+- Merge commit: `27d9ce0`
 - Pages URL: `https://kostgame.github.io/fool-journey/`
-- Статус Pages: будет уточнён после merge
+- Статус Pages: `built`
 
 ## 3. Что реализовано
 
@@ -77,4 +78,4 @@
 
 ## 9. Можно ли переводить PR в Ready for review
 
-Да, после push и зелёного CI. После создания PR этот файл нужно обновить реальными ссылками и статусами.
+PR уже смержен, поэтому Ready for review больше неактуален.
