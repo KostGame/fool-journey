@@ -8,7 +8,8 @@
 
 - PR: не открыт, потому что из текущего окружения нет доступа к GitHub-репозиторию `KostGame/fool-journey`.
 - Ветка: `feature/pr-000-bootstrap`.
-- Коммит: `87eeb53` (`Bootstrap Path of the Fool`).
+- Коммит: `77537f6` (текущий HEAD после добавления отчёта).
+- Предыдущий технический коммит: `87eeb53` (`Bootstrap Path of the Fool`).
 
 ## 3. Что реализовано
 
