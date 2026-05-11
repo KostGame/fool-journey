@@ -12,9 +12,13 @@ export interface EncounterInterpretation {
   choiceLabel: string;
 }
 
+interface JourneyContext {
+  positionTitle: string;
+}
+
 export function composeEncounterInterpretation(
   card: TarotCard,
-  encounter: StoryEncounter,
+  encounter: StoryEncounter | JourneyContext,
   choice: EncounterChoice,
 ): EncounterInterpretation {
   const orientationLabel = choice.orientation === "upright" ? "прямая" : "перевёрнутая";

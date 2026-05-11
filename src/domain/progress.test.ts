@@ -1,24 +1,57 @@
 import { describe, expect, it } from "vitest";
 import { encounters } from "../data/encounters";
+import { getMinorEventAfterChapter } from "../data/minorArcanaEvents";
 import {
   advanceJourney,
+  buildProgressSnapshot,
   createInitialPlayerState,
+  getCurrentMinorEvent,
   getHomeActionLabel,
+  getJourneyAdvanceActionLabel,
   getPlayerLevel,
   getPrimaryActionLabel,
   recordEncounterChoice,
+  recordMinorEventChoice
 } from "./progress";
+
+function playThroughJourney() {
+  let state = createInitialPlayerState();
+
+  for (const encounter of encounters) {
+    state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
+    state = advanceJourney(state);
+
+    while (state.currentStepKind === "minor") {
+      const minorEvent = getMinorEventAfterChapter(state.currentChapterId);
+
+      expect(minorEvent).toBeDefined();
+
+      if (!minorEvent) {
+        return state;
+      }
+
+      state = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} прожито`);
+      state = advanceJourney(state);
+    }
+  }
+
+  return state;
+}
 
 describe("progress helpers", () => {
   it("creates the initial player state for the Fool chapter", () => {
     const state = createInitialPlayerState();
 
-    expect(state.version).toBe(1);
+    expect(state.version).toBe(2);
     expect(state.xp).toBe(0);
+    expect(state.minorXp).toBe(0);
     expect(state.currentChapterId).toBe("chapter-fool");
     expect(state.currentEncounterId).toBe("fool-threshold");
+    expect(state.currentStepKind).toBe("major");
+    expect(state.currentMinorEventId).toBeNull();
     expect(state.journeyPhase).toBe("idle");
     expect(state.lastEncounterId).toBeNull();
+    expect(state.completedMinorEventIds).toHaveLength(0);
     expect(state.updatedAt).toMatch(/T/);
   });
 
@@ -44,6 +77,68 @@ describe("progress helpers", () => {
     expect(next.completedEncounterIds).toContain(encounter.id);
   });
 
+  it("inserts a curated minor event between major chapters and returns to the major path", () => {
+    const empressEncounter = encounters.find((encounter) => encounter.chapterId === "chapter-empress");
+
+    expect(empressEncounter).toBeDefined();
+
+    if (!empressEncounter) {
+      return;
+    }
+
+    let state = createInitialPlayerState();
+
+    for (const encounter of encounters) {
+      if (encounter.id === empressEncounter.id) {
+        break;
+      }
+
+      state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
+      state = advanceJourney(state);
+
+      while (state.currentStepKind === "minor") {
+        const minorEvent = getMinorEventAfterChapter(state.currentChapterId);
+
+        expect(minorEvent).toBeDefined();
+
+        if (!minorEvent) {
+          break;
+        }
+
+        state = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} прожито`);
+        state = advanceJourney(state);
+      }
+    }
+
+    state = recordEncounterChoice(state, empressEncounter.id, empressEncounter.choices[0], `${empressEncounter.title} пройдена`);
+    state = advanceJourney(state);
+
+    const minorEvent = getCurrentMinorEvent(state);
+
+    expect(state.currentStepKind).toBe("minor");
+    expect(minorEvent?.id).toBe("empress-2-cups");
+    expect(buildProgressSnapshot(state).stepKindLabel).toBe("Дорожное событие");
+    expect(buildProgressSnapshot(state).statusLabel).toBe("Короткое дорожное событие ждёт ответа");
+
+    if (!minorEvent) {
+      return;
+    }
+
+    const chosenMinor = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} прожито`);
+
+    expect(chosenMinor.xp).toBeGreaterThan(state.xp);
+    expect(chosenMinor.minorXp).toBeGreaterThan(0);
+    expect(chosenMinor.completedMinorEventIds).toContain(minorEvent.id);
+    expect(chosenMinor.lastEncounterId).toBe(minorEvent.id);
+    expect(chosenMinor.journeyPhase).toBe("resolved");
+
+    const nextState = advanceJourney(chosenMinor);
+
+    expect(nextState.currentStepKind).toBe("major");
+    expect(nextState.currentMinorEventId).toBeNull();
+    expect(nextState.journeyPhase).toBe("idle");
+  });
+
   it("calculates player levels from experience", () => {
     expect(getPlayerLevel(0)).toBe(1);
     expect(getPlayerLevel(1)).toBe(1);
@@ -51,7 +146,7 @@ describe("progress helpers", () => {
     expect(getPlayerLevel(5)).toBe(3);
   });
 
-  it("changes the primary action label after the first choice", () => {
+  it("changes the primary and home action labels across the journey", () => {
     const initial = createInitialPlayerState();
     const encounter = encounters[0];
 
@@ -62,53 +157,22 @@ describe("progress helpers", () => {
     }
 
     expect(getPrimaryActionLabel(initial)).toBe("Продолжить путь");
+    expect(getHomeActionLabel(initial)).toBe("Продолжить путь");
+    expect(getJourneyAdvanceActionLabel(initial)).toBe("Продолжить путь");
 
     const next = recordEncounterChoice(initial, encounter.id, encounter.choices[0], "Проверка");
     expect(getPrimaryActionLabel(next)).toBe("Посмотреть результат");
   });
 
-  it("switches the home action to replay when the full path is complete", () => {
-    const path = encounters;
-    let state = createInitialPlayerState();
+  it("marks the whole route as complete after the full major and minor journey", () => {
+    const completeState = playThroughJourney();
+    const snapshot = buildProgressSnapshot(completeState);
 
-    for (const encounter of path) {
-      state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
-      state = advanceJourney(state);
-    }
-
-    expect(state.journeyPhase).toBe("complete");
-    expect(getHomeActionLabel(state)).toBe("Повторить путь");
-  });
-
-  it("advances through all 22 major arcana in order and completes on the World", () => {
-    const path = encounters;
-    let state = createInitialPlayerState();
-
-    expect(path.length).toBe(22);
-    expect(path[0]?.id).toBe("fool-threshold");
-    expect(path[path.length - 1]?.id).toBe("world-circle");
-
-    for (const [index, encounter] of path.entries()) {
-      const previousState = state;
-      state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
-
-      expect(state.completedEncounterIds).toContain(encounter.id);
-
-      state = advanceJourney(state);
-
-      if (index < path.length - 1) {
-        expect(state.journeyPhase).toBe("idle");
-        expect(state.currentEncounterId).toBe(path[index + 1]!.id);
-      }
-
-      if (index === path.length - 1) {
-        expect(state.journeyPhase).toBe("complete");
-        expect(state.currentChapterId).toBe("chapter-world");
-        expect(state.currentEncounterId).toBe("world-circle");
-        expect(previousState.xp).toBeGreaterThanOrEqual(0);
-      }
-    }
-
-    expect(state.completedEncounterIds).toHaveLength(22);
+    expect(completeState.journeyPhase).toBe("complete");
+    expect(getHomeActionLabel(completeState)).toBe("Повторить путь");
+    expect(getJourneyAdvanceActionLabel(completeState)).toBe("К главному экрану");
+    expect(snapshot.statusLabel).toBe("Путь старших арканов завершён");
+    expect(snapshot.episodeProgressLabel).toBe("22 / 22");
+    expect(snapshot.minorEventProgressLabel).toBe("9 / 9");
   });
 });

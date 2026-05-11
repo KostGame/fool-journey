@@ -1,8 +1,18 @@
 import { cards } from "../data/cards";
 import { encounters } from "../data/encounters";
+import { minorArcanaEvents } from "../data/minorArcanaEvents";
+import { isJourneyStepId } from "../data/journeySteps";
 import { storyChapters } from "../data/storyChapters";
 import { createInitialPlayerState } from "./progress";
-import type { CardId, EncounterId, PlayerState, ScreenId, StorageLike, StoryChapterId } from "./models";
+import type {
+  CardId,
+  EncounterId,
+  MinorArcanaEventId,
+  PlayerState,
+  ScreenId,
+  StorageLike,
+  StoryChapterId
+} from "./models";
 
 export const STORAGE_KEY = "fool-journey:player-state:v1";
 
@@ -61,27 +71,35 @@ export function normalizePlayerState(value: unknown): PlayerState {
 
   const currentChapterId = isStoryChapterId(value.currentChapterId) ? value.currentChapterId : fallback.currentChapterId;
   const currentEncounterId = isEncounterId(value.currentEncounterId) ? value.currentEncounterId : fallback.currentEncounterId;
+  const currentMinorEventId = isMinorArcanaEventId(value.currentMinorEventId) ? value.currentMinorEventId : null;
+  const currentStepKind = value.currentStepKind === "minor" && currentMinorEventId ? "minor" : currentMinorEventId ? "minor" : "major";
   const lastChoiceCardId = isCardId(value.lastChoiceCardId) ? value.lastChoiceCardId : null;
   const lastChoiceId = typeof value.lastChoiceId === "string" && value.lastChoiceId.trim().length > 0 ? value.lastChoiceId : null;
-  const lastEncounterId = isEncounterId(value.lastEncounterId)
+  const lastEncounterId = isJourneyStepId(value.lastEncounterId)
     ? value.lastEncounterId
     : lastChoiceId
-      ? currentEncounterId
+      ? currentStepKind === "minor" && currentMinorEventId
+        ? currentMinorEventId
+        : currentEncounterId
       : null;
   const lastFeedback = typeof value.lastFeedback === "string" && value.lastFeedback.trim().length > 0 ? value.lastFeedback : null;
   const journeyPhase = value.journeyPhase === "resolved" || value.journeyPhase === "complete" ? value.journeyPhase : "idle";
 
   return {
-    version: 1,
+    version: 2,
     xp: normalizePositiveInteger(value.xp),
+    minorXp: normalizePositiveInteger(value.minorXp),
     currentChapterId,
     currentEncounterId,
+    currentStepKind,
+    currentMinorEventId,
     journeyPhase,
     lastChoiceId,
     lastEncounterId,
     lastChoiceCardId,
     lastFeedback,
     completedEncounterIds: normalizeEncounterIds(value.completedEncounterIds),
+    completedMinorEventIds: normalizeMinorEventIds(value.completedMinorEventIds),
     updatedAt: normalizeTimestamp(value.updatedAt)
   };
 }
@@ -110,6 +128,14 @@ function normalizeEncounterIds(value: unknown): EncounterId[] {
   return value.filter((entry): entry is EncounterId => isEncounterId(entry));
 }
 
+function normalizeMinorEventIds(value: unknown): MinorArcanaEventId[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry): entry is MinorArcanaEventId => isMinorArcanaEventId(entry));
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -124,6 +150,10 @@ function isStoryChapterId(value: unknown): value is StoryChapterId {
 
 function isEncounterId(value: unknown): value is EncounterId {
   return typeof value === "string" && encounters.some((encounter) => encounter.id === value);
+}
+
+function isMinorArcanaEventId(value: unknown): value is MinorArcanaEventId {
+  return typeof value === "string" && minorArcanaEvents.some((event) => event.id === value);
 }
 
 export function isSafeScreenId(value: unknown): value is ScreenId {
