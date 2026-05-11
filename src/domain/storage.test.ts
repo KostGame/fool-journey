@@ -55,6 +55,24 @@ describe("storage helpers", () => {
     expect(restored.xp).toBe(4);
     expect(restored.journeyPhase).toBe("resolved");
     expect(restored.lastChoiceCardId).toBe("magician");
+    expect(restored.lastEncounterId).toBeNull();
+  });
+
+  it("keeps completed journeys intact when storage already has the completion flag", () => {
+    const storage = createMemoryStorage({
+      [STORAGE_KEY]: JSON.stringify({
+        ...createInitialPlayerState(),
+        journeyPhase: "complete",
+        lastChoiceId: "listen-deeper",
+        lastEncounterId: "priestess-garden",
+        lastChoiceCardId: "high-priestess"
+      })
+    });
+
+    const restored = loadPlayerState(storage);
+
+    expect(restored.journeyPhase).toBe("complete");
+    expect(restored.lastEncounterId).toBe("priestess-garden");
   });
 
   it("clears stored progress", () => {

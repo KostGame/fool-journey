@@ -395,6 +395,11 @@ button:focus-visible {
   background: rgba(225, 175, 103, 0.08);
 }
 
+.trail-card.is-completed {
+  border-color: rgba(145, 210, 168, 0.44);
+  background: rgba(145, 210, 168, 0.08);
+}
+
 .trail-card.is-locked {
   opacity: 0.82;
 }

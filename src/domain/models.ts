@@ -1,6 +1,6 @@
 export type CardId = "fool" | "magician" | "high-priestess";
 export type StoryChapterId = "chapter-fool" | "chapter-magician" | "chapter-priestess";
-export type EncounterId = "fool-threshold";
+export type EncounterId = "fool-threshold" | "magician-workshop" | "priestess-garden";
 export type ScreenId =
   | "home"
   | "journey"
@@ -12,7 +12,7 @@ export type ScreenId =
 
 export type CardGroup = "major";
 export type StoryRole = "threshold" | "tool" | "oracle";
-export type JourneyPhase = "idle" | "resolved";
+export type JourneyPhase = "idle" | "resolved" | "complete";
 export type Orientation = "upright" | "reversed";
 
 export interface TarotCard {
@@ -66,6 +66,7 @@ export interface PlayerState {
   currentEncounterId: EncounterId;
   journeyPhase: JourneyPhase;
   lastChoiceId: string | null;
+  lastEncounterId: EncounterId | null;
   lastChoiceCardId: CardId | null;
   lastFeedback: string | null;
   completedEncounterIds: EncounterId[];
@@ -77,6 +78,7 @@ export interface ProgressSnapshot {
   xp: number;
   xpIntoLevel: number;
   xpToNextLevel: number;
+  episodeProgressLabel: string;
   chapterTitle: string;
   chapterSummary: string;
   encounterTitle: string;

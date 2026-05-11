@@ -3,10 +3,12 @@ import { encounters, getEncounter } from "./data/encounters";
 import { storyChapters, getStoryChapter } from "./data/storyChapters";
 import { composeEncounterInterpretation } from "./domain/meaning";
 import {
+  advanceJourney,
   buildProgressSnapshot,
+  getHomeActionLabel,
   getCurrentChapterCard,
   getLastChoiceCard,
-  getPrimaryActionLabel,
+  getJourneyAdvanceActionLabel,
   recordEncounterChoice,
   resetPlayerState,
 } from "./domain/progress";
@@ -17,7 +19,7 @@ const modeCatalog = [
   {
     id: "journey",
     title: "Путь Шута",
-    description: "Сюжетная сцена, первый выбор и мягкая трактовка ответа."
+    description: "Сюжетная сцена, выбор и мягкая трактовка ответа."
   },
   {
     id: "live-spread",
@@ -113,6 +115,22 @@ export function mountGameApp(root: HTMLElement, storage: StorageLike = window.lo
       return;
     }
 
+    if (action === "advance") {
+      player = advanceJourney(player);
+      savePlayerState(storage, player);
+      screen = "journey";
+      rerender();
+      return;
+    }
+
+    if (action === "restart") {
+      player = resetPlayerState();
+      savePlayerState(storage, player);
+      screen = "journey";
+      rerender();
+      return;
+    }
+
     if (action === "reset") {
       if (!window.confirm("Сбросить прогресс Шута?")) {
         return;
@@ -141,7 +159,7 @@ export function renderAppShell(view: AppViewState): string {
   const chapter = getStoryChapter(view.player.currentChapterId) ?? storyChapters[0];
   const chapterCard = getCurrentChapterCard(view.player);
   const lastChoiceCard = getLastChoiceCard(view.player);
-  const primaryActionLabel = getPrimaryActionLabel(view.player);
+  const homeActionLabel = getHomeActionLabel(view.player);
 
   return `
     <main class="app-shell">
@@ -153,7 +171,7 @@ export function renderAppShell(view: AppViewState): string {
           <p class="eyebrow">Ранний прототип</p>
           <h1>Путь Шута</h1>
           <p class="lead">
-            Лёгкий сюжетный квест про карты Таро как архетипы, выбор в контексте и спокойное обучение через игру.
+            Лёгкий сюжетный квест про три арканы-ориентира: Шута, Мага и Жрицу. Игрок проходит короткий цикл выбора и учится читать карту в контексте.
           </p>
         </div>
 
@@ -185,6 +203,10 @@ export function renderAppShell(view: AppViewState): string {
             <dd>${escapeHtml(chapterCard?.name ?? "Пока нет")}</dd>
           </div>
           <div>
+            <dt>Эпизод</dt>
+            <dd>${escapeHtml(progress.episodeProgressLabel)}</dd>
+          </div>
+          <div>
             <dt>Опыт</dt>
             <dd>${progress.xp} XP</dd>
           </div>
@@ -212,19 +234,24 @@ export function renderAppShell(view: AppViewState): string {
           <p class="eyebrow">Главный экран</p>
           <h2 id="home-title">Продолжить путь Шута</h2>
           <p>
-            На этой странице живёт стартовая сцена, а остальные режимы пока открываются как отдельные заглушки.
+            Сейчас здесь работает основной цикл: Шут, Маг и Жрица идут последовательно как одна маленькая сюжетная петля, а остальные режимы пока открываются как заглушки.
           </p>
         </div>
 
         <div class="home-actions">
-          <button class="primary-button" type="button" data-action="screen" data-screen="journey">
-            ${escapeHtml(primaryActionLabel)}
+          <button
+            class="primary-button"
+            type="button"
+            data-action="${view.player.journeyPhase === "complete" ? "restart" : "screen"}"
+            data-screen="journey"
+          >
+            ${escapeHtml(homeActionLabel)}
           </button>
           <button class="ghost-button" type="button" data-action="reset">Сбросить прогресс</button>
         </div>
 
         <p class="prototype-note">
-          Это ранний прототип. Сейчас здесь только одна сюжетная сцена, чтобы проверить ритм игры и сохранение прогресса.
+          Это ранний прототип. В этой сборке доступен только core loop из трёх сцен, чтобы проверить ритм игры и сохранение прогресса.
         </p>
       </section>
 
@@ -265,6 +292,10 @@ function renderScreen(view: AppViewState): string {
 }
 
 function renderJourneyScreen(player: PlayerState): string {
+  if (player.journeyPhase === "complete") {
+    return renderJourneyCompletionScreen(player);
+  }
+
   const chapter = getStoryChapter(player.currentChapterId) ?? storyChapters[0];
   const encounter = getEncounter(player.currentEncounterId) ?? encounters[0];
 
@@ -321,7 +352,9 @@ function renderJourneyScreen(player: PlayerState): string {
         </article>
 
         <div class="journey-actions">
-          <button class="primary-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
+          <button class="primary-button" type="button" data-action="advance">
+            ${escapeHtml(getJourneyAdvanceActionLabel(player))}
+          </button>
         </div>
       </section>
     `;
@@ -355,6 +388,91 @@ function renderJourneyScreen(player: PlayerState): string {
   `;
 }
 
+function renderJourneyCompletionScreen(player: PlayerState): string {
+  const encounter = getEncounter(player.currentEncounterId) ?? encounters[encounters.length - 1];
+  const lastEncounter = player.lastEncounterId ? getEncounter(player.lastEncounterId) : encounter;
+  const choice = lastEncounter?.choices.find((item) => item.id === player.lastChoiceId);
+  const card = player.lastChoiceCardId ? getCard(player.lastChoiceCardId) : undefined;
+  const journeyCards = storyChapters.map((chapter) => getCard(chapter.cardId)).filter(Boolean);
+
+  if (!choice || !card) {
+    return renderCorruptedState();
+  }
+
+  const interpretation = composeEncounterInterpretation(card, lastEncounter ?? encounter, choice);
+  const cardLessons = [
+    {
+      title: "Шут",
+      text: "Учится делать первый шаг и доверять дороге."
+    },
+    {
+      title: "Маг",
+      text: "Собирает намерение, ресурс и форму в действие."
+    },
+    {
+      title: "Жрица",
+      text: "Проверяет услышанное тишиной и внутренним знанием."
+    }
+  ];
+
+  return `
+    <section class="panel journey-panel">
+      <div class="section-head">
+        <p class="eyebrow">Путь Шута</p>
+        <h2>Первый круг пути пройден</h2>
+        <p>Ты прошёл короткий мини-квест и встретил три арканы-ориентира: Шута, Мага и Жрицу.</p>
+      </div>
+
+      ${renderChapterTrail(player)}
+
+      <article class="result-card card-${card.id}">
+        <p class="card-kicker">Итог эпизода</p>
+        <h3>Что показали три карты</h3>
+        <p class="card-summary">${escapeHtml(interpretation.summary)}</p>
+
+        <dl class="reading-grid">
+          ${cardLessons
+            .map(
+              (lesson) => `
+                <div>
+                  <dt>${escapeHtml(lesson.title)}</dt>
+                  <dd>${escapeHtml(lesson.text)}</dd>
+                </div>
+              `
+            )
+            .join("")}
+        </dl>
+
+        <dl class="reading-grid">
+          <div>
+            <dt>Какие карты встретились</dt>
+            <dd>${escapeHtml(journeyCards.map((item) => item?.name).filter(Boolean).join(" · "))}</dd>
+          </div>
+          <div>
+            <dt>Получено опыта</dt>
+            <dd>${player.xp} XP</dd>
+          </div>
+          <div>
+            <dt>Смысл круга</dt>
+            <dd>Шут начал движение, Маг дал форму, Жрица проверила услышанное тишиной.</dd>
+          </div>
+          <div>
+            <dt>Дальше</dt>
+            <dd>В будущих версиях откроются новые сцены, режимы и более широкий путь по колоде.</dd>
+          </div>
+        </dl>
+
+        <p class="result-feedback">Теперь можно вернуться к главному экрану или пройти эпизод ещё раз.</p>
+        <p class="xp-badge">+${choice.xp} XP · ${escapeHtml(choice.buttonNote)}</p>
+      </article>
+
+      <div class="journey-actions">
+        <button class="primary-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
+      </div>
+    </section>
+  `;
+}
+
 function renderChoiceButton(choice: EncounterChoice): string {
   const card = getCard(choice.cardId);
 
@@ -379,14 +497,15 @@ function renderChapterTrail(player: PlayerState): string {
         .map((chapter, index) => {
           const isCurrent = chapter.id === player.currentChapterId;
           const isPlayable = Boolean(chapter.encounterId);
+          const isCompleted = chapter.encounterId ? player.completedEncounterIds.includes(chapter.encounterId) : false;
           const card = getCard(chapter.cardId);
 
           return `
-            <article class="trail-card ${isCurrent ? "is-current" : ""} ${isPlayable ? "is-playable" : "is-locked"}">
+            <article class="trail-card ${isCurrent ? "is-current" : ""} ${isCompleted ? "is-completed" : ""} ${isPlayable ? "is-playable" : "is-locked"}">
               <span class="trail-index">0${index + 1}</span>
               <h3>${escapeHtml(chapter.title)}</h3>
               <p>${escapeHtml(card?.storyRole ?? "глава")}</p>
-              <small>${escapeHtml(isPlayable ? chapter.prompt : "Будет открыто в следующих шагах")}</small>
+              <small>${escapeHtml(isCompleted ? "Сцена пройдена" : isPlayable ? chapter.prompt : "Будет открыто в следующих шагах")}</small>
             </article>
           `;
         })
@@ -445,7 +564,12 @@ function renderModeButton(id: ScreenId, title: string, description: string, isAc
 function updateDocumentTitle(screen: ScreenId, player: PlayerState): void {
   const titles: Record<ScreenId, string> = {
     home: "Путь Шута",
-    journey: player.journeyPhase === "resolved" ? "Путь Шута · Ответ" : "Путь Шута · Сцена Шута",
+    journey:
+      player.journeyPhase === "complete"
+        ? "Путь Шута · Итог"
+        : player.journeyPhase === "resolved"
+          ? "Путь Шута · Ответ"
+          : "Путь Шута · Сцена Шута",
     "live-spread": "Путь Шута · Живой расклад",
     "card-of-day": "Путь Шута · Карта дня",
     dialogues: "Путь Шута · Аркана-диалоги",
@@ -483,6 +607,7 @@ function escapeAttribute(value: string): string {
 export {
   renderChoiceButton,
   renderJourneyScreen,
+  renderJourneyCompletionScreen,
   renderPlaceholderScreen,
   renderChapterTrail,
   renderModeButton,

@@ -11,19 +11,19 @@ export const storyChapters = [
   },
   {
     id: "chapter-magician",
-    title: "Инструменты Мага",
+    title: "Мастерская Мага",
     cardId: "magician",
-    summary: "Следующая глава будет про сборку намерения, языка и действий.",
+    summary: "Вторая глава про сборку намерения, языка и действий в одну ясную форму.",
     prompt: "Что помогает собрать волю в форму?",
-    encounterId: null
+    encounterId: "magician-workshop"
   },
   {
     id: "chapter-priestess",
-    title: "Тишина Жрицы",
+    title: "Сад Жрицы",
     cardId: "high-priestess",
-    summary: "Третья глава будущих обновлений будет про паузу, наблюдение и внутренний слух.",
+    summary: "Финальная глава core loop про паузу, наблюдение и внутренний слух.",
     prompt: "Как услышать скрытый слой ответа?",
-    encounterId: null
+    encounterId: "priestess-garden"
   }
 ] as const satisfies readonly StoryChapter[];
 
