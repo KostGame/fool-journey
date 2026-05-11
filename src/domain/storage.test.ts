@@ -63,7 +63,7 @@ describe("storage helpers", () => {
       [STORAGE_KEY]: JSON.stringify({
         ...createInitialPlayerState(),
         journeyPhase: "complete",
-        lastChoiceId: "listen-deeper",
+        lastChoiceId: "priestess-listen",
         lastEncounterId: "priestess-garden",
         lastChoiceCardId: "high-priestess"
       })

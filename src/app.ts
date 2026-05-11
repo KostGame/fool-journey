@@ -171,7 +171,7 @@ export function renderAppShell(view: AppViewState): string {
           <p class="eyebrow">Ранний прототип</p>
           <h1>Путь Шута</h1>
           <p class="lead">
-            Лёгкий сюжетный квест про три арканы-ориентира: Шута, Мага и Жрицу. Игрок проходит короткий цикл выбора и учится читать карту в контексте.
+            Лёгкий сюжетный квест про полный путь старших арканов от Шута к Миру. Игрок проходит короткие сцены, делает выбор и учится читать карту в контексте.
           </p>
         </div>
 
@@ -234,7 +234,7 @@ export function renderAppShell(view: AppViewState): string {
           <p class="eyebrow">Главный экран</p>
           <h2 id="home-title">Продолжить путь Шута</h2>
           <p>
-            Сейчас здесь работает основной цикл: Шут, Маг и Жрица идут последовательно как одна маленькая сюжетная петля, а остальные режимы пока открываются как заглушки.
+            Сейчас здесь работает полный путь старших арканов: от Шута к Миру. Младшие арканы появятся позже как отдельный слой бытовых сцен и уточнений.
           </p>
         </div>
 
@@ -251,7 +251,7 @@ export function renderAppShell(view: AppViewState): string {
         </div>
 
         <p class="prototype-note">
-          Это ранний прототип. В этой сборке доступен только core loop из трёх сцен, чтобы проверить ритм игры и сохранение прогресса.
+          Это ранний прототип. В этой сборке уже доступен полный первый путь старших арканов, а младшие арканы будут добавлены отдельной SU-задачей.
         </p>
       </section>
 
@@ -393,60 +393,32 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
   const lastEncounter = player.lastEncounterId ? getEncounter(player.lastEncounterId) : encounter;
   const choice = lastEncounter?.choices.find((item) => item.id === player.lastChoiceId);
   const card = player.lastChoiceCardId ? getCard(player.lastChoiceCardId) : undefined;
-  const journeyCards = storyChapters.map((chapter) => getCard(chapter.cardId)).filter(Boolean);
 
   if (!choice || !card) {
     return renderCorruptedState();
   }
 
   const interpretation = composeEncounterInterpretation(card, lastEncounter ?? encounter, choice);
-  const cardLessons = [
-    {
-      title: "Шут",
-      text: "Учится делать первый шаг и доверять дороге."
-    },
-    {
-      title: "Маг",
-      text: "Собирает намерение, ресурс и форму в действие."
-    },
-    {
-      title: "Жрица",
-      text: "Проверяет услышанное тишиной и внутренним знанием."
-    }
-  ];
 
   return `
     <section class="panel journey-panel">
       <div class="section-head">
         <p class="eyebrow">Путь Шута</p>
-        <h2>Первый круг пути пройден</h2>
-        <p>Ты прошёл короткий мини-квест и встретил три арканы-ориентира: Шута, Мага и Жрицу.</p>
+        <h2>Путь старших арканов завершён</h2>
+        <p>Ты прошёл 22 архетипических этапа: от импульса Шута до целостности Мира.</p>
       </div>
 
       ${renderChapterTrail(player)}
 
       <article class="result-card card-${card.id}">
         <p class="card-kicker">Итог эпизода</p>
-        <h3>Что показали три карты</h3>
+        <h3>Что показал полный путь</h3>
         <p class="card-summary">${escapeHtml(interpretation.summary)}</p>
 
         <dl class="reading-grid">
-          ${cardLessons
-            .map(
-              (lesson) => `
-                <div>
-                  <dt>${escapeHtml(lesson.title)}</dt>
-                  <dd>${escapeHtml(lesson.text)}</dd>
-                </div>
-              `
-            )
-            .join("")}
-        </dl>
-
-        <dl class="reading-grid">
           <div>
-            <dt>Какие карты встретились</dt>
-            <dd>${escapeHtml(journeyCards.map((item) => item?.name).filter(Boolean).join(" · "))}</dd>
+            <dt>Пройдено аркан</dt>
+            <dd>22 / 22</dd>
           </div>
           <div>
             <dt>Получено опыта</dt>
@@ -454,15 +426,15 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
           </div>
           <div>
             <dt>Смысл круга</dt>
-            <dd>Шут начал движение, Маг дал форму, Жрица проверила услышанное тишиной.</dd>
+            <dd>От первого импульса к собранной целостности, без потери мягкого ритма.</dd>
           </div>
           <div>
             <dt>Дальше</dt>
-            <dd>В будущих версиях откроются новые сцены, режимы и более широкий путь по колоде.</dd>
+            <dd>Дальше в игру будут вплетаться младшие арканы как бытовые события и уточняющие сцены.</dd>
           </div>
         </dl>
 
-        <p class="result-feedback">Теперь можно вернуться к главному экрану или пройти эпизод ещё раз.</p>
+        <p class="result-feedback">Теперь можно вернуться к главному экрану или пройти путь ещё раз.</p>
         <p class="xp-badge">+${choice.xp} XP · ${escapeHtml(choice.buttonNote)}</p>
       </article>
 
@@ -566,7 +538,7 @@ function updateDocumentTitle(screen: ScreenId, player: PlayerState): void {
     home: "Путь Шута",
     journey:
       player.journeyPhase === "complete"
-        ? "Путь Шута · Итог"
+        ? "Путь Шута · Мир"
         : player.journeyPhase === "resolved"
           ? "Путь Шута · Ответ"
           : "Путь Шута · Сцена Шута",

@@ -12,7 +12,7 @@ describe("renderAppShell", () => {
 
     expect(html).toContain("Путь Шута");
     expect(html).toContain("Продолжить путь");
-    expect(html).toContain("0 / 3");
+    expect(html).toContain("0 / 22");
     expect(html).toContain("Живой расклад");
   });
 
@@ -37,33 +37,47 @@ describe("renderAppShell", () => {
     expect(html).toContain("Продолжить путь");
   });
 
-  it("renders the completion screen after the three-arcana loop", () => {
-    const fool = encounters[0];
-    const magician = encounters[1];
-    const priestess = encounters[2];
+  it("renders the completion screen after the full major arcana path", () => {
+    const path = encounters;
 
-    expect(fool).toBeDefined();
-    expect(magician).toBeDefined();
-    expect(priestess).toBeDefined();
+    expect(path.length).toBe(22);
 
-    if (!fool || !magician || !priestess) {
+    let state = createInitialPlayerState();
+
+    for (const encounter of path) {
+      const choice = encounter.choices[0];
+      state = recordEncounterChoice(state, encounter.id, choice, `${encounter.title} пройдена`);
+      state = advanceJourney(state);
+    }
+
+    const html = renderAppShell({
+      screen: "journey",
+      player: state
+    });
+
+    expect(html).toContain("Путь старших арканов завершён");
+    expect(html).toContain("22 / 22");
+    expect(html).toContain("Дальше в игру будут вплетаться младшие арканы");
+  });
+
+  it("keeps the journey screen readable after any intermediate choice", () => {
+    const encounter = encounters[0];
+
+    expect(encounter).toBeDefined();
+
+    if (!encounter) {
       return;
     }
 
-    const afterFoolChoice = recordEncounterChoice(createInitialPlayerState(), fool.id, fool.choices[0], "Шут пройден");
-    const afterFoolAdvance = advanceJourney(afterFoolChoice);
-    const afterMagicianChoice = recordEncounterChoice(afterFoolAdvance, magician.id, magician.choices[0], "Маг пройден");
-    const afterMagicianAdvance = advanceJourney(afterMagicianChoice);
-    const afterPriestessChoice = recordEncounterChoice(afterMagicianAdvance, priestess.id, priestess.choices[0], "Жрица пройдена");
-    const completed = advanceJourney(afterPriestessChoice);
+    const next = recordEncounterChoice(createInitialPlayerState(), encounter.id, encounter.choices[1], "Тестовый ответ");
     const html = renderAppShell({
       screen: "journey",
-      player: completed
+      player: next
     });
 
-    expect(html).toContain("Первый круг пути пройден");
-    expect(html).toContain("Получено опыта");
-    expect(html).toContain("К главному экрану");
+    expect(html).toContain("Ответ собран");
+    expect(html).toContain("Тестовый ответ");
+    expect(html).toContain("Продолжить путь");
   });
 
   it("renders placeholder modes without crashing", () => {

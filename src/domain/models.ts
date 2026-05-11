@@ -1,6 +1,6 @@
-export type CardId = "fool" | "magician" | "high-priestess";
-export type StoryChapterId = "chapter-fool" | "chapter-magician" | "chapter-priestess";
-export type EncounterId = "fool-threshold" | "magician-workshop" | "priestess-garden";
+export type CardId = string;
+export type StoryChapterId = string;
+export type EncounterId = string;
 export type ScreenId =
   | "home"
   | "journey"
@@ -10,8 +10,8 @@ export type ScreenId =
   | "assembly"
   | "reference";
 
-export type CardGroup = "major";
-export type StoryRole = "threshold" | "tool" | "oracle";
+export type CardGroup = "major" | "minor";
+export type StoryRole = string;
 export type JourneyPhase = "idle" | "resolved" | "complete";
 export type Orientation = "upright" | "reversed";
 
@@ -19,7 +19,7 @@ export interface TarotCard {
   id: CardId;
   name: string;
   group: CardGroup;
-  keywords: string[];
+  keywords: readonly string[];
   lightMeaning: string;
   shadowMeaning: string;
   advice: string;
@@ -56,7 +56,7 @@ export interface StoryEncounter {
   situation: string;
   question: string;
   positionTitle: string;
-  choices: EncounterChoice[];
+  choices: readonly EncounterChoice[];
 }
 
 export interface PlayerState {
@@ -69,7 +69,7 @@ export interface PlayerState {
   lastEncounterId: EncounterId | null;
   lastChoiceCardId: CardId | null;
   lastFeedback: string | null;
-  completedEncounterIds: EncounterId[];
+  completedEncounterIds: readonly EncounterId[];
   updatedAt: string;
 }
 

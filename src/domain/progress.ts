@@ -67,7 +67,7 @@ export function getPrimaryActionLabel(player: PlayerState): string {
 }
 
 export function getHomeActionLabel(player: PlayerState): string {
-  return player.journeyPhase === "complete" ? "Повторить эпизод" : "Продолжить путь";
+  return player.journeyPhase === "complete" ? "Повторить путь" : "Продолжить путь";
 }
 
 export function getJourneyAdvanceActionLabel(player: PlayerState): string {
@@ -146,7 +146,7 @@ export function buildProgressSnapshot(player: PlayerState): ProgressSnapshot {
     encounterTitle: encounter.title,
     statusLabel:
       player.journeyPhase === "complete"
-        ? "Первый круг пути пройден"
+        ? "Путь старших арканов завершён"
         : player.journeyPhase === "resolved"
           ? "Сцена уже прожита"
           : "Путь ждёт первого шага",
