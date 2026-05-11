@@ -1,6 +1,8 @@
 export type CardId = string;
 export type StoryChapterId = string;
 export type EncounterId = string;
+export type JourneyStepId = string;
+export type MinorArcanaEventId = string;
 export type ScreenId =
   | "home"
   | "journey"
@@ -11,8 +13,25 @@ export type ScreenId =
   | "reference";
 
 export type CardGroup = "major" | "minor";
+export type MinorSuit = "wands" | "cups" | "swords" | "pentacles";
+export type MinorRank =
+  | "ace"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  | "10"
+  | "page"
+  | "knight"
+  | "queen"
+  | "king";
 export type StoryRole = string;
 export type JourneyPhase = "idle" | "resolved" | "complete";
+export type JourneyStepKind = "major" | "minor";
 export type Orientation = "upright" | "reversed";
 
 export interface TarotCard {
@@ -20,6 +39,10 @@ export interface TarotCard {
   name: string;
   group: CardGroup;
   keywords: readonly string[];
+  suit?: MinorSuit;
+  rank?: MinorRank;
+  elementMeaning?: string;
+  rankMeaning?: string;
   lightMeaning: string;
   shadowMeaning: string;
   advice: string;
@@ -59,17 +82,32 @@ export interface StoryEncounter {
   choices: readonly EncounterChoice[];
 }
 
+export interface MinorArcanaEvent {
+  id: MinorArcanaEventId;
+  majorChapterId: StoryChapterId;
+  cardId: CardId;
+  title: string;
+  situation: string;
+  question: string;
+  positionTitle: string;
+  choices: readonly EncounterChoice[];
+}
+
 export interface PlayerState {
-  version: 1;
+  version: 2;
   xp: number;
+  minorXp: number;
   currentChapterId: StoryChapterId;
   currentEncounterId: EncounterId;
+  currentStepKind: JourneyStepKind;
+  currentMinorEventId: MinorArcanaEventId | null;
   journeyPhase: JourneyPhase;
   lastChoiceId: string | null;
-  lastEncounterId: EncounterId | null;
+  lastEncounterId: JourneyStepId | null;
   lastChoiceCardId: CardId | null;
   lastFeedback: string | null;
   completedEncounterIds: readonly EncounterId[];
+  completedMinorEventIds: readonly MinorArcanaEventId[];
   updatedAt: string;
 }
 
@@ -79,9 +117,11 @@ export interface ProgressSnapshot {
   xpIntoLevel: number;
   xpToNextLevel: number;
   episodeProgressLabel: string;
+  minorEventProgressLabel: string;
   chapterTitle: string;
   chapterSummary: string;
   encounterTitle: string;
+  stepKindLabel: string;
   statusLabel: string;
   lastChoiceLabel: string;
   lastChoiceCardLabel: string;

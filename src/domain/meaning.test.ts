@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { encounters } from "../data/encounters";
 import { cards } from "../data/cards";
+import { encounters } from "../data/encounters";
+import { getMinorArcanaEvent } from "../data/minorArcanaEvents";
 import { composeEncounterInterpretation } from "./meaning";
 
 describe("composeEncounterInterpretation", () => {
@@ -44,6 +45,27 @@ describe("composeEncounterInterpretation", () => {
 
     expect(interpretation.title).toContain("прямая");
     expect(interpretation.summary).toContain(card.lightMeaning);
+    expect(interpretation.advice).toContain(choice.adviceOverride);
+  });
+
+  it("can compose interpretation for a minor event context", () => {
+    const card = cards.find((item) => item.id === "2-cups");
+    const minorEvent = getMinorArcanaEvent("empress-2-cups");
+    const choice = minorEvent?.choices[0];
+
+    expect(card).toBeDefined();
+    expect(minorEvent).toBeDefined();
+    expect(choice).toBeDefined();
+
+    if (!card || !minorEvent || !choice) {
+      return;
+    }
+
+    const interpretation = composeEncounterInterpretation(card, { positionTitle: minorEvent.positionTitle }, choice);
+
+    expect(interpretation.title).toContain(card.name);
+    expect(interpretation.summary).toContain(minorEvent.positionTitle);
+    expect(interpretation.summary).toContain(choice.summaryOverride);
     expect(interpretation.advice).toContain(choice.adviceOverride);
   });
 });

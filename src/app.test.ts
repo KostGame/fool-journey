@@ -1,7 +1,36 @@
 import { describe, expect, it } from "vitest";
-import { encounters } from "./data/encounters";
 import { renderAppShell } from "./app";
-import { advanceJourney, createInitialPlayerState, recordEncounterChoice } from "./domain/progress";
+import { encounters } from "./data/encounters";
+import { getMinorEventAfterChapter } from "./data/minorArcanaEvents";
+import { advanceJourney, createInitialPlayerState, recordEncounterChoice, recordMinorEventChoice } from "./domain/progress";
+
+function advanceToEncounter(targetEncounterId: string) {
+  let state = createInitialPlayerState();
+
+  for (const encounter of encounters) {
+    if (encounter.id === targetEncounterId) {
+      return state;
+    }
+
+    state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
+    state = advanceJourney(state);
+
+    while (state.currentStepKind === "minor") {
+      const minorEvent = getMinorEventAfterChapter(state.currentChapterId);
+
+      expect(minorEvent).toBeDefined();
+
+      if (!minorEvent) {
+        return state;
+      }
+
+      state = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} прожито`);
+      state = advanceJourney(state);
+    }
+  }
+
+  throw new Error(`Encounter not found: ${targetEncounterId}`);
+}
 
 describe("renderAppShell", () => {
   it("renders the home shell without crashing on an initial state", () => {
@@ -16,38 +45,102 @@ describe("renderAppShell", () => {
     expect(html).toContain("Живой расклад");
   });
 
-  it("renders the journey result screen after a choice", () => {
-    const initial = createInitialPlayerState();
-    const encounter = encounters[0];
+  it("shows a curated minor event between major chapters", () => {
+    const empressEncounter = encounters.find((encounter) => encounter.chapterId === "chapter-empress");
 
-    expect(encounter).toBeDefined();
+    expect(empressEncounter).toBeDefined();
 
-    if (!encounter) {
+    if (!empressEncounter) {
       return;
     }
 
-    const next = recordEncounterChoice(initial, encounter.id, encounter.choices[1], "Тестовый ответ");
+    const stateAtChapter = advanceToEncounter(empressEncounter.id);
+    const afterChoice = recordEncounterChoice(
+      stateAtChapter,
+      empressEncounter.id,
+      empressEncounter.choices[0],
+      `${empressEncounter.title} пройдена`
+    );
+    const onMinorStep = advanceJourney(afterChoice);
+    const minorEvent = getMinorEventAfterChapter(empressEncounter.chapterId);
+
+    expect(onMinorStep.currentStepKind).toBe("minor");
+    expect(minorEvent).toBeDefined();
+
+    if (!minorEvent) {
+      return;
+    }
+
     const html = renderAppShell({
       screen: "journey",
-      player: next
+      player: onMinorStep
     });
 
-    expect(html).toContain("Ответ собран");
-    expect(html).toContain("Тестовый ответ");
+    expect(html).toContain("Дорожное событие");
+    expect(html).toContain(minorEvent.title);
     expect(html).toContain("Продолжить путь");
   });
 
-  it("renders the completion screen after the full major arcana path", () => {
-    const path = encounters;
+  it("renders the minor event result screen after a choice", () => {
+    const empressEncounter = encounters.find((encounter) => encounter.chapterId === "chapter-empress");
 
-    expect(path.length).toBe(22);
+    expect(empressEncounter).toBeDefined();
 
+    if (!empressEncounter) {
+      return;
+    }
+
+    const stateAtChapter = advanceToEncounter(empressEncounter.id);
+    const afterChoice = recordEncounterChoice(
+      stateAtChapter,
+      empressEncounter.id,
+      empressEncounter.choices[0],
+      `${empressEncounter.title} пройдена`
+    );
+    const onMinorStep = advanceJourney(afterChoice);
+    const minorEvent = getMinorEventAfterChapter(empressEncounter.chapterId);
+
+    expect(minorEvent).toBeDefined();
+
+    if (!minorEvent) {
+      return;
+    }
+
+    const chosenMinor = recordMinorEventChoice(
+      onMinorStep,
+      minorEvent.id,
+      minorEvent.choices[0],
+      `${minorEvent.title} прожито`
+    );
+    const html = renderAppShell({
+      screen: "journey",
+      player: chosenMinor
+    });
+
+    expect(html).toContain("Дорожное событие прожито");
+    expect(html).toContain("После ответа дорога вернётся к большой главе.");
+    expect(html).toContain("Продолжить путь");
+  });
+
+  it("renders the completion screen after the full major and minor journey", () => {
     let state = createInitialPlayerState();
 
-    for (const encounter of path) {
-      const choice = encounter.choices[0];
-      state = recordEncounterChoice(state, encounter.id, choice, `${encounter.title} пройдена`);
+    for (const encounter of encounters) {
+      state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
       state = advanceJourney(state);
+
+      while (state.currentStepKind === "minor") {
+        const minorEvent = getMinorEventAfterChapter(state.currentChapterId);
+
+        expect(minorEvent).toBeDefined();
+
+        if (!minorEvent) {
+          break;
+        }
+
+        state = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} прожито`);
+        state = advanceJourney(state);
+      }
     }
 
     const html = renderAppShell({
@@ -57,27 +150,8 @@ describe("renderAppShell", () => {
 
     expect(html).toContain("Путь старших арканов завершён");
     expect(html).toContain("22 / 22");
-    expect(html).toContain("Дальше в игру будут вплетаться младшие арканы");
-  });
-
-  it("keeps the journey screen readable after any intermediate choice", () => {
-    const encounter = encounters[0];
-
-    expect(encounter).toBeDefined();
-
-    if (!encounter) {
-      return;
-    }
-
-    const next = recordEncounterChoice(createInitialPlayerState(), encounter.id, encounter.choices[1], "Тестовый ответ");
-    const html = renderAppShell({
-      screen: "journey",
-      player: next
-    });
-
-    expect(html).toContain("Ответ собран");
-    expect(html).toContain("Тестовый ответ");
-    expect(html).toContain("Продолжить путь");
+    expect(html).toContain("9 / 9");
+    expect(html).toContain("Масти дорожных событий");
   });
 
   it("renders placeholder modes without crashing", () => {

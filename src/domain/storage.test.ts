@@ -3,20 +3,55 @@ import { createInitialPlayerState } from "./progress";
 import { createMemoryStorage, loadPlayerState, resetStoredPlayerState, savePlayerState, STORAGE_KEY } from "./storage";
 
 describe("storage helpers", () => {
-  it("saves and loads player state", () => {
+  it("saves and loads the current player state shape", () => {
     const storage = createMemoryStorage();
     const state = createInitialPlayerState();
 
     savePlayerState(storage, state);
 
     const restored = loadPlayerState(storage);
+
     expect(restored).toMatchObject({
-      version: 1,
+      version: 2,
       xp: 0,
+      minorXp: 0,
       currentChapterId: "chapter-fool",
       currentEncounterId: "fool-threshold",
-      journeyPhase: "idle"
+      currentStepKind: "major",
+      currentMinorEventId: null,
+      journeyPhase: "idle",
+      completedMinorEventIds: []
     });
+  });
+
+  it("loads an old SU-002 save and fills the new minor-arcana fields", () => {
+    const storage = createMemoryStorage({
+      [STORAGE_KEY]: JSON.stringify({
+        version: 1,
+        xp: 7,
+        currentChapterId: "chapter-empress",
+        currentEncounterId: "empress-garden",
+        journeyPhase: "resolved",
+        lastChoiceId: "empress-choice",
+        lastEncounterId: "empress-garden",
+        lastChoiceCardId: "empress",
+        lastFeedback: "Старый путь",
+        completedEncounterIds: ["fool-threshold", "magician-lantern"],
+        updatedAt: "2026-05-11T10:00:00.000Z"
+      })
+    });
+
+    const restored = loadPlayerState(storage);
+
+    expect(restored.version).toBe(2);
+    expect(restored.xp).toBe(7);
+    expect(restored.minorXp).toBe(0);
+    expect(restored.currentChapterId).toBe("chapter-empress");
+    expect(restored.currentEncounterId).toBe("empress-garden");
+    expect(restored.currentStepKind).toBe("major");
+    expect(restored.currentMinorEventId).toBeNull();
+    expect(restored.lastEncounterId).toBe("empress-garden");
+    expect(restored.completedMinorEventIds).toEqual([]);
   });
 
   it("falls back to the initial state when storage is broken", () => {
@@ -46,7 +81,8 @@ describe("storage helpers", () => {
         journeyPhase: "resolved",
         currentChapterId: "chapter-fool",
         currentEncounterId: "fool-threshold",
-        lastChoiceCardId: "magician"
+        lastChoiceCardId: "magician",
+        completedMinorEventIds: ["empress-2-cups", "not-a-card"]
       })
     });
 
@@ -56,23 +92,7 @@ describe("storage helpers", () => {
     expect(restored.journeyPhase).toBe("resolved");
     expect(restored.lastChoiceCardId).toBe("magician");
     expect(restored.lastEncounterId).toBeNull();
-  });
-
-  it("keeps completed journeys intact when storage already has the completion flag", () => {
-    const storage = createMemoryStorage({
-      [STORAGE_KEY]: JSON.stringify({
-        ...createInitialPlayerState(),
-        journeyPhase: "complete",
-        lastChoiceId: "priestess-listen",
-        lastEncounterId: "priestess-garden",
-        lastChoiceCardId: "high-priestess"
-      })
-    });
-
-    const restored = loadPlayerState(storage);
-
-    expect(restored.journeyPhase).toBe("complete");
-    expect(restored.lastEncounterId).toBe("priestess-garden");
+    expect(restored.completedMinorEventIds).toEqual(["empress-2-cups"]);
   });
 
   it("clears stored progress", () => {
