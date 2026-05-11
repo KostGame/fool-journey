@@ -7,7 +7,7 @@ describe("composeEncounterInterpretation", () => {
   it("combines the base card meaning with an upright choice override", () => {
     const card = cards.find((item) => item.id === "fool");
     const encounter = encounters[0];
-    const choice = encounter?.choices.find((item) => item.id === "step");
+    const choice = encounter?.choices.find((item) => item.id === "fool-step");
 
     expect(card).toBeDefined();
     expect(encounter).toBeDefined();
@@ -29,8 +29,8 @@ describe("composeEncounterInterpretation", () => {
 
   it("uses the light meaning for a second upright choice", () => {
     const card = cards.find((item) => item.id === "high-priestess");
-    const encounter = encounters[0];
-    const choice = encounter?.choices.find((item) => item.id === "listen");
+    const encounter = encounters[2];
+    const choice = encounter?.choices.find((item) => item.id === "priestess-listen");
 
     expect(card).toBeDefined();
     expect(encounter).toBeDefined();

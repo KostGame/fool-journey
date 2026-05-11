@@ -7,7 +7,7 @@ export interface EncounterInterpretation {
   warning: string;
   dailyMeaning: string;
   questionToSelf: string;
-  keywords: string[];
+  keywords: readonly string[];
   orientationLabel: string;
   choiceLabel: string;
 }

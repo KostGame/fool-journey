@@ -67,62 +67,48 @@ describe("progress helpers", () => {
     expect(getPrimaryActionLabel(next)).toBe("Посмотреть результат");
   });
 
-  it("switches the home action to replay when the core loop is complete", () => {
-    const fool = encounters[0];
-    const magician = encounters[1];
-    const priestess = encounters[2];
+  it("switches the home action to replay when the full path is complete", () => {
+    const path = encounters;
+    let state = createInitialPlayerState();
 
-    expect(fool).toBeDefined();
-    expect(magician).toBeDefined();
-    expect(priestess).toBeDefined();
-
-    if (!fool || !magician || !priestess) {
-      return;
+    for (const encounter of path) {
+      state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
+      state = advanceJourney(state);
     }
 
-    const afterFoolChoice = recordEncounterChoice(createInitialPlayerState(), fool.id, fool.choices[0], "Шут пройден");
-    const afterFoolAdvance = advanceJourney(afterFoolChoice);
-    const afterMagicianChoice = recordEncounterChoice(afterFoolAdvance, magician.id, magician.choices[0], "Маг пройден");
-    const afterMagicianAdvance = advanceJourney(afterMagicianChoice);
-    const afterPriestessChoice = recordEncounterChoice(afterMagicianAdvance, priestess.id, priestess.choices[0], "Жрица пройдена");
-
-    expect(getHomeActionLabel(afterPriestessChoice)).toBe("Продолжить путь");
-    expect(getHomeActionLabel(advanceJourney(afterPriestessChoice))).toBe("Повторить эпизод");
+    expect(state.journeyPhase).toBe("complete");
+    expect(getHomeActionLabel(state)).toBe("Повторить путь");
   });
 
-  it("advances the core loop from Fool to Magician, then to Priestess and completion", () => {
-    const fool = encounters[0];
-    const magician = encounters[1];
-    const priestess = encounters[2];
+  it("advances through all 22 major arcana in order and completes on the World", () => {
+    const path = encounters;
+    let state = createInitialPlayerState();
 
-    expect(fool).toBeDefined();
-    expect(magician).toBeDefined();
-    expect(priestess).toBeDefined();
+    expect(path.length).toBe(22);
+    expect(path[0]?.id).toBe("fool-threshold");
+    expect(path[path.length - 1]?.id).toBe("world-circle");
 
-    if (!fool || !magician || !priestess) {
-      return;
+    for (const [index, encounter] of path.entries()) {
+      const previousState = state;
+      state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
+
+      expect(state.completedEncounterIds).toContain(encounter.id);
+
+      state = advanceJourney(state);
+
+      if (index < path.length - 1) {
+        expect(state.journeyPhase).toBe("idle");
+        expect(state.currentEncounterId).toBe(path[index + 1]!.id);
+      }
+
+      if (index === path.length - 1) {
+        expect(state.journeyPhase).toBe("complete");
+        expect(state.currentChapterId).toBe("chapter-world");
+        expect(state.currentEncounterId).toBe("world-circle");
+        expect(previousState.xp).toBeGreaterThanOrEqual(0);
+      }
     }
 
-    const afterFoolChoice = recordEncounterChoice(createInitialPlayerState(), fool.id, fool.choices[0], "Шут пройден");
-    const afterFoolAdvance = advanceJourney(afterFoolChoice);
-
-    expect(afterFoolAdvance.journeyPhase).toBe("idle");
-    expect(afterFoolAdvance.currentChapterId).toBe("chapter-magician");
-    expect(afterFoolAdvance.currentEncounterId).toBe(magician.id);
-
-    const afterMagicianChoice = recordEncounterChoice(afterFoolAdvance, magician.id, magician.choices[0], "Маг пройден");
-    const afterMagicianAdvance = advanceJourney(afterMagicianChoice);
-
-    expect(afterMagicianAdvance.journeyPhase).toBe("idle");
-    expect(afterMagicianAdvance.currentChapterId).toBe("chapter-priestess");
-    expect(afterMagicianAdvance.currentEncounterId).toBe(priestess.id);
-
-    const afterPriestessChoice = recordEncounterChoice(afterMagicianAdvance, priestess.id, priestess.choices[0], "Жрица пройдена");
-    const completed = advanceJourney(afterPriestessChoice);
-
-    expect(completed.journeyPhase).toBe("complete");
-    expect(completed.currentChapterId).toBe("chapter-priestess");
-    expect(completed.currentEncounterId).toBe(priestess.id);
-    expect(completed.completedEncounterIds).toEqual([fool.id, magician.id, priestess.id]);
+    expect(state.completedEncounterIds).toHaveLength(22);
   });
 });
