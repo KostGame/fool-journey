@@ -63,8 +63,13 @@ export function normalizePlayerState(value: unknown): PlayerState {
   const currentEncounterId = isEncounterId(value.currentEncounterId) ? value.currentEncounterId : fallback.currentEncounterId;
   const lastChoiceCardId = isCardId(value.lastChoiceCardId) ? value.lastChoiceCardId : null;
   const lastChoiceId = typeof value.lastChoiceId === "string" && value.lastChoiceId.trim().length > 0 ? value.lastChoiceId : null;
+  const lastEncounterId = isEncounterId(value.lastEncounterId)
+    ? value.lastEncounterId
+    : lastChoiceId
+      ? currentEncounterId
+      : null;
   const lastFeedback = typeof value.lastFeedback === "string" && value.lastFeedback.trim().length > 0 ? value.lastFeedback : null;
-  const journeyPhase = value.journeyPhase === "resolved" ? "resolved" : "idle";
+  const journeyPhase = value.journeyPhase === "resolved" || value.journeyPhase === "complete" ? value.journeyPhase : "idle";
 
   return {
     version: 1,
@@ -73,6 +78,7 @@ export function normalizePlayerState(value: unknown): PlayerState {
     currentEncounterId,
     journeyPhase,
     lastChoiceId,
+    lastEncounterId,
     lastChoiceCardId,
     lastFeedback,
     completedEncounterIds: normalizeEncounterIds(value.completedEncounterIds),

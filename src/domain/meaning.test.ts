@@ -27,7 +27,7 @@ describe("composeEncounterInterpretation", () => {
     expect(interpretation.questionToSelf).toBe(card.questionToSelf);
   });
 
-  it("uses shadow meaning for a reversed choice", () => {
+  it("uses the light meaning for a second upright choice", () => {
     const card = cards.find((item) => item.id === "high-priestess");
     const encounter = encounters[0];
     const choice = encounter?.choices.find((item) => item.id === "listen");
@@ -42,8 +42,8 @@ describe("composeEncounterInterpretation", () => {
 
     const interpretation = composeEncounterInterpretation(card, encounter, choice);
 
-    expect(interpretation.title).toContain("перевёрнутая");
-    expect(interpretation.summary).toContain(card.shadowMeaning);
-    expect(interpretation.advice).toContain(card.warning);
+    expect(interpretation.title).toContain("прямая");
+    expect(interpretation.summary).toContain(card.lightMeaning);
+    expect(interpretation.advice).toContain(choice.adviceOverride);
   });
 });
