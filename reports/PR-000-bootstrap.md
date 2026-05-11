@@ -6,9 +6,9 @@
 
 ## 2. Ветка и PR
 
-- PR: не открыт. Попытки публикации из этого окружения упёрлись в отсутствие доступа на запись в `KostGame/fool-journey`.
-- Ветка: `feature/pr-000-bootstrap`.
-- Коммит: `87eeb53` (`Bootstrap Path of the Fool`), основной кодовый коммит реализации.
+- PR: [#1](https://github.com/KostGame/fool-journey/pull/1) (Draft)
+- Ветка: `feature/pr-000-bootstrap`
+- Коммит: `0b9caaa44d03dd21cd41e7b4dcc6c6c766a4d94f` (head ветки на момент создания PR)
 
 ## 3. Что реализовано
 
@@ -74,7 +74,6 @@
 
 ## 6. Что не сделано
 
-- Не открыт Draft PR.
 - Не опубликован GitHub Pages.
 - Не добавлены 78 карт.
 - Не сделаны сложные расклады.
@@ -85,10 +84,7 @@
 
 ## 7. Риски и ограничения
 
-- `git push` по HTTPS возвращает `repository not found`.
-- `git push` по SSH возвращает `Permission denied (publickey)`.
-- GitHub App-операции по репозиторию возвращают `404`, поэтому Draft PR создать не удалось.
-- Pages пока настроен только workflow-ом и проявится после появления доступа к репозиторию и публикации на `main`.
+- Draft PR открыт, но Pages workflow ещё не запускался.
 - В проекте пока только три стартовые карты.
 - Это ранний прототип, а не законченная игра.
 
@@ -103,15 +99,15 @@
 
 ## 9. Можно ли переводить PR в Ready for review
 
-- Нет. Draft PR не открыт, а публикация ветки в GitHub из текущего окружения заблокирована.
+- Пока нет: Draft PR создан, но ручная проверка визуальных изменений ещё требуется.
 
 ## Дополнительно
 
-- PR URL: отсутствует.
-- Ветка: `feature/pr-000-bootstrap`.
-- Коммит: `87eeb53`.
+- PR URL: https://github.com/KostGame/fool-journey/pull/1
+- Ветка: `feature/pr-000-bootstrap`
+- Коммит: `0b9caaa44d03dd21cd41e7b4dcc6c6c766a4d94f`
 - Pages URL: `https://kostgame.github.io/fool-journey/`
-- Статус Pages: workflow подготовлен, публикация не запускалась.
+- Статус Pages: workflow подготовлен, публикация ещё не запускалась.
 - Какие проверки запускались: `npm install`, `npm run check`, `npm test`, `npm run build`, `git diff --check`.
 - Какие режимы пока placeholder: `Живой расклад`, `Карта дня`, `Аркана-диалоги`, `Собери трактовку`, `Справочник`.
-- Можно ли переводить PR в Ready for review: нет.
+- Можно ли переводить PR в Ready for review: пока нет.
