@@ -6,15 +6,15 @@
 
 ## 2. Ветка и PR
 
-- PR: https://github.com/KostGame/fool-journey/pull/1
+- PR: https://github.com/KostGame/fool-journey/pull/2
 - Ветка: `feature/pr-000-bootstrap`
-- Коммит: `07c3859d9d5569970e1359b0018f943fe70953cb`
+- Коммит: `dc0236b8254fbfbe1f2eb5d3dcdbe1fc826e54d6`
 - Pages URL: https://kostgame.github.io/fool-journey/
 - Статус Pages: workflow подготовлен, публикация пока не запускалась
 - Какие проверки запускались: `npm install`, `npm run check`, `npm test`, `npm run build`, `git diff --check`
 - CI fix: `package-lock.json` добавлен и подтверждён через `npm install`.
 - Какие режимы пока placeholder: `Живой расклад`, `Карта дня`, `Аркана-диалоги`, `Собери трактовку`, `Справочник`
-- Можно ли переводить PR в Ready for review: да, после прохождения CI нужно перевести PR #1 в обычный Open PR.
+- Можно ли переводить PR в Ready for review: да, PR #2 уже открыт как обычный Open PR.
 
 ## 3. Что реализовано
 
@@ -84,7 +84,7 @@
 - Не добавлены сложные расклады.
 - Не добавлены backend, авторизация, база данных и внешние API.
 - Не опубликован GitHub Pages.
-- PR #1 ещё нужно перевести из Draft в обычный Open PR после успешного CI.
+- Старый PR #1 не удалось переоткрыть после force-push, поэтому открыт новый обычный PR #2 на той же ветке.
 
 ## 7. Риски и ограничения
 
@@ -104,4 +104,4 @@
 
 ## 9. Можно ли переводить PR в Ready for review
 
-Да, после успешного CI. PR #1 нужно перевести в обычный Open PR.
+Да. Рабочий PR #2 уже открыт как обычный Open PR.
