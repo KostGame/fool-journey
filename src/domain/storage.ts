@@ -159,6 +159,8 @@ function isMinorArcanaEventId(value: unknown): value is MinorArcanaEventId {
 export function isSafeScreenId(value: unknown): value is ScreenId {
   return (
     value === "home" ||
+    value === "scene" ||
+    value === "result" ||
     value === "journey" ||
     value === "live-spread" ||
     value === "card-of-day" ||

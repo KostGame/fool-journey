@@ -85,7 +85,7 @@ export function getHomeActionLabel(player: PlayerState): string {
 }
 
 export function getJourneyAdvanceActionLabel(player: PlayerState): string {
-  return isJourneyComplete(player) ? "К главному экрану" : "Продолжить историю";
+  return isJourneyComplete(player) ? "К главному экрану" : "Дальше";
 }
 
 export function isJourneyComplete(player: PlayerState): boolean {
