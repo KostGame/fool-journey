@@ -204,6 +204,7 @@ button:focus-visible {
 }
 
 .progress-panel,
+.route-panel,
 .home-panel,
 .mode-panel,
 .journey-panel,
@@ -279,6 +280,55 @@ button:focus-visible {
   border-radius: 1rem;
   background: rgba(225, 175, 103, 0.08);
   border: 1px solid rgba(225, 175, 103, 0.15);
+}
+
+.route-panel {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.route-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.route-chip {
+  min-height: 3rem;
+  border-radius: 0.95rem;
+  padding: 0.65rem 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.route-chip.is-major {
+  border-color: rgba(225, 175, 103, 0.24);
+  background: rgba(225, 175, 103, 0.12);
+}
+
+.route-chip.is-minor {
+  border-color: rgba(145, 210, 168, 0.24);
+  background: rgba(145, 210, 168, 0.1);
+}
+
+.route-chip.is-finish {
+  border-color: rgba(144, 185, 255, 0.26);
+  background: rgba(144, 185, 255, 0.1);
+}
+
+.route-summary {
+  margin: 0;
+  padding: 0.95rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  line-height: 1.55;
 }
 
 .home-actions,
@@ -580,6 +630,10 @@ button:focus-visible {
   .mode-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .route-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 920px) {
@@ -592,6 +646,7 @@ button:focus-visible {
   }
 
   .progress-panel,
+  .route-panel,
   .home-panel,
   .mode-panel,
   .journey-panel,

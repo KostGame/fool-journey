@@ -4,7 +4,7 @@
 
 ## Статус
 
-Текущая линия разработки: `SU-003` - первый слой minor events поверх полного пути старших арканов.
+Текущая линия разработки: `SU-004` - первый слой minor events поверх полного пути старших арканов.
 
 ## Что уже есть
 
@@ -16,6 +16,7 @@
 - Сохранение прогресса в `localStorage`.
 - Placeholder-режимы для будущих экранов.
 - GitHub Actions CI и GitHub Pages.
+- Сконструирован первый playable route: маршрут, result screens, reset/replay и local smoke-test Pages.
 
 ## Команды
 

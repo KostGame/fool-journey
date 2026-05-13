@@ -43,6 +43,8 @@ describe("renderAppShell", () => {
     expect(html).toContain("Продолжить путь");
     expect(html).toContain("0 / 22");
     expect(html).toContain("Живой расклад");
+    expect(html).toContain("0 / 31");
+    expect(html).toContain("Маршрут");
   });
 
   it("shows a curated minor event between major chapters", () => {
@@ -118,8 +120,9 @@ describe("renderAppShell", () => {
     });
 
     expect(html).toContain("Дорожное событие прожито");
-    expect(html).toContain("После ответа дорога вернётся к большой главе.");
+    expect(html).toContain("Маршрут");
     expect(html).toContain("Продолжить путь");
+    expect(html).toContain("После ответа дорога вернётся к большой главе.");
   });
 
   it("renders the completion screen after the full major and minor journey", () => {
@@ -152,6 +155,7 @@ describe("renderAppShell", () => {
     expect(html).toContain("22 / 22");
     expect(html).toContain("9 / 9");
     expect(html).toContain("Масти дорожных событий");
+    expect(html).toContain("Повторить путь");
   });
 
   it("renders placeholder modes without crashing", () => {

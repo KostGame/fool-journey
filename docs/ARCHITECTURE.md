@@ -56,3 +56,11 @@
 - Без авторизации.
 - Без серверного хранения.
 - Без тяжёлых зависимостей.
+
+
+## SU-004
+
+- `ProgressSnapshot` дополнен полями route progress и remaining steps, чтобы home, result screens и completion не дублировали логику подсчёта.
+- `route-panel` на home screen показывает ближайшую точку пути и различает major/minor/finish шаги без новых режимов.
+- Completion screen использует отдельный `restart` action для повторного прохождения, а reset остаётся явным действием с подтверждением.
+- Manual smoke-test Pages строится вокруг mobile-first маршрута: открыть, пройти, завершить, перезапустить, сбросить и проверить сохранение.

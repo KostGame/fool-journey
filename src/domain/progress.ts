@@ -233,6 +233,8 @@ export function buildProgressSnapshot(player: PlayerState): ProgressSnapshot {
   const lastChoiceCard = player.lastChoiceCardId ? getCard(player.lastChoiceCardId) : undefined;
   const episodeTotal = storyChapters.filter((chapterItem) => chapterItem.encounterId).length;
   const episodeCompleted = Math.min(player.completedEncounterIds.length, episodeTotal);
+  const routeTotal = episodeTotal + minorArcanaEvents.length;
+  const routeCompleted = Math.min(episodeCompleted + player.completedMinorEventIds.length, routeTotal);
 
   return {
     level: getPlayerLevel(player.xp),
@@ -241,6 +243,8 @@ export function buildProgressSnapshot(player: PlayerState): ProgressSnapshot {
     xpToNextLevel: getXpToNextLevel(player.xp),
     episodeProgressLabel: `${episodeCompleted} / ${episodeTotal}`,
     minorEventProgressLabel: getMinorEventProgressLabel(player),
+    routeProgressLabel: `${routeCompleted} / ${routeTotal}`,
+    remainingJourneyStepsLabel: `${Math.max(0, routeTotal - routeCompleted)}`,
     chapterTitle: chapter.title,
     chapterSummary: chapter.summary,
     encounterTitle: activeStep.title,

@@ -53,6 +53,8 @@ describe("progress helpers", () => {
     expect(state.lastEncounterId).toBeNull();
     expect(state.completedMinorEventIds).toHaveLength(0);
     expect(state.updatedAt).toMatch(/T/);
+    expect(buildProgressSnapshot(state).routeProgressLabel).toBe("0 / 31");
+    expect(buildProgressSnapshot(state).remainingJourneyStepsLabel).toBe("31");
   });
 
   it("increments experience and records the selected choice", () => {
@@ -174,5 +176,7 @@ describe("progress helpers", () => {
     expect(snapshot.statusLabel).toBe("Путь старших арканов завершён");
     expect(snapshot.episodeProgressLabel).toBe("22 / 22");
     expect(snapshot.minorEventProgressLabel).toBe("9 / 9");
+    expect(snapshot.routeProgressLabel).toBe("31 / 31");
+    expect(snapshot.remainingJourneyStepsLabel).toBe("0");
   });
 });
