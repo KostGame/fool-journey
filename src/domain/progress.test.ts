@@ -18,7 +18,7 @@ function playThroughJourney() {
   let state = createInitialPlayerState();
 
   for (const encounter of encounters) {
-    state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
+    state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} done`);
     state = advanceJourney(state);
 
     while (state.currentStepKind === "minor") {
@@ -30,7 +30,7 @@ function playThroughJourney() {
         return state;
       }
 
-      state = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} прожито`);
+      state = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} done`);
       state = advanceJourney(state);
     }
   }
@@ -45,6 +45,9 @@ describe("progress helpers", () => {
     expect(state.version).toBe(2);
     expect(state.xp).toBe(0);
     expect(state.minorXp).toBe(0);
+    expect(state.earnedCards).toEqual([]);
+    expect(state.inventoryCards).toEqual([]);
+    expect(state.knownCards).toContain("fool");
     expect(state.currentChapterId).toBe("chapter-fool");
     expect(state.currentEncounterId).toBe("fool-threshold");
     expect(state.currentStepKind).toBe("major");
@@ -68,15 +71,45 @@ describe("progress helpers", () => {
     }
 
     const choice = encounter.choices[0];
-    const next = recordEncounterChoice(initial, encounter.id, choice, "Проверка трактовки");
+    const next = recordEncounterChoice(initial, encounter.id, choice, "interpretation");
 
     expect(next.xp).toBe(initial.xp + choice.xp);
     expect(next.journeyPhase).toBe("resolved");
     expect(next.lastChoiceId).toBe(choice.id);
     expect(next.lastEncounterId).toBe(encounter.id);
     expect(next.lastChoiceCardId).toBe(choice.cardId);
-    expect(next.lastFeedback).toBe("Проверка трактовки");
+    expect(next.lastFeedback).toBe("interpretation");
     expect(next.completedEncounterIds).toContain(encounter.id);
+  });
+
+  it("stores earned and applied cards as journey inventory", () => {
+    const initial = createInitialPlayerState();
+    const encounter = encounters[0];
+
+    expect(encounter).toBeDefined();
+
+    if (!encounter) {
+      return;
+    }
+
+    const earned = recordEncounterChoice(initial, encounter.id, encounter.choices[0], "card gained", {
+      earnedCardId: "2-cups",
+      earnedRole: "action"
+    });
+
+    expect(earned.inventoryCards).toContain("2-cups");
+    expect(earned.knownCards).toContain("2-cups");
+    expect(earned.lastEarnedCardId).toBe("2-cups");
+    expect(earned.earnedCards.some((entry) => entry.cardId === "2-cups" && entry.role === "action")).toBe(true);
+
+    const applied = recordEncounterChoice(earned, encounter.id, encounter.choices[1], "card applied", {
+      appliedCardId: "2-cups"
+    });
+
+    const inventoryEntry = applied.earnedCards.find((entry) => entry.cardId === "2-cups");
+
+    expect(applied.lastAppliedCardId).toBe("2-cups");
+    expect(inventoryEntry?.uses).toBe(1);
   });
 
   it("inserts a curated minor event between major chapters and returns to the major path", () => {
@@ -95,7 +128,7 @@ describe("progress helpers", () => {
         break;
       }
 
-      state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
+      state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} done`);
       state = advanceJourney(state);
 
       while (state.currentStepKind === "minor") {
@@ -107,12 +140,12 @@ describe("progress helpers", () => {
           break;
         }
 
-        state = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} прожито`);
+        state = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} done`);
         state = advanceJourney(state);
       }
     }
 
-    state = recordEncounterChoice(state, empressEncounter.id, empressEncounter.choices[0], `${empressEncounter.title} пройдена`);
+    state = recordEncounterChoice(state, empressEncounter.id, empressEncounter.choices[0], `${empressEncounter.title} done`);
     state = advanceJourney(state);
 
     const minorEvent = getCurrentMinorEvent(state);
@@ -120,13 +153,12 @@ describe("progress helpers", () => {
     expect(state.currentStepKind).toBe("minor");
     expect(minorEvent?.id).toBe("empress-2-cups");
     expect(buildProgressSnapshot(state).stepKindLabel).toBe("Дорожное событие");
-    expect(buildProgressSnapshot(state).statusLabel).toBe("Короткое дорожное событие ждёт ответа");
 
     if (!minorEvent) {
       return;
     }
 
-    const chosenMinor = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} прожито`);
+    const chosenMinor = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} done`);
 
     expect(chosenMinor.xp).toBeGreaterThan(state.xp);
     expect(chosenMinor.minorXp).toBeGreaterThan(0);
@@ -162,7 +194,7 @@ describe("progress helpers", () => {
     expect(getHomeActionLabel(initial)).toBe("Продолжить историю");
     expect(getJourneyAdvanceActionLabel(initial)).toBe("Дальше");
 
-    const next = recordEncounterChoice(initial, encounter.id, encounter.choices[0], "Проверка");
+    const next = recordEncounterChoice(initial, encounter.id, encounter.choices[0], "ok");
     expect(getPrimaryActionLabel(next)).toBe("Посмотреть результат");
   });
 

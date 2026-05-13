@@ -6,7 +6,9 @@ import { storyChapters } from "../data/storyChapters";
 import { createInitialPlayerState } from "./progress";
 import type {
   CardId,
+  EarnedCard,
   EncounterId,
+  InventoryCardRole,
   MinorArcanaEventId,
   PlayerState,
   ScreenId,
@@ -89,6 +91,9 @@ export function normalizePlayerState(value: unknown): PlayerState {
     version: 2,
     xp: normalizePositiveInteger(value.xp),
     minorXp: normalizePositiveInteger(value.minorXp),
+    earnedCards: normalizeEarnedCards(value.earnedCards),
+    inventoryCards: normalizeCardIds(value.inventoryCards),
+    knownCards: normalizeCardIds(value.knownCards),
     currentChapterId,
     currentEncounterId,
     currentStepKind,
@@ -98,6 +103,9 @@ export function normalizePlayerState(value: unknown): PlayerState {
     lastEncounterId,
     lastChoiceCardId,
     lastFeedback,
+    lastEarnedCardId: isCardId(value.lastEarnedCardId) ? value.lastEarnedCardId : null,
+    lastAppliedCardId: isCardId(value.lastAppliedCardId) ? value.lastAppliedCardId : null,
+    lastHelperCardId: isCardId(value.lastHelperCardId) ? value.lastHelperCardId : null,
     completedEncounterIds: normalizeEncounterIds(value.completedEncounterIds),
     completedMinorEventIds: normalizeMinorEventIds(value.completedMinorEventIds),
     updatedAt: normalizeTimestamp(value.updatedAt)
@@ -134,6 +142,60 @@ function normalizeMinorEventIds(value: unknown): MinorArcanaEventId[] {
   }
 
   return value.filter((entry): entry is MinorArcanaEventId => isMinorArcanaEventId(entry));
+}
+
+function normalizeCardIds(value: unknown): CardId[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const cardsSeen = new Set<CardId>();
+
+  for (const entry of value) {
+    if (isCardId(entry)) {
+      cardsSeen.add(entry);
+    }
+  }
+
+  return [...cardsSeen];
+}
+
+function normalizeEarnedCards(value: unknown): EarnedCard[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const normalized: EarnedCard[] = [];
+  const now = new Date().toISOString();
+
+  for (const entry of value) {
+    if (!isRecord(entry)) {
+      continue;
+    }
+
+    if (!isCardId(entry.cardId) || !isJourneyStepId(entry.sourceStepId)) {
+      continue;
+    }
+
+    normalized.push({
+      cardId: entry.cardId,
+      earnedAt:
+        typeof entry.earnedAt === "string" && !Number.isNaN(Date.parse(entry.earnedAt))
+          ? entry.earnedAt
+          : now,
+      sourceStepId: entry.sourceStepId,
+      role: normalizeInventoryCardRole(entry.role),
+      uses: normalizePositiveInteger(entry.uses)
+    });
+  }
+
+  return normalized;
+}
+
+function normalizeInventoryCardRole(value: unknown): InventoryCardRole {
+  return value === "action" || value === "resource" || value === "helper" || value === "lesson"
+    ? value
+    : "lesson";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

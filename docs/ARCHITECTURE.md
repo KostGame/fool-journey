@@ -11,6 +11,7 @@
 ## Доменная модель
 
 - `PlayerState` хранит XP, текущую главу, текущий шаг, результат выбора и прогресс по minor events.
+- `PlayerState` также хранит минимальный слой инвентаря карт: `earnedCards`, `inventoryCards`, `knownCards`, `lastEarnedCardId`, `lastAppliedCardId`, `lastHelperCardId`.
 - `TarotCard` описывает базовую карту, а для младших арканов добавляет `suit`, `rank`, `elementMeaning` и `rankMeaning`.
 - `StoryChapter` задаёт большую главу пути.
 - `StoryEncounter` описывает сцену старшего аркана.
@@ -79,3 +80,10 @@
 - Flow экрана пути живёт как отдельный слой: `home → scene → result → next scene`.
 - `result` открывается как отдельный экран после выбора, а `advance` переводит игрока к следующей сцене сверху.
 - `localStorage` и fallback-совместимость остаются без изменений, чтобы старые сохранения не ломались.
+
+## SU-008
+
+- `DialogueChoice` расширен полями инвентарной механики: `earnedCardId`, `earnedRole`, `requiredCardId`, `appliedCardId`.
+- В `progress.ts` добавлен слой `ChoiceInventoryEffect`: выдача карты, применение карты и учёт `uses` в `earnedCards`.
+- В `storage.ts` добавлена нормализация новых инвентарных полей и мягкая миграция старых сохранений.
+- В `app.ts` выборы в dialogue-сценах фильтруются по `requiredCardId`, а на result-экране показываются короткие статусы `Получено`, `Применено`, `Помощник`.

@@ -5,8 +5,11 @@ import { getMinorArcanaEvent, getMinorEventAfterChapter, minorArcanaEvents } fro
 import { getPlayableChapter, getStoryChapter, storyChapters } from "../data/storyChapters";
 import type {
   CardId,
+  ChoiceInventoryEffect,
+  EarnedCard,
   EncounterChoice,
   EncounterId,
+  InventoryCardRole,
   MinorArcanaEvent,
   MinorArcanaEventId,
   PlayerState,
@@ -14,9 +17,102 @@ import type {
 } from "./models";
 
 const XP_PER_LEVEL = 2;
+const DEFAULT_EARNED_ROLE: InventoryCardRole = "lesson";
+
+interface InventoryUpdateResult {
+  earnedCards: readonly EarnedCard[];
+  inventoryCards: readonly CardId[];
+  knownCards: readonly CardId[];
+  lastEarnedCardId: CardId | null;
+  lastAppliedCardId: CardId | null;
+  lastHelperCardId: CardId | null;
+}
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function appendUniqueCardIds(base: readonly CardId[], extra: readonly CardId[]): readonly CardId[] {
+  const next = new Set(base);
+
+  for (const cardId of extra) {
+    if (cardId) {
+      next.add(cardId);
+    }
+  }
+
+  return [...next];
+}
+
+function updateInventoryFromChoice(
+  player: PlayerState,
+  sourceStepId: EncounterId | MinorArcanaEventId,
+  choiceCardId: CardId,
+  inventoryEffect?: ChoiceInventoryEffect,
+): InventoryUpdateResult {
+  let earnedCards = [...player.earnedCards];
+  let inventoryCards = [...player.inventoryCards];
+  let knownCards = appendUniqueCardIds(player.knownCards, [choiceCardId]);
+
+  let lastEarnedCardId: CardId | null = null;
+  let lastAppliedCardId: CardId | null = null;
+  let lastHelperCardId: CardId | null = null;
+
+  if (inventoryEffect?.earnedCardId) {
+    const role = inventoryEffect.earnedRole ?? DEFAULT_EARNED_ROLE;
+    const cardId = inventoryEffect.earnedCardId;
+
+    if (!earnedCards.some((entry) => entry.cardId === cardId)) {
+      earnedCards = [
+        ...earnedCards,
+        {
+          cardId,
+          earnedAt: nowIso(),
+          sourceStepId,
+          role,
+          uses: 0
+        }
+      ];
+    }
+
+    inventoryCards = [...appendUniqueCardIds(inventoryCards, [cardId])];
+    knownCards = appendUniqueCardIds(knownCards, [cardId]);
+    lastEarnedCardId = cardId;
+  }
+
+  if (inventoryEffect?.appliedCardId) {
+    const cardId = inventoryEffect.appliedCardId;
+    const earnedCardIndex = earnedCards.findIndex((entry) => entry.cardId === cardId);
+
+    if (earnedCardIndex >= 0) {
+      const current = earnedCards[earnedCardIndex];
+      earnedCards = [
+        ...earnedCards.slice(0, earnedCardIndex),
+        {
+          ...current,
+          uses: current.uses + 1
+        },
+        ...earnedCards.slice(earnedCardIndex + 1)
+      ];
+    }
+
+    knownCards = appendUniqueCardIds(knownCards, [cardId]);
+    lastAppliedCardId = cardId;
+  }
+
+  if (inventoryEffect?.helperCardId) {
+    knownCards = appendUniqueCardIds(knownCards, [inventoryEffect.helperCardId]);
+    lastHelperCardId = inventoryEffect.helperCardId;
+  }
+
+  return {
+    earnedCards,
+    inventoryCards,
+    knownCards,
+    lastEarnedCardId,
+    lastAppliedCardId,
+    lastHelperCardId
+  };
 }
 
 function formatSavedAt(isoDate: string): string {
@@ -40,6 +136,9 @@ export function createInitialPlayerState(): PlayerState {
     version: 2,
     xp: 0,
     minorXp: 0,
+    earnedCards: [],
+    inventoryCards: [],
+    knownCards: [chapter.cardId],
     currentChapterId: chapter.id,
     currentEncounterId: encounter.id,
     currentStepKind: "major",
@@ -49,6 +148,9 @@ export function createInitialPlayerState(): PlayerState {
     lastEncounterId: null,
     lastChoiceCardId: null,
     lastFeedback: null,
+    lastEarnedCardId: null,
+    lastAppliedCardId: null,
+    lastHelperCardId: null,
     completedEncounterIds: [],
     completedMinorEventIds: [],
     updatedAt: nowIso()
@@ -113,14 +215,19 @@ export function recordEncounterChoice(
   encounterId: EncounterId,
   choice: EncounterChoice,
   feedback: string,
+  inventoryEffect?: ChoiceInventoryEffect,
 ): PlayerState {
   const completedEncounterIds = player.completedEncounterIds.includes(encounterId)
     ? player.completedEncounterIds
     : [...player.completedEncounterIds, encounterId];
+  const inventoryUpdate = updateInventoryFromChoice(player, encounterId, choice.cardId, inventoryEffect);
 
   return {
     ...player,
     xp: Math.max(0, player.xp + choice.xp),
+    earnedCards: inventoryUpdate.earnedCards,
+    inventoryCards: inventoryUpdate.inventoryCards,
+    knownCards: inventoryUpdate.knownCards,
     journeyPhase: "resolved",
     currentStepKind: "major",
     currentMinorEventId: null,
@@ -128,6 +235,9 @@ export function recordEncounterChoice(
     lastEncounterId: encounterId,
     lastChoiceCardId: choice.cardId,
     lastFeedback: feedback,
+    lastEarnedCardId: inventoryUpdate.lastEarnedCardId,
+    lastAppliedCardId: inventoryUpdate.lastAppliedCardId,
+    lastHelperCardId: inventoryUpdate.lastHelperCardId,
     completedEncounterIds,
     updatedAt: nowIso()
   };
@@ -138,15 +248,20 @@ export function recordMinorEventChoice(
   minorEventId: MinorArcanaEventId,
   choice: EncounterChoice,
   feedback: string,
+  inventoryEffect?: ChoiceInventoryEffect,
 ): PlayerState {
   const completedMinorEventIds = player.completedMinorEventIds.includes(minorEventId)
     ? player.completedMinorEventIds
     : [...player.completedMinorEventIds, minorEventId];
+  const inventoryUpdate = updateInventoryFromChoice(player, minorEventId, choice.cardId, inventoryEffect);
 
   return {
     ...player,
     xp: Math.max(0, player.xp + choice.xp),
     minorXp: Math.max(0, player.minorXp + choice.xp),
+    earnedCards: inventoryUpdate.earnedCards,
+    inventoryCards: inventoryUpdate.inventoryCards,
+    knownCards: inventoryUpdate.knownCards,
     journeyPhase: "resolved",
     currentStepKind: "minor",
     currentMinorEventId: minorEventId,
@@ -154,6 +269,9 @@ export function recordMinorEventChoice(
     lastEncounterId: minorEventId,
     lastChoiceCardId: choice.cardId,
     lastFeedback: feedback,
+    lastEarnedCardId: inventoryUpdate.lastEarnedCardId,
+    lastAppliedCardId: inventoryUpdate.lastAppliedCardId,
+    lastHelperCardId: inventoryUpdate.lastHelperCardId,
     completedMinorEventIds,
     updatedAt: nowIso()
   };

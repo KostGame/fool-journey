@@ -20,6 +20,7 @@ import {
 import { loadPlayerState, resetStoredPlayerState, savePlayerState } from "./domain/storage";
 import type {
   AppViewState,
+  ChoiceInventoryEffect,
   DialogueChoice,
   DialogueLine,
   DialogueScene,
@@ -109,6 +110,14 @@ export function mountGameApp(root: HTMLElement, storage: StorageLike = window.lo
     if (action === "choice") {
       const choiceId = actionButton.dataset.choiceId;
       const minorEvent = getCurrentMinorEvent(player);
+      const dialogueScene = getActiveDialogueScene(player);
+      const dialogueChoice = dialogueScene?.choices.find((item) => item.id === choiceId);
+
+      if (dialogueChoice && !isDialogueChoiceAvailable(player, dialogueChoice)) {
+        return;
+      }
+
+      const inventoryEffect = toChoiceInventoryEffect(dialogueChoice);
 
       if (player.currentStepKind === "minor") {
         const choice = minorEvent?.choices.find((item) => item.id === choiceId);
@@ -124,7 +133,7 @@ export function mountGameApp(root: HTMLElement, storage: StorageLike = window.lo
         }
 
         const interpretation = composeEncounterInterpretation(card, minorEvent, choice);
-        player = recordMinorEventChoice(player, minorEvent.id, choice, interpretation.summary);
+        player = recordMinorEventChoice(player, minorEvent.id, choice, interpretation.summary, inventoryEffect);
       } else {
         const encounter = getEncounter(player.currentEncounterId);
         const choice = encounter?.choices.find((item) => item.id === choiceId);
@@ -140,7 +149,7 @@ export function mountGameApp(root: HTMLElement, storage: StorageLike = window.lo
         }
 
         const interpretation = composeEncounterInterpretation(card, encounter, choice);
-        player = recordEncounterChoice(player, encounter.id, choice, interpretation.summary);
+        player = recordEncounterChoice(player, encounter.id, choice, interpretation.summary, inventoryEffect);
       }
 
       savePlayerState(storage, player);
@@ -362,8 +371,42 @@ function getHomeJourneyScreenId(player: PlayerState): ScreenId {
   return player.journeyPhase === "resolved" ? "result" : "scene";
 }
 
+function getActiveDialogueScene(player: PlayerState): DialogueScene | undefined {
+  if (player.currentStepKind === "minor") {
+    const minorEvent = getCurrentMinorEvent(player);
+    return minorEvent ? getDialogueSceneByMinorEventId(minorEvent.id) : undefined;
+  }
+
+  return getDialogueSceneByEncounterId(player.currentEncounterId);
+}
+
+function isDialogueChoiceAvailable(player: PlayerState, choice: DialogueChoice): boolean {
+  if (!choice.requiredCardId) {
+    return true;
+  }
+
+  return player.inventoryCards.includes(choice.requiredCardId);
+}
+
+function toChoiceInventoryEffect(choice: DialogueChoice | undefined): ChoiceInventoryEffect | undefined {
+  if (!choice) {
+    return undefined;
+  }
+
+  if (!choice.earnedCardId && !choice.appliedCardId && !choice.helperCardId) {
+    return undefined;
+  }
+
+  return {
+    earnedCardId: choice.earnedCardId,
+    earnedRole: choice.earnedRole,
+    appliedCardId: choice.appliedCardId,
+    helperCardId: choice.helperCardId
+  };
+}
+
 function renderDialogueSceneScreen(
-  _player: PlayerState,
+  player: PlayerState,
   chapter: ReturnType<typeof getStoryChapter>,
   stepTitle: string,
   scene: DialogueScene,
@@ -404,10 +447,15 @@ function renderDialogueSceneScreen(
         }
 
         <p class="dialogue-next-step">${escapeHtml(scene.nextStepLabel)}</p>
+        ${
+          player.inventoryCards.length > 0
+            ? `<p class="inventory-note">Карты Шута: ${escapeHtml(player.inventoryCards.map((cardId) => getCard(cardId)?.name ?? cardId).join(" · "))}</p>`
+            : ""
+        }
       </article>
 
       <div class="choice-grid">
-        ${scene.choices.map((choice) => renderDialogueChoiceButton(choice)).join("")}
+        ${scene.choices.map((choice) => renderDialogueChoiceButton(player, choice)).join("")}
       </div>
 
       <div class="journey-actions">
@@ -455,6 +503,7 @@ function renderDialogueResultScreen(
           <span>${escapeHtml(progress.stepKindLabel)}</span>
           <span>${escapeHtml(scene.nextStepLabel)}</span>
         </div>
+        ${renderChoiceOutcomeBadges(player)}
 
         <dl class="reading-grid">
           <div>
@@ -525,22 +574,62 @@ function renderDialogueLine(line: DialogueLine): string {
   `;
 }
 
-function renderDialogueChoiceButton(choice: DialogueChoice): string {
+function renderDialogueChoiceButton(player: PlayerState, choice: DialogueChoice): string {
   const card = getCard(choice.cardId);
+  const isAvailable = isDialogueChoiceAvailable(player, choice);
+  const earnedCard = choice.earnedCardId ? getCard(choice.earnedCardId) : undefined;
+  const appliedCard = choice.appliedCardId ? getCard(choice.appliedCardId) : undefined;
+  const helperCard = choice.helperCardId ? getCard(choice.helperCardId) : undefined;
+  const requiredCard = choice.requiredCardId ? getCard(choice.requiredCardId) : undefined;
 
   if (!card) {
     return "";
   }
 
   return `
-    <button class="choice-card dialogue-choice card-${card.id}" type="button" data-action="choice" data-choice-id="${escapeAttribute(choice.id)}">
+    <button
+      class="choice-card dialogue-choice card-${card.id} ${isAvailable ? "" : "is-locked"}"
+      type="button"
+      data-action="choice"
+      data-choice-id="${escapeAttribute(choice.id)}"
+      ${isAvailable ? "" : "disabled"}
+    >
       <span class="choice-label">${escapeHtml(choice.label)}</span>
       <span class="choice-tone">${escapeHtml(getDialogueToneLabel(choice.tone))}</span>
-      <span class="choice-card-name">${escapeHtml(card.name)} · ${escapeHtml(choice.orientation === "upright" ? "прямая" : "перевёрнутая")}</span>
+      <span class="choice-card-name">${escapeHtml(card.name)} · ${escapeHtml(choice.orientation === "upright" ? "������" : "�����������")}</span>
       <span class="choice-note">${escapeHtml(choice.buttonNote)}</span>
+      ${earnedCard ? `<span class="choice-inventory-tag">��������: ${escapeHtml(earnedCard.name)}</span>` : ""}
+      ${appliedCard ? `<span class="choice-inventory-tag">���������: ${escapeHtml(appliedCard.name)}</span>` : ""}
+      ${helperCard ? `<span class="choice-inventory-tag">��������: ${escapeHtml(helperCard.name)}</span>` : ""}
+      ${!isAvailable && requiredCard ? `<span class="choice-lock-note">����� ��������: ${escapeHtml(requiredCard.name)}</span>` : ""}
       <span class="choice-keywords">${card.keywords.map((keyword) => escapeHtml(keyword)).join(" · ")}</span>
     </button>
   `;
+}
+
+function renderChoiceOutcomeBadges(player: PlayerState): string {
+  const badges: string[] = [];
+
+  if (player.lastEarnedCardId) {
+    const card = getCard(player.lastEarnedCardId);
+    badges.push(`<span>��������: ${escapeHtml(card?.name ?? player.lastEarnedCardId)}</span>`);
+  }
+
+  if (player.lastAppliedCardId) {
+    const card = getCard(player.lastAppliedCardId);
+    badges.push(`<span>���������: ${escapeHtml(card?.name ?? player.lastAppliedCardId)}</span>`);
+  }
+
+  if (player.lastHelperCardId) {
+    const card = getCard(player.lastHelperCardId);
+    badges.push(`<span>��������: ${escapeHtml(card?.name ?? player.lastHelperCardId)}</span>`);
+  }
+
+  if (badges.length === 0) {
+    return "";
+  }
+
+  return `<div class="chips chips-status">${badges.join("")}</div>`;
 }
 
 function getDialogueToneLabel(tone?: DialogueChoice["tone"]): string {
