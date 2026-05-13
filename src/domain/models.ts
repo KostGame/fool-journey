@@ -33,6 +33,9 @@ export type StoryRole = string;
 export type JourneyPhase = "idle" | "resolved" | "complete";
 export type JourneyStepKind = "major" | "minor";
 export type Orientation = "upright" | "reversed";
+export type DialogueSceneType = "major-scene" | "minor-event";
+export type DialogueSpeaker = "narrator" | "fool" | "arcana" | "helper";
+export type DialogueChoiceTone = "action" | "feeling" | "thought" | "resource";
 
 export interface TarotCard {
   id: CardId;
@@ -70,6 +73,10 @@ export interface EncounterChoice {
   buttonNote: string;
   summaryOverride: string;
   adviceOverride: string;
+  tone?: DialogueChoiceTone;
+  feedback?: string;
+  lesson?: string;
+  helperCardId?: CardId;
 }
 
 export interface StoryEncounter {
@@ -91,6 +98,40 @@ export interface MinorArcanaEvent {
   question: string;
   positionTitle: string;
   choices: readonly EncounterChoice[];
+}
+
+export interface DialogueLine {
+  speaker: DialogueSpeaker;
+  text: string;
+  name?: string;
+}
+
+export interface DialogueChoice extends EncounterChoice {
+  tone?: DialogueChoiceTone;
+  feedback: string;
+  lesson: string;
+  helperCardId?: CardId;
+}
+
+export interface DialogueScene {
+  id: string;
+  type: DialogueSceneType;
+  sourceStepId: string;
+  majorCardId?: CardId;
+  minorCardId?: CardId;
+  helperCardId?: CardId;
+  locationTitle: string;
+  locationText: string;
+  narratorText: string;
+  speakerName: string;
+  speakerRole: string;
+  dialogueLines: readonly DialogueLine[];
+  foolThought: string;
+  choices: readonly DialogueChoice[];
+  resultText: string;
+  lessonText: string;
+  nextStepLabel: string;
+  helperText?: string;
 }
 
 export interface PlayerState {

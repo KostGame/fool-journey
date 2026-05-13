@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- SU-006: добавлен dialogue-based text quest vertical slice для Пути Шута.
 - SU-005: исправлен mobile mode selector layout на главном экране.
 - SU-004: отполирован playable journey UX: маршрут, прогресс, result screens, replay/reset и Pages smoke-test.
 - SU-003: добавлен слой minor events поверх полного пути старших арканов.

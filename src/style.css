@@ -491,7 +491,7 @@ button:focus-visible {
 }
 
 .choice-grid {
-  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .choice-card {
@@ -506,6 +506,106 @@ button:focus-visible {
 
 .choice-card:hover {
   border-color: rgba(225, 175, 103, 0.36);
+}
+
+.dialogue-card,
+.dialogue-result {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.dialogue-log {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.dialogue-line {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.8rem 0.85rem;
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dialogue-line-narrator {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dialogue-line-arcana {
+  border-color: rgba(225, 175, 103, 0.24);
+  background: rgba(225, 175, 103, 0.09);
+}
+
+.dialogue-line-helper {
+  border-color: rgba(145, 210, 168, 0.22);
+  background: rgba(145, 210, 168, 0.08);
+}
+
+.dialogue-line-fool {
+  border-color: rgba(144, 185, 255, 0.2);
+  background: rgba(144, 185, 255, 0.07);
+}
+
+.dialogue-speaker {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(247, 239, 230, 0.66);
+}
+
+.dialogue-line p,
+.dialogue-narrator,
+.dialogue-thought,
+.dialogue-next-step,
+.dialogue-reaction {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.dialogue-narrator {
+  color: rgba(247, 239, 230, 0.82);
+}
+
+.dialogue-thought {
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(144, 185, 255, 0.18);
+  background: rgba(144, 185, 255, 0.08);
+}
+
+.dialogue-next-step {
+  color: var(--accent);
+}
+
+.helper-callout {
+  padding: 0.85rem;
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.helper-callout h4 {
+  margin: 0.2rem 0 0.35rem;
+  font-size: 1rem;
+}
+
+.dialogue-choice {
+  gap: 0.45rem;
+}
+
+.choice-tone {
+  display: inline-flex;
+  align-self: start;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(247, 239, 230, 0.84);
+  font-size: 0.74rem;
+}
+
+.dialogue-result .card-summary {
+  font-size: 1rem;
 }
 
 .choice-label {
@@ -630,7 +730,7 @@ button:focus-visible {
   }
 
   .choice-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .mode-grid {
@@ -662,6 +762,10 @@ button:focus-visible {
   .journey-panel,
   .placeholder-panel {
     padding: 1.15rem;
+  }
+
+  .choice-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

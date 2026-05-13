@@ -74,18 +74,18 @@ export function getXpToNextLevel(xp: number): number {
 
 export function getPrimaryActionLabel(player: PlayerState): string {
   if (player.journeyPhase === "complete") {
-    return "Посмотреть итог";
+    return "Повторить историю";
   }
 
-  return player.journeyPhase === "resolved" ? "Посмотреть результат" : "Продолжить путь";
+  return player.journeyPhase === "resolved" ? "Посмотреть результат" : "Продолжить историю";
 }
 
 export function getHomeActionLabel(player: PlayerState): string {
-  return player.journeyPhase === "complete" ? "Повторить путь" : "Продолжить путь";
+  return player.journeyPhase === "complete" ? "Повторить историю" : "Продолжить историю";
 }
 
 export function getJourneyAdvanceActionLabel(player: PlayerState): string {
-  return isJourneyComplete(player) ? "К главному экрану" : "Продолжить путь";
+  return isJourneyComplete(player) ? "К главному экрану" : "Продолжить историю";
 }
 
 export function isJourneyComplete(player: PlayerState): boolean {

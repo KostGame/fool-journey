@@ -1,5 +1,6 @@
 import { getCard } from "./data/cards";
 import { encounters, getEncounter } from "./data/encounters";
+import { getDialogueSceneByEncounterId, getDialogueSceneByMinorEventId } from "./data/dialogueScenes";
 import { getMinorEventAfterChapter, minorArcanaEvents } from "./data/minorArcanaEvents";
 import { getJourneyStepById } from "./data/journeySteps";
 import { storyChapters, getStoryChapter } from "./data/storyChapters";
@@ -17,13 +18,22 @@ import {
   resetPlayerState,
 } from "./domain/progress";
 import { loadPlayerState, resetStoredPlayerState, savePlayerState } from "./domain/storage";
-import type { AppViewState, EncounterChoice, PlayerState, ScreenId, StorageLike } from "./domain/models";
+import type {
+  AppViewState,
+  DialogueChoice,
+  DialogueLine,
+  DialogueScene,
+  EncounterChoice,
+  PlayerState,
+  ScreenId,
+  StorageLike
+} from "./domain/models";
 
 const modeCatalog = [
   {
     id: "journey",
     title: "Путь Шута",
-    description: "Сюжетная сцена, выбор и мягкая трактовка ответа."
+    description: "Диалоговый квест, где арканы говорят, а выборы ведут историю."
   },
   {
     id: "live-spread",
@@ -187,7 +197,7 @@ export function renderAppShell(view: AppViewState): string {
   const homeActionLabel = getHomeActionLabel(view.player);
   const nextCheckpointLabel = getNextCheckpointLabel(view.player);
   const progressNote = activeMinorEvent
-    ? `${activeMinorEvent.situation} После ответа путь вернётся к большой главе.`
+    ? `${activeMinorEvent.situation} После ответа история продолжится.`
     : lastChoiceCard
       ? lastChoiceCard.dailyMeaning
       : chapter.prompt;
@@ -364,6 +374,206 @@ function getNextCheckpointLabel(player: PlayerState): string {
 
   return "Большая глава: " + chapter.title;
 }
+
+function renderDialogueSceneScreen(
+  player: PlayerState,
+  chapter: ReturnType<typeof getStoryChapter>,
+  stepTitle: string,
+  scene: DialogueScene,
+): string {
+  if (!chapter) {
+    return renderCorruptedState();
+  }
+
+  const card = getCard(scene.majorCardId ?? scene.minorCardId ?? chapter.cardId);
+
+  if (!card) {
+    return renderCorruptedState();
+  }
+
+  return `
+    <section class="panel journey-panel dialogue-panel">
+      <div class="section-head">
+        <p class="eyebrow">${escapeHtml(scene.type === "major-scene" ? "Глава пути" : "Дорожное событие")}</p>
+        <h2>${escapeHtml(scene.locationTitle)}</h2>
+        <p>${escapeHtml(scene.locationText)}</p>
+      </div>
+
+      ${renderChapterTrail(player)}
+
+      <article class="dialogue-card card-${card.id}">
+        <p class="card-kicker">${escapeHtml(scene.speakerRole)}</p>
+        <h3>${escapeHtml(stepTitle)}</h3>
+        <p class="dialogue-narrator">${escapeHtml(scene.narratorText)}</p>
+
+        <div class="dialogue-log">
+          ${scene.dialogueLines.map((line) => renderDialogueLine(line)).join("")}
+        </div>
+
+        <p class="dialogue-thought">${escapeHtml(scene.foolThought)}</p>
+
+        ${
+          scene.helperCardId
+            ? renderDialogueHelperCallout(scene)
+            : ""
+        }
+
+        <p class="dialogue-next-step">${escapeHtml(scene.nextStepLabel)}</p>
+      </article>
+
+      <div class="choice-grid">
+        ${scene.choices.map((choice) => renderDialogueChoiceButton(choice)).join("")}
+      </div>
+
+      <div class="journey-actions">
+        <button class="ghost-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderDialogueResultScreen(
+  player: PlayerState,
+  chapter: ReturnType<typeof getStoryChapter>,
+  stepTitle: string,
+  scene: DialogueScene,
+): string {
+  if (!chapter) {
+    return renderCorruptedState();
+  }
+
+  const choice = scene.choices.find((item) => item.id === player.lastChoiceId);
+  const card = getCard(scene.majorCardId ?? scene.minorCardId ?? chapter.cardId);
+
+  if (!choice || !card) {
+    return renderCorruptedState();
+  }
+
+  const progress = buildProgressSnapshot(player);
+
+  return `
+    <section class="panel journey-panel dialogue-panel">
+      <div class="section-head">
+        <p class="eyebrow">${escapeHtml(scene.type === "major-scene" ? "Глава пути" : "Дорожное событие")}</p>
+        <h2>${escapeHtml(scene.locationTitle)}</h2>
+        <p>${escapeHtml(scene.locationText)}</p>
+      </div>
+
+      ${renderChapterTrail(player)}
+
+      <article class="result-card dialogue-result card-${card.id}">
+        <p class="card-kicker">Ответ собран</p>
+        <h3>${escapeHtml(scene.resultText)}</h3>
+        <p class="card-summary">${escapeHtml(player.lastFeedback ?? scene.resultText)}</p>
+        <p class="dialogue-reaction">${escapeHtml(choice.feedback)} ${escapeHtml(choice.lesson)}</p>
+
+        <div class="chips">
+          <span>${escapeHtml(stepTitle)}</span>
+          <span>${escapeHtml(progress.stepKindLabel)}</span>
+          <span>${escapeHtml(scene.nextStepLabel)}</span>
+        </div>
+
+        <dl class="reading-grid">
+          <div>
+            <dt>Урок</dt>
+            <dd>${escapeHtml(scene.lessonText)}</dd>
+          </div>
+          <div>
+            <dt>Совет карты</dt>
+            <dd>${escapeHtml(choice.adviceOverride)}</dd>
+          </div>
+          <div>
+            <dt>XP</dt>
+            <dd>+${choice.xp} XP</dd>
+          </div>
+          <div>
+            <dt>Следующий шаг</dt>
+            <dd>${escapeHtml(scene.nextStepLabel)}</dd>
+          </div>
+        </dl>
+
+        ${scene.helperCardId ? renderDialogueHelperCallout(scene) : ""}
+      </article>
+
+      <div class="journey-actions">
+        <button class="primary-button" type="button" data-action="advance">
+          ${escapeHtml(getJourneyAdvanceActionLabel(player))}
+        </button>
+      </div>
+    </section>
+  `;
+}
+
+function renderDialogueHelperCallout(scene: DialogueScene): string {
+  if (!scene.helperCardId) {
+    return "";
+  }
+
+  const helperCard = getCard(scene.helperCardId);
+
+  if (!helperCard) {
+    return "";
+  }
+
+  return `
+    <aside class="helper-callout card-${helperCard.id}">
+      <p class="card-kicker">Помощник</p>
+      <h4>${escapeHtml(helperCard.name)}</h4>
+      <p>${escapeHtml(scene.helperText ?? "Помощник помогает прочитать ситуацию мягче и точнее.")}</p>
+    </aside>
+  `;
+}
+
+function renderDialogueLine(line: DialogueLine): string {
+  const label =
+    line.speaker === "narrator"
+      ? "Рассказчик"
+      : line.speaker === "fool"
+        ? line.name ?? "Шут"
+        : line.speaker === "helper"
+          ? line.name ?? "Помощник"
+          : line.name ?? "Аркан";
+
+  return `
+    <div class="dialogue-line dialogue-line-${line.speaker}">
+      <span class="dialogue-speaker">${escapeHtml(label)}</span>
+      <p>${escapeHtml(line.text)}</p>
+    </div>
+  `;
+}
+
+function renderDialogueChoiceButton(choice: DialogueChoice): string {
+  const card = getCard(choice.cardId);
+
+  if (!card) {
+    return "";
+  }
+
+  return `
+    <button class="choice-card dialogue-choice card-${card.id}" type="button" data-action="choice" data-choice-id="${escapeAttribute(choice.id)}">
+      <span class="choice-label">${escapeHtml(choice.label)}</span>
+      <span class="choice-tone">${escapeHtml(getDialogueToneLabel(choice.tone))}</span>
+      <span class="choice-card-name">${escapeHtml(card.name)} · ${escapeHtml(choice.orientation === "upright" ? "прямая" : "перевёрнутая")}</span>
+      <span class="choice-note">${escapeHtml(choice.buttonNote)}</span>
+      <span class="choice-keywords">${card.keywords.map((keyword) => escapeHtml(keyword)).join(" · ")}</span>
+    </button>
+  `;
+}
+
+function getDialogueToneLabel(tone?: DialogueChoice["tone"]): string {
+  switch (tone) {
+    case "feeling":
+      return "Чувство";
+    case "thought":
+      return "Мысль";
+    case "resource":
+      return "Ресурс";
+    case "action":
+    default:
+      return "Действие";
+  }
+}
+
 function renderJourneyScreen(player: PlayerState): string {
   if (player.journeyPhase === "complete") {
     return renderJourneyCompletionScreen(player);
@@ -372,10 +582,26 @@ function renderJourneyScreen(player: PlayerState): string {
   const chapter = getStoryChapter(player.currentChapterId) ?? storyChapters[0];
   const encounter = getEncounter(player.currentEncounterId) ?? encounters[0];
   const minorEvent = getCurrentMinorEvent(player);
+  const dialogueScene =
+    player.currentStepKind === "minor"
+      ? minorEvent
+        ? getDialogueSceneByMinorEventId(minorEvent.id)
+        : undefined
+      : encounter
+        ? getDialogueSceneByEncounterId(encounter.id)
+        : undefined;
 
   if (player.currentStepKind === "minor") {
     if (!minorEvent) {
       return renderCorruptedState();
+    }
+
+    if (dialogueScene) {
+      if (player.journeyPhase === "resolved" && player.lastChoiceId && player.lastChoiceCardId && player.lastFeedback) {
+        return renderDialogueResultScreen(player, chapter, minorEvent.title, dialogueScene);
+      }
+
+      return renderDialogueSceneScreen(player, chapter, minorEvent.title, dialogueScene);
     }
 
     if (player.journeyPhase === "resolved" && player.lastChoiceId && player.lastChoiceCardId && player.lastFeedback) {
@@ -383,6 +609,18 @@ function renderJourneyScreen(player: PlayerState): string {
     }
 
     return renderMinorJourneyScreen(player, chapter, minorEvent);
+  }
+
+  if (dialogueScene) {
+    if (player.journeyPhase === "resolved" && player.lastChoiceId && player.lastChoiceCardId && player.lastFeedback) {
+      if (!encounter) {
+        return renderCorruptedState();
+      }
+
+      return renderDialogueResultScreen(player, chapter, encounter.title, dialogueScene);
+    }
+
+    return renderDialogueSceneScreen(player, chapter, encounter.title, dialogueScene);
   }
 
   if (player.journeyPhase === "resolved" && player.lastChoiceId && player.lastChoiceCardId && player.lastFeedback) {
@@ -647,7 +885,7 @@ function renderMinorJourneyResultScreen(
           </div>
         </dl>
 
-        <p class="result-feedback">${escapeHtml(player.lastFeedback ?? "")} После ответа дорога вернётся к большой главе.</p>
+        <p class="result-feedback">${escapeHtml(player.lastFeedback ?? "")} После ответа история продолжится.</p>
         <p class="xp-badge">+${choice.xp} XP · ${escapeHtml(choice.buttonNote)}</p>
       </article>
 
@@ -732,7 +970,7 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
       </article>
 
       <div class="journey-actions">
-        <button class="primary-button" type="button" data-action="restart">Повторить путь</button>
+        <button class="primary-button" type="button" data-action="restart">Повторить историю</button>
         <button class="ghost-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
       </div>
     </section>
