@@ -45,6 +45,9 @@ describe("renderAppShell", () => {
     expect(html).toContain("Живой расклад");
     expect(html).toContain("0 / 31");
     expect(html).toContain("Маршрут");
+    expect(html).toContain("route-strip");
+    expect(html).toContain("mode-grid");
+    expect(html).toContain("home-actions");
   });
 
   it("renders the dialogue quest slice at the start of the journey", () => {

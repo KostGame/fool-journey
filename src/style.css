@@ -173,7 +173,7 @@ button:focus-visible {
 
 .hero-tag {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0.5rem;
   align-items: stretch;
 }
@@ -240,7 +240,7 @@ button:focus-visible {
 .progress-stats {
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0.75rem;
 }
 
@@ -249,7 +249,10 @@ button:focus-visible {
 .encounter-card,
 .placeholder-card,
 .result-card,
-.choice-card {
+.choice-card,
+.mode-card,
+.route-chip {
+  min-width: 0;
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
@@ -272,6 +275,7 @@ button:focus-visible {
   margin: 0.2rem 0 0;
   color: var(--text);
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .progress-note {
@@ -289,7 +293,7 @@ button:focus-visible {
 
 .route-strip {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0.5rem;
 }
 
@@ -304,6 +308,8 @@ button:focus-visible {
   color: var(--text);
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
+  overflow-wrap: anywhere;
+  line-height: 1.4;
 }
 
 .route-chip.is-major {
@@ -334,7 +340,7 @@ button:focus-visible {
 .home-actions,
 .journey-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.75rem;
   margin-top: 1rem;
 }
@@ -356,6 +362,7 @@ button:focus-visible {
   border-radius: 999px;
   padding: 0.9rem 1.15rem;
   min-height: 3rem;
+  min-width: 0;
 }
 
 .primary-button {
@@ -436,7 +443,7 @@ button:focus-visible {
 }
 
 .trail-grid {
-  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   margin: 1rem 0;
 }
 
@@ -471,12 +478,15 @@ button:focus-visible {
 .result-card h3 {
   margin: 0;
   font-size: 1.1rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .trail-card p,
 .trail-card small {
   color: var(--muted);
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .encounter-card,
@@ -502,6 +512,7 @@ button:focus-visible {
   color: var(--text);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  min-width: 0;
 }
 
 .choice-card:hover {
@@ -611,6 +622,8 @@ button:focus-visible {
 .choice-label {
   font-size: 1rem;
   font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .choice-card-name,
@@ -619,6 +632,7 @@ button:focus-visible {
   color: rgba(247, 239, 230, 0.74);
   line-height: 1.4;
   font-size: 0.92rem;
+  overflow-wrap: anywhere;
 }
 
 .result-card {
@@ -716,6 +730,10 @@ button:focus-visible {
     gap: 1.1rem;
   }
 
+  .hero-tag {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .hero {
     grid-template-columns: minmax(0, 1.2fr) minmax(15rem, 0.8fr);
     align-items: end;
@@ -743,6 +761,13 @@ button:focus-visible {
 
   .route-strip {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .home-actions,
+  .journey-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
   }
 }
 
