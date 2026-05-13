@@ -156,7 +156,7 @@ export function mountGameApp(root: HTMLElement, storage: StorageLike = window.lo
     }
 
     if (action === "reset") {
-      if (!window.confirm("Сбросить прогресс Шута?")) {
+      if (!window.confirm("Сбросить прогресс и начать путь заново?")) {
         return;
       }
 
@@ -185,6 +185,7 @@ export function renderAppShell(view: AppViewState): string {
   const lastChoiceCard = getLastChoiceCard(view.player);
   const activeMinorEvent = getCurrentMinorEvent(view.player);
   const homeActionLabel = getHomeActionLabel(view.player);
+  const nextCheckpointLabel = getNextCheckpointLabel(view.player);
   const progressNote = activeMinorEvent
     ? `${activeMinorEvent.situation} После ответа путь вернётся к большой главе.`
     : lastChoiceCard
@@ -249,6 +250,14 @@ export function renderAppShell(view: AppViewState): string {
             <dd>${escapeHtml(progress.minorEventProgressLabel)}</dd>
           </div>
           <div>
+            <dt>Маршрут</dt>
+            <dd>${escapeHtml(progress.routeProgressLabel)}</dd>
+          </div>
+          <div>
+            <dt>Осталось</dt>
+            <dd>${escapeHtml(progress.remainingJourneyStepsLabel)} шагов</dd>
+          </div>
+          <div>
             <dt>Опыт</dt>
             <dd>${progress.xp} XP</dd>
           </div>
@@ -261,6 +270,23 @@ export function renderAppShell(view: AppViewState): string {
         <p class="progress-note">${escapeHtml(progressNote)}</p>
       </section>
 
+      <section class="panel route-panel" aria-labelledby="route-title">
+        <div class="section-head">
+          <p class="eyebrow">Маршрут</p>
+          <h2 id="route-title">${escapeHtml(nextCheckpointLabel)}</h2>
+          <p>Большие главы остаются крупными остановками, а младшие арканы встраиваются как короткие дорожные события между ними.</p>
+        </div>
+
+        <div class="route-strip" aria-hidden="true">
+          <span class="route-chip is-major">Большая глава</span>
+          <span class="route-chip is-minor">Дорожное событие</span>
+          <span class="route-chip is-finish">Финиш пути</span>
+        </div>
+
+        <p class="route-summary">
+          ${escapeHtml(progress.routeProgressLabel)} · осталось ${escapeHtml(progress.remainingJourneyStepsLabel)} шагов · ${escapeHtml(progress.stepKindLabel.toLowerCase())}.
+        </p>
+      </section>
       <section class="panel home-panel" aria-labelledby="home-title">
         <div class="section-head">
           <p class="eyebrow">Главный экран</p>
@@ -279,7 +305,7 @@ export function renderAppShell(view: AppViewState): string {
           >
             ${escapeHtml(homeActionLabel)}
           </button>
-          <button class="ghost-button" type="button" data-action="reset">Сбросить прогресс</button>
+          <button class="ghost-button" type="button" data-action="reset">Сбросить и начать заново</button>
         </div>
 
         <p class="prototype-note">
@@ -323,6 +349,21 @@ function renderScreen(view: AppViewState): string {
   return renderPlaceholderScreen(view.screen);
 }
 
+function getNextCheckpointLabel(player: PlayerState): string {
+  if (player.journeyPhase === "complete") {
+    return "Путь завершён";
+  }
+
+  if (player.currentStepKind === "minor") {
+    const minorEvent = getCurrentMinorEvent(player);
+
+    return minorEvent ? "Дорожное событие: " + minorEvent.title : "Дорожное событие";
+  }
+
+  const chapter = getStoryChapter(player.currentChapterId) ?? storyChapters[0];
+
+  return "Большая глава: " + chapter.title;
+}
 function renderJourneyScreen(player: PlayerState): string {
   if (player.journeyPhase === "complete") {
     return renderJourneyCompletionScreen(player);
@@ -691,7 +732,8 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
       </article>
 
       <div class="journey-actions">
-        <button class="primary-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
+        <button class="primary-button" type="button" data-action="restart">Повторить путь</button>
+        <button class="ghost-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
       </div>
     </section>
   `;

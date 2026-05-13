@@ -118,6 +118,8 @@ export interface ProgressSnapshot {
   xpToNextLevel: number;
   episodeProgressLabel: string;
   minorEventProgressLabel: string;
+  routeProgressLabel: string;
+  remainingJourneyStepsLabel: string;
   chapterTitle: string;
   chapterSummary: string;
   encounterTitle: string;
