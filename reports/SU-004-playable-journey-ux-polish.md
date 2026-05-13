@@ -7,7 +7,11 @@ SU-004 отполировал первый playable prototype игры: глав
 ## 2. Ветка и PR
 
 - Ветка: `feature/su-004-playable-journey-ux-polish`
-- PR: будет открыт обычным Open PR после финальных проверок
+- PR: [#11](https://github.com/KostGame/fool-journey/pull/11)
+- Commit: `6906f34`
+- Merge commit: `8b97db615d03225f6651c1124e3cdd1834db1e7f`
+- Pages URL: [https://kostgame.github.io/fool-journey/](https://kostgame.github.io/fool-journey/)
+- Статус Pages: `built`
 
 ## 3. Что реализовано
 
@@ -39,6 +43,7 @@ SU-004 отполировал первый playable prototype игры: глав
 - `npm test`
 - `npm run build`
 - `git diff --check`
+- GitHub Actions CI on PR #11: `pass`
 
 ## 6. Что не сделано
 
@@ -61,7 +66,8 @@ SU-004 отполировал первый playable prototype игры: глав
 
 ## 9. Статус merge
 
-- PR: не открыт
-- Смёржен ли PR: нет
-- Pages URL: `https://kostgame.github.io/fool-journey/`
-- Статус Pages: будет обновлён после публикации PR
+- PR: [#11](https://github.com/KostGame/fool-journey/pull/11)
+- Смёржен ли PR: да
+- Merge commit: `8b97db615d03225f6651c1124e3cdd1834db1e7f`
+- Pages URL: [https://kostgame.github.io/fool-journey/](https://kostgame.github.io/fool-journey/)
+- Статус Pages: `built`
