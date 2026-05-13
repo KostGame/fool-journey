@@ -160,7 +160,7 @@ describe("progress helpers", () => {
 
     expect(getPrimaryActionLabel(initial)).toBe("Продолжить историю");
     expect(getHomeActionLabel(initial)).toBe("Продолжить историю");
-    expect(getJourneyAdvanceActionLabel(initial)).toBe("Продолжить историю");
+    expect(getJourneyAdvanceActionLabel(initial)).toBe("Дальше");
 
     const next = recordEncounterChoice(initial, encounter.id, encounter.choices[0], "Проверка");
     expect(getPrimaryActionLabel(next)).toBe("Посмотреть результат");

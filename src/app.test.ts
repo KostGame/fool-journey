@@ -43,23 +43,22 @@ describe("renderAppShell", () => {
     expect(html).toContain("Продолжить историю");
     expect(html).toContain("0 / 22");
     expect(html).toContain("Живой расклад");
-    expect(html).toContain("0 / 31");
-    expect(html).toContain("Маршрут");
-    expect(html).toContain("route-strip");
     expect(html).toContain("mode-grid");
     expect(html).toContain("home-actions");
+    expect(html).not.toContain("choice-grid");
   });
 
-  it("renders the dialogue quest slice at the start of the journey", () => {
+  it("renders the scene screen at the start of the journey", () => {
     const html = renderAppShell({
-      screen: "journey",
+      screen: "scene",
       player: createInitialPlayerState()
     });
 
     expect(html).toContain("Край тропы");
     expect(html).toContain("Шут думает");
     expect(html).toContain("Сделать первый шаг");
-    expect(html).toContain("Продолжить историю");
+    expect(html).toContain("choice-grid");
+    expect(html).not.toContain("mode-grid");
   });
 
   it("renders a helper appearance in the Magician scene", () => {
@@ -73,13 +72,13 @@ describe("renderAppShell", () => {
 
     const stateAtEncounter = advanceToEncounter(magicianEncounter.id);
     const html = renderAppShell({
-      screen: "journey",
+      screen: "scene",
       player: stateAtEncounter
     });
 
     expect(html).toContain("Мастерская Мага");
     expect(html).toContain("Паж Жезлов");
-    expect(html).toContain("Продолжить историю");
+    expect(html).toContain("helper-callout");
   });
 
   it("shows a curated minor event between major chapters", () => {
@@ -109,13 +108,13 @@ describe("renderAppShell", () => {
     }
 
     const html = renderAppShell({
-      screen: "journey",
+      screen: "scene",
       player: onMinorStep
     });
 
     expect(html).toContain("Дорожное событие");
     expect(html).toContain(minorEvent.title);
-    expect(html).toContain("Продолжить историю");
+    expect(html).toContain("choice-grid");
   });
 
   it("renders the minor event result screen after a choice", () => {
@@ -150,14 +149,54 @@ describe("renderAppShell", () => {
       `${minorEvent.title} прожито`
     );
     const html = renderAppShell({
-      screen: "journey",
+      screen: "result",
       player: chosenMinor
     });
 
-    expect(html).toContain("Дорожное событие прожито");
-    expect(html).toContain("Маршрут");
-    expect(html).toContain("Продолжить историю");
-    expect(html).toContain("После ответа история продолжится.");
+    expect(html).toContain("Дорожное событие");
+    expect(html).toContain("Дальше");
+  });
+
+  it("opens the next scene from the result flow", () => {
+    const empressEncounter = encounters.find((encounter) => encounter.chapterId === "chapter-empress");
+
+    expect(empressEncounter).toBeDefined();
+
+    if (!empressEncounter) {
+      return;
+    }
+
+    const stateAtChapter = advanceToEncounter(empressEncounter.id);
+    const afterChoice = recordEncounterChoice(
+      stateAtChapter,
+      empressEncounter.id,
+      empressEncounter.choices[0],
+      `${empressEncounter.title} прожито`
+    );
+    const onMinorStep = advanceJourney(afterChoice);
+    const minorEvent = getMinorEventAfterChapter(empressEncounter.chapterId);
+
+    expect(minorEvent).toBeDefined();
+
+    if (!minorEvent) {
+      return;
+    }
+
+    const chosenMinor = recordMinorEventChoice(
+      onMinorStep,
+      minorEvent.id,
+      minorEvent.choices[0],
+      `${minorEvent.title} прожито`
+    );
+    const nextSceneState = advanceJourney(chosenMinor);
+    const html = renderAppShell({
+      screen: "scene",
+      player: nextSceneState
+    });
+
+    expect(html).toContain("Крепость Императора");
+    expect(html).toContain("choice-grid");
+    expect(html).not.toContain("Дорожное событие прожито");
   });
 
   it("falls back to the classic layout after the dialogue slice", () => {
@@ -171,13 +210,14 @@ describe("renderAppShell", () => {
 
     const stateAtEncounter = advanceToEncounter(loversEncounter.id);
     const html = renderAppShell({
-      screen: "journey",
+      screen: "scene",
       player: stateAtEncounter
     });
 
     expect(html).toContain("Большая глава");
     expect(html).toContain(loversEncounter.title);
     expect(html).not.toContain("Край тропы");
+    expect(html).toContain("choice-grid");
   });
 
   it("renders the completion screen after the full major and minor journey", () => {
@@ -202,7 +242,7 @@ describe("renderAppShell", () => {
     }
 
     const html = renderAppShell({
-      screen: "journey",
+      screen: "result",
       player: state
     });
 

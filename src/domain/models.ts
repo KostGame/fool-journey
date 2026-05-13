@@ -5,6 +5,8 @@ export type JourneyStepId = string;
 export type MinorArcanaEventId = string;
 export type ScreenId =
   | "home"
+  | "scene"
+  | "result"
   | "journey"
   | "live-spread"
   | "card-of-day"

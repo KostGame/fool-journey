@@ -31,7 +31,7 @@ import type {
 
 const modeCatalog = [
   {
-    id: "journey",
+    id: "scene",
     title: "Путь Шута",
     description: "Диалоговый квест, где арканы говорят, а выборы ведут историю."
   },
@@ -144,7 +144,7 @@ export function mountGameApp(root: HTMLElement, storage: StorageLike = window.lo
       }
 
       savePlayerState(storage, player);
-      screen = "journey";
+      screen = "result";
       rerender();
       return;
     }
@@ -152,7 +152,7 @@ export function mountGameApp(root: HTMLElement, storage: StorageLike = window.lo
     if (action === "advance") {
       player = advanceJourney(player);
       savePlayerState(storage, player);
-      screen = "journey";
+      screen = player.journeyPhase === "complete" ? "result" : "scene";
       rerender();
       return;
     }
@@ -160,7 +160,7 @@ export function mountGameApp(root: HTMLElement, storage: StorageLike = window.lo
     if (action === "restart") {
       player = resetPlayerState();
       savePlayerState(storage, player);
-      screen = "journey";
+      screen = "scene";
       rerender();
       return;
     }
@@ -189,21 +189,33 @@ export function mountGameApp(root: HTMLElement, storage: StorageLike = window.lo
 }
 
 export function renderAppShell(view: AppViewState): string {
-  const progress = buildProgressSnapshot(view.player);
-  const chapter = getStoryChapter(view.player.currentChapterId) ?? storyChapters[0];
-  const chapterCard = getCurrentChapterCard(view.player);
-  const lastChoiceCard = getLastChoiceCard(view.player);
-  const activeMinorEvent = getCurrentMinorEvent(view.player);
-  const homeActionLabel = getHomeActionLabel(view.player);
-  const nextCheckpointLabel = getNextCheckpointLabel(view.player);
+  if (view.screen === "home") {
+    return renderHomeShell(view.player);
+  }
+
+  if (view.screen === "scene" || view.screen === "result" || view.screen === "journey") {
+    return renderFlowScreen(view.player, view.screen);
+  }
+
+  return renderPlaceholderScreen(view.screen);
+}
+
+function renderHomeShell(player: PlayerState): string {
+  const progress = buildProgressSnapshot(player);
+  const chapter = getStoryChapter(player.currentChapterId) ?? storyChapters[0];
+  const chapterCard = getCurrentChapterCard(player);
+  const lastChoiceCard = getLastChoiceCard(player);
+  const activeMinorEvent = getCurrentMinorEvent(player);
+  const homeActionLabel = getHomeActionLabel(player);
   const progressNote = activeMinorEvent
     ? `${activeMinorEvent.situation} После ответа история продолжится.`
     : lastChoiceCard
       ? lastChoiceCard.dailyMeaning
       : chapter.prompt;
+  const homeJourneyScreenId = getHomeJourneyScreenId(player);
 
   return `
-    <main class="app-shell">
+    <main class="app-shell home-shell">
       <div class="ambient ambient-a" aria-hidden="true"></div>
       <div class="ambient ambient-b" aria-hidden="true"></div>
 
@@ -280,23 +292,6 @@ export function renderAppShell(view: AppViewState): string {
         <p class="progress-note">${escapeHtml(progressNote)}</p>
       </section>
 
-      <section class="panel route-panel" aria-labelledby="route-title">
-        <div class="section-head">
-          <p class="eyebrow">Маршрут</p>
-          <h2 id="route-title">${escapeHtml(nextCheckpointLabel)}</h2>
-          <p>Большие главы остаются крупными остановками, а младшие арканы встраиваются как короткие дорожные события между ними.</p>
-        </div>
-
-        <div class="route-strip" aria-hidden="true">
-          <span class="route-chip is-major">Большая глава</span>
-          <span class="route-chip is-minor">Дорожное событие</span>
-          <span class="route-chip is-finish">Финиш пути</span>
-        </div>
-
-        <p class="route-summary">
-          ${escapeHtml(progress.routeProgressLabel)} · осталось ${escapeHtml(progress.remainingJourneyStepsLabel)} шагов · ${escapeHtml(progress.stepKindLabel.toLowerCase())}.
-        </p>
-      </section>
       <section class="panel home-panel" aria-labelledby="home-title">
         <div class="section-head">
           <p class="eyebrow">Главный экран</p>
@@ -310,8 +305,8 @@ export function renderAppShell(view: AppViewState): string {
           <button
             class="primary-button"
             type="button"
-            data-action="${view.player.journeyPhase === "complete" ? "restart" : "screen"}"
-            data-screen="journey"
+            data-action="${player.journeyPhase === "complete" ? "restart" : "screen"}"
+            data-screen="${homeJourneyScreenId}"
           >
             ${escapeHtml(homeActionLabel)}
           </button>
@@ -331,13 +326,9 @@ export function renderAppShell(view: AppViewState): string {
 
         <div class="mode-grid">
           ${modeCatalog
-            .map((mode) => renderModeButton(mode.id, mode.title, mode.description, view.screen === mode.id))
+            .map((mode) => renderModeButton(mode.id, mode.title, mode.description, false))
             .join("")}
         </div>
-      </section>
-
-      <section class="screen-stack" aria-live="polite">
-        ${renderScreen(view)}
       </section>
 
       <footer class="footer-note">
@@ -347,36 +338,32 @@ export function renderAppShell(view: AppViewState): string {
   `;
 }
 
-function renderScreen(view: AppViewState): string {
-  if (view.screen === "home") {
-    return "";
-  }
+function renderFlowScreen(player: PlayerState, screen: ScreenId): string {
+  const stage = renderJourneyScreen(player);
 
-  if (view.screen === "journey") {
+  return `
+    <main class="app-shell flow-shell flow-shell-${escapeAttribute(screen)}">
+      <div class="ambient ambient-a" aria-hidden="true"></div>
+      <div class="ambient ambient-b" aria-hidden="true"></div>
+      ${stage}
+    </main>
+  `;
+}
+
+function renderScreen(view: AppViewState): string {
+  if (view.screen === "scene" || view.screen === "result" || view.screen === "journey") {
     return renderJourneyScreen(view.player);
   }
 
   return renderPlaceholderScreen(view.screen);
 }
 
-function getNextCheckpointLabel(player: PlayerState): string {
-  if (player.journeyPhase === "complete") {
-    return "Путь завершён";
-  }
-
-  if (player.currentStepKind === "minor") {
-    const minorEvent = getCurrentMinorEvent(player);
-
-    return minorEvent ? "Дорожное событие: " + minorEvent.title : "Дорожное событие";
-  }
-
-  const chapter = getStoryChapter(player.currentChapterId) ?? storyChapters[0];
-
-  return "Большая глава: " + chapter.title;
+function getHomeJourneyScreenId(player: PlayerState): ScreenId {
+  return player.journeyPhase === "resolved" ? "result" : "scene";
 }
 
 function renderDialogueSceneScreen(
-  player: PlayerState,
+  _player: PlayerState,
   chapter: ReturnType<typeof getStoryChapter>,
   stepTitle: string,
   scene: DialogueScene,
@@ -398,8 +385,6 @@ function renderDialogueSceneScreen(
         <h2>${escapeHtml(scene.locationTitle)}</h2>
         <p>${escapeHtml(scene.locationText)}</p>
       </div>
-
-      ${renderChapterTrail(player)}
 
       <article class="dialogue-card card-${card.id}">
         <p class="card-kicker">${escapeHtml(scene.speakerRole)}</p>
@@ -458,8 +443,6 @@ function renderDialogueResultScreen(
         <h2>${escapeHtml(scene.locationTitle)}</h2>
         <p>${escapeHtml(scene.locationText)}</p>
       </div>
-
-      ${renderChapterTrail(player)}
 
       <article class="result-card dialogue-result card-${card.id}">
         <p class="card-kicker">Ответ собран</p>
@@ -639,7 +622,7 @@ function renderJourneyScreen(player: PlayerState): string {
 }
 
 function renderMajorJourneyScreen(
-  player: PlayerState,
+  _player: PlayerState,
   chapter: ReturnType<typeof getStoryChapter>,
   encounter: ReturnType<typeof getEncounter>,
 ): string {
@@ -656,8 +639,6 @@ function renderMajorJourneyScreen(
         <h2>${escapeHtml(chapter.title)}</h2>
         <p>${escapeHtml(chapter.summary)}</p>
       </div>
-
-      ${renderChapterTrail(player)}
 
       <article class="encounter-card">
         <p class="card-kicker">Большая глава</p>
@@ -705,8 +686,6 @@ function renderMajorJourneyResultScreen(
         <h2>${escapeHtml(chapter.title)}</h2>
         <p>${escapeHtml(chapter.summary)}</p>
       </div>
-
-      ${renderChapterTrail(player)}
 
       <article class="result-card card-${card.id}">
         <p class="card-kicker">Ответ собран</p>
@@ -769,7 +748,7 @@ function renderMajorJourneyResultScreen(
 }
 
 function renderMinorJourneyScreen(
-  player: PlayerState,
+  _player: PlayerState,
   chapter: ReturnType<typeof getStoryChapter>,
   minorEvent: NonNullable<ReturnType<typeof getCurrentMinorEvent>>,
 ): string {
@@ -790,8 +769,6 @@ function renderMinorJourneyScreen(
         <h2>${escapeHtml(minorEvent.title)}</h2>
         <p>Глава пути: ${escapeHtml(chapter.title)}</p>
       </div>
-
-      ${renderChapterTrail(player)}
 
       <article class="encounter-card card-${card.id}">
         <p class="card-kicker">Младший аркан</p>
@@ -838,8 +815,6 @@ function renderMinorJourneyResultScreen(
         <h2>${escapeHtml(minorEvent.title)}</h2>
         <p>Глава пути: ${escapeHtml(chapter.title)}</p>
       </div>
-
-      ${renderChapterTrail(player)}
 
       <article class="result-card card-${card.id}">
         <p class="card-kicker">Младший аркан</p>
@@ -930,8 +905,6 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
         <h2>Путь старших арканов завершён</h2>
         <p>Ты прошёл 22 архетипических этапа: от импульса Шута до целостности Мира.</p>
       </div>
-
-      ${renderChapterTrail(player)}
 
       <article class="result-card card-${card.id}">
         <p class="card-kicker">Итог пути</p>
@@ -1071,13 +1044,23 @@ function updateDocumentTitle(screen: ScreenId, player: PlayerState): void {
 
   const titles: Record<ScreenId, string> = {
     home: "Путь Шута",
-    journey:
+    scene:
       player.journeyPhase === "complete"
-        ? "Путь Шута · Мир"
+        ? "Путь Шута · Сцена завершена"
         : player.currentStepKind === "minor" && minorEvent
           ? `Путь Шута · ${minorEvent.title}`
-          : player.journeyPhase === "resolved"
-          ? "Путь Шута · Ответ"
+          : `Путь Шута · ${chapter.title}`,
+    result:
+      player.journeyPhase === "complete"
+        ? "Путь Шута · Завершено"
+        : player.currentStepKind === "minor" && minorEvent
+          ? `Путь Шута · Ответ · ${minorEvent.title}`
+          : "Путь Шута · Ответ",
+    journey:
+      player.journeyPhase === "complete"
+        ? "Путь Шута · Сцена завершена"
+        : player.currentStepKind === "minor" && minorEvent
+          ? `Путь Шута · ${minorEvent.title}`
           : `Путь Шута · ${chapter.title}`,
     "live-spread": "Путь Шута · Живой расклад",
     "card-of-day": "Путь Шута · Карта дня",
@@ -1092,6 +1075,8 @@ function updateDocumentTitle(screen: ScreenId, player: PlayerState): void {
 function isScreenId(value: string | undefined): value is ScreenId {
   return (
     value === "home" ||
+    value === "scene" ||
+    value === "result" ||
     value === "journey" ||
     value === "live-spread" ||
     value === "card-of-day" ||
