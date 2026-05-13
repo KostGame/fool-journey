@@ -158,9 +158,9 @@ describe("progress helpers", () => {
       return;
     }
 
-    expect(getPrimaryActionLabel(initial)).toBe("Продолжить путь");
-    expect(getHomeActionLabel(initial)).toBe("Продолжить путь");
-    expect(getJourneyAdvanceActionLabel(initial)).toBe("Продолжить путь");
+    expect(getPrimaryActionLabel(initial)).toBe("Продолжить историю");
+    expect(getHomeActionLabel(initial)).toBe("Продолжить историю");
+    expect(getJourneyAdvanceActionLabel(initial)).toBe("Продолжить историю");
 
     const next = recordEncounterChoice(initial, encounter.id, encounter.choices[0], "Проверка");
     expect(getPrimaryActionLabel(next)).toBe("Посмотреть результат");
@@ -171,7 +171,7 @@ describe("progress helpers", () => {
     const snapshot = buildProgressSnapshot(completeState);
 
     expect(completeState.journeyPhase).toBe("complete");
-    expect(getHomeActionLabel(completeState)).toBe("Повторить путь");
+    expect(getHomeActionLabel(completeState)).toBe("Повторить историю");
     expect(getJourneyAdvanceActionLabel(completeState)).toBe("К главному экрану");
     expect(snapshot.statusLabel).toBe("Путь старших арканов завершён");
     expect(snapshot.episodeProgressLabel).toBe("22 / 22");

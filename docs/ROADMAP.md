@@ -11,6 +11,7 @@
 - **SU-002** - полный путь 22 старших арканов.
 - **SU-003** - 56 младших арканов в данных и первый слой дорожных событий.
 - **SU-004** - полировка playable journey UX: маршрутная панель, прогресс, completion replay, reset и ручной Pages smoke-test.
+- **SU-006** - dialogue-based text quest vertical slice: 5 major scenes, 3 minor events и 3 helper appearances.
 
 ## Следующие шаги
 
