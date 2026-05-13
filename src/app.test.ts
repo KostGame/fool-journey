@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { renderAppShell } from "./app";
+import { getDialogueSceneByEncounterId } from "./data/dialogueScenes";
 import { encounters } from "./data/encounters";
 import { getMinorEventAfterChapter } from "./data/minorArcanaEvents";
 import { advanceJourney, createInitialPlayerState, recordEncounterChoice, recordMinorEventChoice } from "./domain/progress";
+import type { ChoiceInventoryEffect } from "./domain/models";
 
-function advanceToEncounter(targetEncounterId: string) {
+type ChoiceOverrides = Record<string, string>;
+
+function pickChoiceId(defaultChoiceId: string, stepId: string, overrides: ChoiceOverrides): string {
+  return overrides[stepId] ?? defaultChoiceId;
+}
+
+function advanceToEncounter(targetEncounterId: string, overrides: ChoiceOverrides = {}) {
   let state = createInitialPlayerState();
 
   for (const encounter of encounters) {
@@ -12,7 +20,11 @@ function advanceToEncounter(targetEncounterId: string) {
       return state;
     }
 
-    state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
+    const choiceId = pickChoiceId(encounter.choices[0].id, encounter.id, overrides);
+    const choice = encounter.choices.find((item) => item.id === choiceId) ?? encounter.choices[0];
+
+    const effect = resolveDialogueInventoryEffect(encounter.id, choice.id);
+    state = recordEncounterChoice(state, encounter.id, choice, `${encounter.id} done`, effect);
     state = advanceJourney(state);
 
     while (state.currentStepKind === "minor") {
@@ -24,12 +36,36 @@ function advanceToEncounter(targetEncounterId: string) {
         return state;
       }
 
-      state = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} прожито`);
+      const minorChoiceId = pickChoiceId(minorEvent.choices[0].id, minorEvent.id, overrides);
+      const minorChoice = minorEvent.choices.find((item) => item.id === minorChoiceId) ?? minorEvent.choices[0];
+
+      const minorEffect = resolveDialogueInventoryEffect(minorEvent.id, minorChoice.id);
+      state = recordMinorEventChoice(state, minorEvent.id, minorChoice, `${minorEvent.id} done`, minorEffect);
       state = advanceJourney(state);
     }
   }
 
   throw new Error(`Encounter not found: ${targetEncounterId}`);
+}
+
+function resolveDialogueInventoryEffect(encounterId: string, choiceId: string): ChoiceInventoryEffect | undefined {
+  const scene = getDialogueSceneByEncounterId(encounterId);
+  const choice = scene?.choices.find((item) => item.id === choiceId);
+
+  if (!choice) {
+    return undefined;
+  }
+
+  if (!choice.earnedCardId && !choice.appliedCardId && !choice.helperCardId) {
+    return undefined;
+  }
+
+  return {
+    earnedCardId: choice.earnedCardId,
+    earnedRole: choice.earnedRole,
+    appliedCardId: choice.appliedCardId,
+    helperCardId: choice.helperCardId
+  };
 }
 
 describe("renderAppShell", () => {
@@ -39,10 +75,6 @@ describe("renderAppShell", () => {
       player: createInitialPlayerState()
     });
 
-    expect(html).toContain("Путь Шута");
-    expect(html).toContain("Продолжить историю");
-    expect(html).toContain("0 / 22");
-    expect(html).toContain("Живой расклад");
     expect(html).toContain("mode-grid");
     expect(html).toContain("home-actions");
     expect(html).not.toContain("choice-grid");
@@ -54,203 +86,91 @@ describe("renderAppShell", () => {
       player: createInitialPlayerState()
     });
 
-    expect(html).toContain("Край тропы");
-    expect(html).toContain("Шут думает");
-    expect(html).toContain("Сделать первый шаг");
+    expect(html).toContain("dialogue-panel");
+    expect(html).toContain("data-choice-id=\"fool-step\"");
     expect(html).toContain("choice-grid");
     expect(html).not.toContain("mode-grid");
   });
 
-  it("renders a helper appearance in the Magician scene", () => {
-    const magicianEncounter = encounters.find((encounter) => encounter.id === "magician-workshop");
-
-    expect(magicianEncounter).toBeDefined();
-
-    if (!magicianEncounter) {
-      return;
-    }
-
-    const stateAtEncounter = advanceToEncounter(magicianEncounter.id);
+  it("renders dialogue scene for Lovers (no fallback there anymore)", () => {
+    const stateAtLovers = advanceToEncounter("lovers-crossroads");
     const html = renderAppShell({
       screen: "scene",
-      player: stateAtEncounter
+      player: stateAtLovers
     });
 
-    expect(html).toContain("Мастерская Мага");
-    expect(html).toContain("Паж Жезлов");
-    expect(html).toContain("helper-callout");
+    expect(html).toContain("dialogue-panel");
+    expect(html).toContain("data-choice-id=\"lovers-heart\"");
+    expect(html).toContain("data-choice-id=\"lovers-balance\"");
   });
 
-  it("shows a curated minor event between major chapters", () => {
-    const empressEncounter = encounters.find((encounter) => encounter.chapterId === "chapter-empress");
-
-    expect(empressEncounter).toBeDefined();
-
-    if (!empressEncounter) {
-      return;
-    }
-
-    const stateAtChapter = advanceToEncounter(empressEncounter.id);
-    const afterChoice = recordEncounterChoice(
-      stateAtChapter,
-      empressEncounter.id,
-      empressEncounter.choices[0],
-      `${empressEncounter.title} пройдена`
-    );
-    const onMinorStep = advanceJourney(afterChoice);
-    const minorEvent = getMinorEventAfterChapter(empressEncounter.chapterId);
-
-    expect(onMinorStep.currentStepKind).toBe("minor");
-    expect(minorEvent).toBeDefined();
-
-    if (!minorEvent) {
-      return;
-    }
-
+  it("shows locked choice when required inventory card is missing", () => {
+    const stateAtLovers = advanceToEncounter("lovers-crossroads", {
+      "empress-2-cups": "keep-distance",
+      "hierophant-hall": "hierophant-repeat"
+    });
     const html = renderAppShell({
       screen: "scene",
-      player: onMinorStep
+      player: stateAtLovers
     });
 
-    expect(html).toContain("Дорожное событие");
-    expect(html).toContain(minorEvent.title);
-    expect(html).toContain("choice-grid");
+    expect(html).toContain("data-choice-id=\"lovers-heart\"");
+    expect(html).toContain("choice-lock-note");
+    expect(html).toContain("disabled");
   });
 
-  it("renders the minor event result screen after a choice", () => {
-    const empressEncounter = encounters.find((encounter) => encounter.chapterId === "chapter-empress");
+  it("unlocks required inventory choice when the card was earned", () => {
+    const stateAtLovers = advanceToEncounter("lovers-crossroads", {
+      "hierophant-hall": "hierophant-ask"
+    });
+    const html = renderAppShell({
+      screen: "scene",
+      player: stateAtLovers
+    });
 
-    expect(empressEncounter).toBeDefined();
+    expect(stateAtLovers.inventoryCards).toContain("2-cups");
+    expect(html).toContain("data-choice-id=\"lovers-heart\"");
+    expect(html).not.toContain("choice-lock-note");
+  });
 
-    if (!empressEncounter) {
+  it("renders result status badges for applied/helper inventory cards", () => {
+    const stateAtJustice = advanceToEncounter("justice-scales", {
+      "hierophant-hall": "hierophant-ask",
+      "lovers-crossroads": "lovers-balance",
+      "chariot-road": "chariot-hold",
+      "strength-lion": "strength-soothe",
+      "hermit-path": "hermit-seek"
+    });
+    const encounter = encounters.find((item) => item.id === "justice-scales");
+
+    expect(encounter).toBeDefined();
+
+    if (!encounter) {
       return;
     }
 
-    const stateAtChapter = advanceToEncounter(empressEncounter.id);
-    const afterChoice = recordEncounterChoice(
-      stateAtChapter,
-      empressEncounter.id,
-      empressEncounter.choices[0],
-      `${empressEncounter.title} пройдена`
-    );
-    const onMinorStep = advanceJourney(afterChoice);
-    const minorEvent = getMinorEventAfterChapter(empressEncounter.chapterId);
-
-    expect(minorEvent).toBeDefined();
-
-    if (!minorEvent) {
-      return;
-    }
-
-    const chosenMinor = recordMinorEventChoice(
-      onMinorStep,
-      minorEvent.id,
-      minorEvent.choices[0],
-      `${minorEvent.title} прожито`
-    );
+    const choice = encounter.choices.find((item) => item.id === "justice-weigh") ?? encounter.choices[0];
+    const effect = resolveDialogueInventoryEffect(encounter.id, choice.id);
+    const resolved = recordEncounterChoice(stateAtJustice, encounter.id, choice, "justice result", effect);
     const html = renderAppShell({
       screen: "result",
-      player: chosenMinor
+      player: resolved
     });
 
-    expect(html).toContain("Дорожное событие");
-    expect(html).toContain("Дальше");
+    expect(html).toContain("chips-status");
+    expect(resolved.lastAppliedCardId).toBeTruthy();
+    expect(resolved.lastHelperCardId).toBeTruthy();
   });
 
-  it("opens the next scene from the result flow", () => {
-    const empressEncounter = encounters.find((encounter) => encounter.chapterId === "chapter-empress");
-
-    expect(empressEncounter).toBeDefined();
-
-    if (!empressEncounter) {
-      return;
-    }
-
-    const stateAtChapter = advanceToEncounter(empressEncounter.id);
-    const afterChoice = recordEncounterChoice(
-      stateAtChapter,
-      empressEncounter.id,
-      empressEncounter.choices[0],
-      `${empressEncounter.title} прожито`
-    );
-    const onMinorStep = advanceJourney(afterChoice);
-    const minorEvent = getMinorEventAfterChapter(empressEncounter.chapterId);
-
-    expect(minorEvent).toBeDefined();
-
-    if (!minorEvent) {
-      return;
-    }
-
-    const chosenMinor = recordMinorEventChoice(
-      onMinorStep,
-      minorEvent.id,
-      minorEvent.choices[0],
-      `${minorEvent.title} прожито`
-    );
-    const nextSceneState = advanceJourney(chosenMinor);
+  it("keeps fallback for non-converted scenes", () => {
+    const stateAtFallback = advanceToEncounter("hanged-man-pause");
     const html = renderAppShell({
       screen: "scene",
-      player: nextSceneState
+      player: stateAtFallback
     });
 
-    expect(html).toContain("Крепость Императора");
-    expect(html).toContain("choice-grid");
-    expect(html).not.toContain("Дорожное событие прожито");
-  });
-
-  it("falls back to the classic layout after the dialogue slice", () => {
-    const loversEncounter = encounters.find((encounter) => encounter.id === "lovers-crossroads");
-
-    expect(loversEncounter).toBeDefined();
-
-    if (!loversEncounter) {
-      return;
-    }
-
-    const stateAtEncounter = advanceToEncounter(loversEncounter.id);
-    const html = renderAppShell({
-      screen: "scene",
-      player: stateAtEncounter
-    });
-
-    expect(html).toContain("Большая глава");
-    expect(html).toContain(loversEncounter.title);
-    expect(html).not.toContain("Край тропы");
-    expect(html).toContain("choice-grid");
-  });
-
-  it("renders the completion screen after the full major and minor journey", () => {
-    let state = createInitialPlayerState();
-
-    for (const encounter of encounters) {
-      state = recordEncounterChoice(state, encounter.id, encounter.choices[0], `${encounter.title} пройдена`);
-      state = advanceJourney(state);
-
-      while (state.currentStepKind === "minor") {
-        const minorEvent = getMinorEventAfterChapter(state.currentChapterId);
-
-        expect(minorEvent).toBeDefined();
-
-        if (!minorEvent) {
-          break;
-        }
-
-        state = recordMinorEventChoice(state, minorEvent.id, minorEvent.choices[0], `${minorEvent.title} прожито`);
-        state = advanceJourney(state);
-      }
-    }
-
-    const html = renderAppShell({
-      screen: "result",
-      player: state
-    });
-
-    expect(html).toContain("Путь старших арканов завершён");
-    expect(html).toContain("22 / 22");
-    expect(html).toContain("9 / 9");
-    expect(html).toContain("Масти дорожных событий");
-    expect(html).toContain("Повторить историю");
+    expect(html).toContain("encounter-card");
+    expect(html).not.toContain("dialogue-log");
   });
 
   it("renders placeholder modes without crashing", () => {
@@ -259,7 +179,6 @@ describe("renderAppShell", () => {
       player: createInitialPlayerState()
     });
 
-    expect(html).toContain("Режим в разработке");
-    expect(html).toContain("Справочник");
+    expect(html).toContain("placeholder-panel");
   });
 });

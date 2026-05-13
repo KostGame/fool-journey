@@ -38,6 +38,7 @@ export type Orientation = "upright" | "reversed";
 export type DialogueSceneType = "major-scene" | "minor-event";
 export type DialogueSpeaker = "narrator" | "fool" | "arcana" | "helper";
 export type DialogueChoiceTone = "action" | "feeling" | "thought" | "resource";
+export type InventoryCardRole = "action" | "resource" | "helper" | "lesson";
 
 export interface TarotCard {
   id: CardId;
@@ -113,6 +114,25 @@ export interface DialogueChoice extends EncounterChoice {
   feedback: string;
   lesson: string;
   helperCardId?: CardId;
+  earnedCardId?: CardId;
+  earnedRole?: InventoryCardRole;
+  requiredCardId?: CardId;
+  appliedCardId?: CardId;
+}
+
+export interface EarnedCard {
+  cardId: CardId;
+  earnedAt: string;
+  sourceStepId: JourneyStepId;
+  role: InventoryCardRole;
+  uses: number;
+}
+
+export interface ChoiceInventoryEffect {
+  earnedCardId?: CardId;
+  earnedRole?: InventoryCardRole;
+  appliedCardId?: CardId;
+  helperCardId?: CardId;
 }
 
 export interface DialogueScene {
@@ -140,6 +160,9 @@ export interface PlayerState {
   version: 2;
   xp: number;
   minorXp: number;
+  earnedCards: readonly EarnedCard[];
+  inventoryCards: readonly CardId[];
+  knownCards: readonly CardId[];
   currentChapterId: StoryChapterId;
   currentEncounterId: EncounterId;
   currentStepKind: JourneyStepKind;
@@ -149,6 +172,9 @@ export interface PlayerState {
   lastEncounterId: JourneyStepId | null;
   lastChoiceCardId: CardId | null;
   lastFeedback: string | null;
+  lastEarnedCardId: CardId | null;
+  lastAppliedCardId: CardId | null;
+  lastHelperCardId: CardId | null;
   completedEncounterIds: readonly EncounterId[];
   completedMinorEventIds: readonly MinorArcanaEventId[];
   updatedAt: string;

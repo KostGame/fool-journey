@@ -19,16 +19,16 @@ export const dialogueScenes = [
     sourceStepId: "fool-threshold",
     majorCardId: "fool",
     locationTitle: "Край тропы",
-    locationText: "Ветер шевелит траву, и дорога ещё кажется почти пустой.",
-    narratorText: "Шут стоит у порога и слушает, как тишина зовёт вперёд.",
+    locationText: "Ветер шевелит траву, и дорога просит не идеального плана, а первого шага.",
+    narratorText: "Шут слушает тишину и выбирает, как начать путь.",
     speakerName: "Шут",
     speakerRole: "Аркан-порог",
     dialogueLines: [
-      makeLine("narrator", "Ветер шевелит траву, и дорога ещё кажется почти пустой."),
-      makeLine("arcana", "Дорога открывается не планом, а доверием.", "Шут"),
-      makeLine("fool", "Тогда я беру только то, что помогает сделать первый шаг.", "Шут")
+      makeLine("narrator", "На пороге всегда страшнее стоять, чем идти."),
+      makeLine("arcana", "Путь откроется в ответ на действие, а не на сомнение.", "Шут"),
+      makeLine("fool", "Тогда я начну с шага, который могу сделать прямо сейчас.", "Шут")
     ],
-    foolThought: "Шут думает: главное не вес багажа, а честность шага.",
+    foolThought: "Первый шаг не обязан быть громким. Он должен быть честным.",
     choices: [
       makeChoice({
         id: "fool-step",
@@ -36,12 +36,12 @@ export const dialogueScenes = [
         cardId: "fool",
         orientation: "upright",
         xp: 2,
-        buttonNote: "Шут: начало через движение",
-        summaryOverride: "Шут напоминает, что дорога любит движение больше сомнений.",
-        adviceOverride: "Сдвинься с места и посмотри, как меняется воздух.",
+        buttonNote: "Начать движение",
+        summaryOverride: "Шут подтверждает начало действия.",
+        adviceOverride: "Сдвинься с места и увидь, как откликнется путь.",
         tone: "action",
-        feedback: "Шут улыбается: шаг уже стал ответом.",
-        lesson: "Путь открывается действием."
+        feedback: "Шут делает шаг и слышит, как дорога отвечает.",
+        lesson: "Начало любит действие."
       }),
       makeChoice({
         id: "fool-breathe",
@@ -49,16 +49,16 @@ export const dialogueScenes = [
         cardId: "fool",
         orientation: "upright",
         xp: 2,
-        buttonNote: "Шут: взять только нужное",
-        summaryOverride: "Лёгкость полезна, когда она не превращается в беспечность.",
-        adviceOverride: "Оставь лишнее и возьми с собой только ясность.",
+        buttonNote: "Оставить лишнее",
+        summaryOverride: "Лёгкость помогает двигаться без перегруза.",
+        adviceOverride: "Оставь лишний вес и сохрани ясность шага.",
         tone: "feeling",
-        feedback: "Шут не спорит с тишиной и идёт легче.",
-        lesson: "Не тащи на старт лишний груз."
+        feedback: "Шут идёт легче и не тащит лишнюю тяжесть.",
+        lesson: "Лёгкость поддерживает путь."
       })
     ],
-    resultText: "Порог открыт, когда ты согласен начать без полной карты.",
-    lessonText: "Первый шаг ценнее идеального плана.",
+    resultText: "Порог открыт: путь принял первый шаг.",
+    lessonText: "Лучше честный старт, чем бесконечная подготовка.",
     nextStepLabel: "Продолжить историю"
   }),
   makeScene({
@@ -68,18 +68,17 @@ export const dialogueScenes = [
     majorCardId: "magician",
     helperCardId: "page-wands",
     locationTitle: "Мастерская Мага",
-    locationText: "На столе лежат инструменты, мел и медь. Всё просит быть названным.",
-    narratorText: "Маг ждёт не обещаний, а собранного намерения.",
+    locationText: "На столе Мага инструменты ждут, пока их свяжут в рабочий набор.",
+    narratorText: "Маг просит назвать ресурсы и выбрать первый практичный ход.",
     speakerName: "Маг",
     speakerRole: "Аркан и помощник",
     dialogueLines: [
-      makeLine("narrator", "На столе лежат инструменты, мел и медь."),
-      makeLine("arcana", "Назови, что у тебя уже есть, и тогда сила соберётся.", "Маг"),
-      makeLine("helper", "Паж Жезлов: искра уже пришла. Её надо только заметить.", "Паж Жезлов"),
-      makeLine("fool", "Я не ищу чудо. Я собираю рабочий набор.", "Шут")
+      makeLine("arcana", "Сила начинается там, где ты называешь то, чем уже владеешь.", "Маг"),
+      makeLine("helper", "Искра есть. Ей нужен вектор.", "Паж Жезлов"),
+      makeLine("fool", "Я не жду идеальный момент. Я собираю рабочий набор.", "Шут")
     ],
-    foolThought: "Шут думает: ясность любит список, а не туман.",
-    helperText: "Паж Жезлов приносит новость и подталкивает к первому действию.",
+    foolThought: "Фокус сильнее суеты.",
+    helperText: "Паж Жезлов напоминает, что энергия должна получить направление.",
     choices: [
       makeChoice({
         id: "magician-gather",
@@ -87,12 +86,12 @@ export const dialogueScenes = [
         cardId: "magician",
         orientation: "upright",
         xp: 2,
-        buttonNote: "Маг: назвать ресурсы по имени",
-        summaryOverride: "Маг показывает: сила растёт из ясного набора ресурсов.",
-        adviceOverride: "Назови ресурсы по имени и свяжи их в один план.",
+        buttonNote: "Собрать опору",
+        summaryOverride: "Маг связывает ресурсы в форму.",
+        adviceOverride: "Назови ресурсы и задай им порядок.",
         tone: "resource",
-        feedback: "Паж Жезлов приносит искру, а Маг собирает её в форму.",
-        lesson: "Инструмент и намерение работают вместе."
+        feedback: "Маг кивает: у действия появился каркас.",
+        lesson: "Инструмент и намерение должны работать вместе."
       }),
       makeChoice({
         id: "magician-act",
@@ -100,16 +99,16 @@ export const dialogueScenes = [
         cardId: "magician",
         orientation: "upright",
         xp: 2,
-        buttonNote: "Маг: действие уже возможно",
-        summaryOverride: "Маг напоминает, что действие полезнее долгого ожидания идеального момента.",
-        adviceOverride: "Сделай один понятный ход и не распыляйся.",
+        buttonNote: "Запустить процесс",
+        summaryOverride: "Первый ход запускает форму быстрее ожидания.",
+        adviceOverride: "Сделай один понятный шаг и не распыляйся.",
         tone: "action",
-        feedback: "Маг кивает: форма оживает от первого действия.",
-        lesson: "Ясный шаг запускает процесс."
+        feedback: "Шут запускает движение и видит, как форма оживает.",
+        lesson: "Ясный старт быстрее долгой подготовки."
       })
     ],
-    resultText: "Маг превращает движение в осмысленную работу.",
-    lessonText: "Сначала назови ресурсы, потом используй их.",
+    resultText: "Маг собирает намерение в рабочий вектор.",
+    lessonText: "Сначала настрой инструмент, потом усиливай темп.",
     nextStepLabel: "Продолжить историю"
   }),
   makeScene({
@@ -119,18 +118,17 @@ export const dialogueScenes = [
     majorCardId: "high-priestess",
     helperCardId: "queen-cups",
     locationTitle: "Сад Жрицы",
-    locationText: "Вода тихая, а тень кажется не пустой, а внимательной.",
-    narratorText: "Жрица не торопится отвечать. Она ждёт, когда вопрос станет точнее.",
+    locationText: "Тихая вода отражает то, что не слышно в шуме действий.",
+    narratorText: "Жрица просит не спешить с выводами и уточнить вопрос.",
     speakerName: "Жрица",
     speakerRole: "Аркан и помощник",
     dialogueLines: [
-      makeLine("narrator", "Вода тихая, а тень кажется не пустой, а внимательной."),
-      makeLine("arcana", "Не всё нужно говорить вслух, чтобы понять, что верно.", "Жрица"),
-      makeLine("helper", "Королева Кубков: почувствуй волну, а не только смысл.", "Королева Кубков"),
-      makeLine("fool", "Я слышу ответ, но хочу услышать его глубже.", "Шут")
+      makeLine("arcana", "Сначала услышать, потом назвать.", "Жрица"),
+      makeLine("helper", "Чувство может быть точным, если его не заглушать.", "Королева Кубков"),
+      makeLine("fool", "Я дам тишине договорить.", "Шут")
     ],
-    foolThought: "Шут думает: иногда ответ приходит как тишина, а не как слово.",
-    helperText: "Королева Кубков помогает заметить чувство, которое уже знает ответ.",
+    foolThought: "Не каждый ответ рождается в словах.",
+    helperText: "Королева Кубков помогает услышать внутренний отклик без паники.",
     choices: [
       makeChoice({
         id: "priestess-listen",
@@ -138,12 +136,12 @@ export const dialogueScenes = [
         cardId: "high-priestess",
         orientation: "upright",
         xp: 3,
-        buttonNote: "Жрица: довериться внутреннему знанию",
-        summaryOverride: "Жрица показывает, что тихое знание часто точнее громкого.",
-        adviceOverride: "Замедлись и дай ответу проступить изнутри.",
+        buttonNote: "Пауза ради ясности",
+        summaryOverride: "Жрица удерживает тишину, пока не проявится смысл.",
+        adviceOverride: "Замедлись и дай вопросу созреть.",
         tone: "feeling",
-        feedback: "Королева Кубков удерживает чувство в ясных границах.",
-        lesson: "Тишина тоже умеет отвечать."
+        feedback: "Шут слышит ответ до того, как формулирует его.",
+        lesson: "Тишина может быть источником точности."
       }),
       makeChoice({
         id: "priestess-name",
@@ -151,16 +149,16 @@ export const dialogueScenes = [
         cardId: "high-priestess",
         orientation: "upright",
         xp: 2,
-        buttonNote: "Жрица: дать форме появиться",
-        summaryOverride: "Жрица напоминает: иногда ясность приходит после точного названия.",
-        adviceOverride: "Сформулируй одну тихую мысль, не торопясь её объяснять.",
+        buttonNote: "Собрать мысль",
+        summaryOverride: "Точная формулировка закрепляет интуицию.",
+        adviceOverride: "Собери одну ясную фразу и не спорь с ней раньше времени.",
         tone: "thought",
-        feedback: "Шут осторожно находит слова, не теряя интуиции.",
-        lesson: "Сначала увидеть, потом назвать."
+        feedback: "Шут называет суть коротко и без лишнего шума.",
+        lesson: "Названное знание легче применить."
       })
     ],
-    resultText: "Жрица учит слышать то, что ещё не оформилось в слова.",
-    lessonText: "Сначала тишина, затем точный вопрос.",
+    resultText: "Жрица учит слышать глубину до решения.",
+    lessonText: "Ясный вопрос рождается после паузы.",
     nextStepLabel: "Продолжить историю"
   }),
   makeScene({
@@ -170,31 +168,30 @@ export const dialogueScenes = [
     majorCardId: "empress",
     helperCardId: "king-pentacles",
     locationTitle: "Сад Императрицы",
-    locationText: "Здесь земля тёплая, и всё живое просит заботы без лишней спешки.",
-    narratorText: "Императрица не требует усилий ради усилий. Она просит бережного роста.",
+    locationText: "Здесь всё растёт через внимание, ритм и бережный уход.",
+    narratorText: "Императрица просит не ускорять рост насильно.",
     speakerName: "Императрица",
     speakerRole: "Аркан и помощник",
     dialogueLines: [
-      makeLine("narrator", "Земля тёплая, и всё живое просит заботы без лишней спешки."),
-      makeLine("arcana", "Пусть то, что растёт, получит воду, место и время.", "Императрица"),
-      makeLine("helper", "Король Пентаклей: устойчивость тоже помогает расти.", "Король Пентаклей"),
-      makeLine("fool", "Я могу не торопить рост, если вижу, что ему нужно.", "Шут")
+      makeLine("arcana", "Рост любит заботу, а не рывок.", "Императрица"),
+      makeLine("helper", "Устойчивость тоже форма заботы.", "Король Пентаклей"),
+      makeLine("fool", "Я поддержу то, что уже живое.", "Шут")
     ],
-    foolThought: "Шут думает: забота не шумит, но меняет всё.",
-    helperText: "Король Пентаклей напоминает о ресурсе, который держит рост устойчивым.",
+    foolThought: "Забота тиха, но она меняет путь.",
+    helperText: "Король Пентаклей напоминает о ресурсе и устойчивом темпе.",
     choices: [
       makeChoice({
         id: "empress-water",
-        label: "Покормить рост",
+        label: "Поддержать рост",
         cardId: "empress",
         orientation: "upright",
         xp: 2,
-        buttonNote: "Императрица: поддержать живое",
-        summaryOverride: "Императрица учит поддерживать рост без лишнего давления.",
-        adviceOverride: "Поддержи то, что уже движется к жизни.",
+        buttonNote: "Полить то, что растёт",
+        summaryOverride: "Поддержка усиливает живое движение.",
+        adviceOverride: "Дай делу питание и время.",
         tone: "resource",
-        feedback: "Король Пентаклей помогает держать устойчивый ритм.",
-        lesson: "Забота делает рост возможным."
+        feedback: "Шут поддерживает рост и не ломает его ритм.",
+        lesson: "Забота строит долгий результат."
       }),
       makeChoice({
         id: "empress-give-space",
@@ -202,16 +199,16 @@ export const dialogueScenes = [
         cardId: "empress",
         orientation: "upright",
         xp: 2,
-        buttonNote: "Императрица: пространство как забота",
-        summaryOverride: "Иногда лучшая забота — не мешать тому, что уже растёт.",
-        adviceOverride: "Сними лишнее давление и оставь ритму пространство.",
+        buttonNote: "Не давить на рост",
+        summaryOverride: "Пространство иногда важнее давления.",
+        adviceOverride: "Убери лишний контроль и оставь дыхание процессу.",
         tone: "feeling",
-        feedback: "Шут отступает на шаг и видит, как сад дышит свободнее.",
+        feedback: "Шут отступает на шаг и видит, как рост ускоряется сам.",
         lesson: "Пространство тоже питает."
       })
     ],
-    resultText: "Императрица показывает, как рост становится живым и ощутимым.",
-    lessonText: "Забота и пространство работают вместе.",
+    resultText: "Императрица показывает ритм бережного роста.",
+    lessonText: "Результат крепнет, когда его не подгоняют.",
     nextStepLabel: "Продолжить историю"
   }),
   makeScene({
@@ -220,16 +217,15 @@ export const dialogueScenes = [
     sourceStepId: "emperor-fortress",
     majorCardId: "emperor",
     locationTitle: "Крепость Императора",
-    locationText: "Камень держит форму, но не хочет стать клеткой.",
-    narratorText: "Император ждёт не лозунга, а границы, которая помогает жить.",
+    locationText: "Камень держит форму, но не должен душить движение.",
+    narratorText: "Император проверяет, умеет ли Шут задавать границы без жестокости.",
     speakerName: "Император",
     speakerRole: "Аркан",
     dialogueLines: [
-      makeLine("narrator", "Камень держит форму, но не хочет стать клеткой."),
       makeLine("arcana", "Порядок должен опираться, а не давить.", "Император"),
-      makeLine("fool", "Тогда я поставлю рамку так, чтобы в ней осталось дыхание.", "Шут")
+      makeLine("fool", "Я выберу рамку, в которой есть воздух.", "Шут")
     ],
-    foolThought: "Шут думает: порядок полезен, если в нём остаётся воздух.",
+    foolThought: "Граница полезна, когда она поддерживает путь.",
     choices: [
       makeChoice({
         id: "emperor-build",
@@ -237,29 +233,405 @@ export const dialogueScenes = [
         cardId: "emperor",
         orientation: "upright",
         xp: 2,
-        buttonNote: "Император: ясная опора",
-        summaryOverride: "Император показывает, что простая рамка может стать поддержкой.",
+        buttonNote: "Ясная граница",
+        summaryOverride: "Форма даёт опору и защищает маршрут.",
         adviceOverride: "Определи одну границу и держи её спокойно.",
         tone: "resource",
-        feedback: "Император одобряет спокойную и ясную опору.",
-        lesson: "Форма помогает, когда она проста."
+        feedback: "Император принимает спокойную и ясную опору.",
+        lesson: "Форма сильна, когда не превращается в клетку."
       }),
       makeChoice({
         id: "emperor-rule",
-        label: "Не пережать",
+        label: "Не пережимать",
         cardId: "emperor",
         orientation: "upright",
         xp: 2,
-        buttonNote: "Император: не задушить форму",
-        summaryOverride: "Порядок теряет смысл, если в нём исчезает живое движение.",
-        adviceOverride: "Сохрани дисциплину, но не закрывай ею дорогу.",
+        buttonNote: "Гибкая дисциплина",
+        summaryOverride: "Дисциплина должна сохранять движение.",
+        adviceOverride: "Сохрани порядок, но не убивай инициативу.",
         tone: "thought",
-        feedback: "Шут удерживает форму, не превращая её в клетку.",
-        lesson: "Граница нужна, чтобы беречь движение."
+        feedback: "Шут удерживает рамку и оставляет место для жизни.",
+        lesson: "Жёсткость без смысла ломает путь."
       })
     ],
-    resultText: "Император учит держать форму без лишней жёсткости.",
+    resultText: "Император учит держать структуру без зажима.",
     lessonText: "Граница нужна для опоры, а не для страха.",
+    nextStepLabel: "Продолжить историю"
+  }),
+  makeScene({
+    id: "hierophant-hall",
+    type: "major-scene",
+    sourceStepId: "hierophant-hall",
+    majorCardId: "hierophant",
+    helperCardId: "queen-swords",
+    locationTitle: "Зал Иерофанта",
+    locationText: "Своды хранят ритуалы и вопросы, которые пережили много поколений.",
+    narratorText: "Иерофант проверяет, умеет ли Шут учиться не вслепую.",
+    speakerName: "Иерофант",
+    speakerRole: "Аркан и помощник",
+    dialogueLines: [
+      makeLine("arcana", "Традиция жива, пока ты понимаешь её смысл.", "Иерофант"),
+      makeLine("helper", "Назови суть прямо, без тумана и позы.", "Королева Мечей"),
+      makeLine("fool", "Я не повторяю слова, пока не пойму, зачем они нужны.", "Шут")
+    ],
+    foolThought: "Урок работает, когда его можно применить в пути.",
+    helperText: "Королева Мечей помогает отличить живой смысл от пустой формулы.",
+    choices: [
+      makeChoice({
+        id: "hierophant-ask",
+        label: "Спросить о смысле и услышать другого",
+        cardId: "2-cups",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "2 Кубков: связь через вопрос",
+        summaryOverride: "Вопрос открывает живой контакт и уточняет правило.",
+        adviceOverride: "Сначала спроси, потом спорь.",
+        tone: "action",
+        feedback: "Иерофант отвечает мягче: Шут выбрал путь диалога.",
+        lesson: "Смысл традиции раскрывается через живую связь.",
+        earnedCardId: "2-cups",
+        earnedRole: "action"
+      }),
+      makeChoice({
+        id: "hierophant-repeat",
+        label: "Закрепить правило как опору",
+        cardId: "4-pentacles",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "4 Пентаклей: каркас и ресурс",
+        summaryOverride: "Правило даёт устойчивость, когда не становится тюрьмой.",
+        adviceOverride: "Оставь правило там, где оно защищает ресурс.",
+        tone: "resource",
+        feedback: "Шут получает рабочую рамку и не теряет гибкость.",
+        lesson: "Опора полезна, если в ней остаётся место для движения.",
+        earnedCardId: "4-pentacles",
+        earnedRole: "resource"
+      })
+    ],
+    resultText: "Иерофант переводит урок из ритуала в практику пути.",
+    lessonText: "Правило должно помогать действию, а не заменять его.",
+    nextStepLabel: "Продолжить историю"
+  }),
+  makeScene({
+    id: "lovers-crossroads",
+    type: "major-scene",
+    sourceStepId: "lovers-crossroads",
+    majorCardId: "lovers",
+    helperCardId: "page-cups",
+    locationTitle: "Развилка Влюблённых",
+    locationText: "Две дороги спорят не о скорости, а о качестве выбора.",
+    narratorText: "Влюблённые спрашивают, как Шут выбирает, когда вовлечены чувства и ответственность.",
+    speakerName: "Влюблённые",
+    speakerRole: "Аркан и помощник",
+    dialogueLines: [
+      makeLine("arcana", "Выбор не про удобство, а про согласованность сердца и действия.", "Влюблённые"),
+      makeLine("helper", "Сначала услышь другого, прежде чем доказывать своё.", "Паж Кубков"),
+      makeLine("fool", "Я выберу так, чтобы не разрушить связь с собой и другим.", "Шут")
+    ],
+    foolThought: "Честный выбор держит и направление, и отношения.",
+    helperText: "Паж Кубков даёт мягкую подсказку: слышать важнее, чем побеждать спор.",
+    choices: [
+      makeChoice({
+        id: "lovers-heart",
+        label: "Применить 2 Кубков: сначала услышать другого",
+        cardId: "2-cups",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "Связь перед решением",
+        summaryOverride: "Контакт снижает конфликт и делает выбор точнее.",
+        adviceOverride: "Сначала повтори позицию другого своими словами.",
+        tone: "feeling",
+        feedback: "Напряжение спадает: Шут выбирает через связь, а не через давление.",
+        lesson: "Слышать другого не значит терять себя.",
+        requiredCardId: "2-cups",
+        appliedCardId: "2-cups"
+      }),
+      makeChoice({
+        id: "lovers-balance",
+        label: "Удержать позицию без нападения",
+        cardId: "7-wands",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "7 Жезлов: граница без войны",
+        summaryOverride: "Граница может быть твёрдой и уважительной одновременно.",
+        adviceOverride: "Сформулируй свою позицию коротко и спокойно.",
+        tone: "thought",
+        feedback: "Шут удерживает линию и не сжигает мосты.",
+        lesson: "Защита позиции не обязана быть агрессией.",
+        earnedCardId: "7-wands",
+        earnedRole: "action"
+      })
+    ],
+    resultText: "Влюблённые делают выбор практикой зрелости.",
+    lessonText: "Выбор становится сильнее, когда в нём есть связь и границы.",
+    nextStepLabel: "Продолжить историю"
+  }),
+  makeScene({
+    id: "chariot-road",
+    type: "major-scene",
+    sourceStepId: "chariot-road",
+    majorCardId: "chariot",
+    helperCardId: "knight-wands",
+    locationTitle: "Дорога Колесницы",
+    locationText: "Темп растёт, и путь требует не только силы, но и управления вектором.",
+    narratorText: "Колесница проверяет, удержит ли Шут направление на скорости.",
+    speakerName: "Колесница",
+    speakerRole: "Аркан и помощник",
+    dialogueLines: [
+      makeLine("arcana", "Скорость полезна, если ты держишь курс.", "Колесница"),
+      makeLine("helper", "Рывок хорош, когда он не сжигает маршрут.", "Рыцарь Жезлов"),
+      makeLine("fool", "Я выберу темп, который доведёт до конца, а не только разгонит.", "Шут")
+    ],
+    foolThought: "Темп без курса превращается в блуждание.",
+    helperText: "Рыцарь Жезлов подталкивает к движению, но предупреждает о перегреве.",
+    choices: [
+      makeChoice({
+        id: "chariot-hold",
+        label: "Применить 7 Жезлов: держать направление под давлением",
+        cardId: "7-wands",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "Удержать курс",
+        summaryOverride: "Стабильная позиция помогает не сбиться на скорости.",
+        adviceOverride: "Сохрани один главный ориентир и возвращайся к нему.",
+        tone: "action",
+        feedback: "Колесница идёт ровно: Шут удержал вектор.",
+        lesson: "Направление важнее импульсивного рывка.",
+        requiredCardId: "7-wands",
+        appliedCardId: "7-wands",
+        earnedCardId: "6-swords",
+        earnedRole: "action"
+      }),
+      makeChoice({
+        id: "chariot-dash",
+        label: "Рвануть на одном вдохе",
+        cardId: "knight-wands",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "Риск перегрева",
+        summaryOverride: "Рывок даёт результат, но повышает риск потери курса.",
+        adviceOverride: "Если ускоряешься, сразу отметь точку торможения.",
+        tone: "action",
+        feedback: "Шут чувствует силу рывка, но учится вовремя сбрасывать скорость.",
+        lesson: "Смелость работает лучше рядом с самоконтролем."
+      })
+    ],
+    resultText: "Колесница учит соединять силу и управление.",
+    lessonText: "Ускорение полезно, если курс остаётся ясным.",
+    nextStepLabel: "Продолжить историю"
+  }),
+  makeScene({
+    id: "strength-lion",
+    type: "major-scene",
+    sourceStepId: "strength-lion",
+    majorCardId: "strength",
+    helperCardId: "queen-swords",
+    locationTitle: "Лев Силы",
+    locationText: "Перед Шутом не враг, а мощная живая сила, которую нельзя подавить криком.",
+    narratorText: "Сила проверяет, умеет ли Шут управлять собой раньше, чем управлять ситуацией.",
+    speakerName: "Сила",
+    speakerRole: "Аркан и помощник",
+    dialogueLines: [
+      makeLine("arcana", "Истинная сила спокойна и точна.", "Сила"),
+      makeLine("helper", "Ясность помогает держать границы без жестокости.", "Королева Мечей"),
+      makeLine("fool", "Я выберу управление через ритм, а не через давление.", "Шут")
+    ],
+    foolThought: "Сдержанная сила дольше держит путь.",
+    helperText: "Королева Мечей помогает назвать границы прямо и без лишнего нажима.",
+    choices: [
+      makeChoice({
+        id: "strength-soothe",
+        label: "Успокоить и направить",
+        cardId: "8-pentacles",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "8 Пентаклей: устойчивый ритм",
+        summaryOverride: "Повторяемый ритм укрощает хаос лучше грубой силы.",
+        adviceOverride: "Сделай короткий и устойчивый шаг, затем повтори.",
+        tone: "resource",
+        feedback: "Лев замедляется: Шут держит ритм и не теряет контакт.",
+        lesson: "Сила растёт из устойчивой практики.",
+        earnedCardId: "8-pentacles",
+        earnedRole: "resource"
+      }),
+      makeChoice({
+        id: "strength-force",
+        label: "Подавить силой",
+        cardId: "5-swords",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "5 Мечей: спор ценой связи",
+        summaryOverride: "Жёсткий нажим даёт быстрый эффект, но ослабляет связь.",
+        adviceOverride: "Если давишь, сразу проверяй цену этого выигрыша.",
+        tone: "thought",
+        feedback: "Шут видит: победа без связи оставляет пустоту.",
+        lesson: "Не каждый выигрыш укрепляет путь."
+      })
+    ],
+    resultText: "Сила переводит мощь в управление и ритм.",
+    lessonText: "Спокойная устойчивость сильнее мгновенного давления.",
+    nextStepLabel: "Продолжить историю"
+  }),
+  makeScene({
+    id: "hermit-path",
+    type: "major-scene",
+    sourceStepId: "hermit-path",
+    majorCardId: "hermit",
+    helperCardId: "king-pentacles",
+    locationTitle: "Тропа Отшельника",
+    locationText: "Свет фонаря не освещает весь путь, но показывает следующий честный шаг.",
+    narratorText: "Отшельник проверяет, умеет ли Шут выбирать ясность вместо шума.",
+    speakerName: "Отшельник",
+    speakerRole: "Аркан и помощник",
+    dialogueLines: [
+      makeLine("arcana", "Не всё видно сразу. Но достаточно видеть следующий шаг.", "Отшельник"),
+      makeLine("helper", "Опора в ресурсе защищает от паники в тумане.", "Король Пентаклей"),
+      makeLine("fool", "Я выберу действие, которое сохраняет ясность и ресурс.", "Шут")
+    ],
+    foolThought: "Точный шаг в тумане ценнее красивого рывка.",
+    helperText: "Король Пентаклей напоминает: спокойная опора лучше поспешного шума.",
+    choices: [
+      makeChoice({
+        id: "hermit-seek",
+        label: "Применить 6 Мечей: сменить точку зрения",
+        cardId: "6-swords",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "Переход к ясности",
+        summaryOverride: "Смена ракурса снижает ментальный шум и возвращает направление.",
+        adviceOverride: "Сделай шаг в сторону и переопредели вопрос.",
+        tone: "thought",
+        feedback: "Фонарь Отшельника светит дальше: Шут вышел из старого угла зрения.",
+        lesson: "Иногда путь открывается после смены ракурса.",
+        requiredCardId: "6-swords",
+        appliedCardId: "6-swords",
+        earnedCardId: "queen-swords",
+        earnedRole: "helper",
+        helperCardId: "queen-swords"
+      }),
+      makeChoice({
+        id: "hermit-hide",
+        label: "Спрятаться в сомнениях",
+        cardId: "8-swords",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "Узкий коридор мыслей",
+        summaryOverride: "Изоляция усиливает тревогу и сужает выбор.",
+        adviceOverride: "Если закрываешься, задай один проверочный вопрос реальности.",
+        tone: "feeling",
+        feedback: "Шут замечает, как тишина без ясности превращается в ловушку.",
+        lesson: "Тишина полезна только рядом с честным вопросом."
+      })
+    ],
+    resultText: "Отшельник укрепляет навык идти через ясность.",
+    lessonText: "Малый ясный шаг лучше большого неясного рывка.",
+    nextStepLabel: "Продолжить историю"
+  }),
+  makeScene({
+    id: "wheel-turn",
+    type: "major-scene",
+    sourceStepId: "wheel-turn",
+    majorCardId: "wheel-of-fortune",
+    helperCardId: "knight-wands",
+    locationTitle: "Поворот Колеса",
+    locationText: "Ситуация меняется быстрее, чем привычки успевают перестроиться.",
+    narratorText: "Колесо Фортуны проверяет, умеет ли Шут использовать перемены как ресурс.",
+    speakerName: "Колесо Фортуны",
+    speakerRole: "Аркан и помощник",
+    dialogueLines: [
+      makeLine("arcana", "Поворот не спрашивает, готов ли ты. Он предлагает выбрать ответ.", "Колесо Фортуны"),
+      makeLine("helper", "Лови момент, но не теряй управление.", "Рыцарь Жезлов"),
+      makeLine("fool", "Я отвечу действием, которое можно повторить и удержать.", "Шут")
+    ],
+    foolThought: "Удача помогает тем, кто держит ритм в переменах.",
+    helperText: "Рыцарь Жезлов напоминает: импульс полезен, если у него есть руль.",
+    choices: [
+      makeChoice({
+        id: "wheel-ride",
+        label: "Применить 8 Пентаклей: удержать ритм в повороте",
+        cardId: "8-pentacles",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "Ритм в переменах",
+        summaryOverride: "Повторяемый шаг превращает случайность в устойчивое движение.",
+        adviceOverride: "Сохрани один рабочий ритуал, даже когда всё меняется.",
+        tone: "resource",
+        feedback: "Шут держит темп, и поворот работает в его пользу.",
+        lesson: "Стабильный ритм помогает пройти через случайность.",
+        requiredCardId: "8-pentacles",
+        appliedCardId: "8-pentacles"
+      }),
+      makeChoice({
+        id: "wheel-resist",
+        label: "Сдержать риск через опору",
+        cardId: "4-pentacles",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "Опора в турбулентности",
+        summaryOverride: "Опора снижает хаос, если не превращается в застой.",
+        adviceOverride: "Держи минимум стабильности и не блокируй движение целиком.",
+        tone: "thought",
+        feedback: "Шут проходит поворот без паники и без зажима.",
+        lesson: "Опора и гибкость должны работать вместе.",
+        requiredCardId: "4-pentacles",
+        appliedCardId: "4-pentacles"
+      })
+    ],
+    resultText: "Колесо Фортуны учит работать с переменой, а не воевать с ней.",
+    lessonText: "Поворот пути становится ресурсом при ясном ритме.",
+    nextStepLabel: "Продолжить историю"
+  }),
+  makeScene({
+    id: "justice-scales",
+    type: "major-scene",
+    sourceStepId: "justice-scales",
+    majorCardId: "justice",
+    helperCardId: "queen-swords",
+    locationTitle: "Весы Справедливости",
+    locationText: "Здесь нельзя спрятаться за красивыми словами: весы просят точную меру.",
+    narratorText: "Справедливость просит назвать цену выбора и взять ответственность.",
+    speakerName: "Справедливость",
+    speakerRole: "Аркан и помощник",
+    dialogueLines: [
+      makeLine("arcana", "Назови правду о выборе: что ты защищаешь и чем платишь.", "Справедливость"),
+      makeLine("helper", "Говори ясно. Честность не требует жестокости.", "Королева Мечей"),
+      makeLine("fool", "Я назову цену прямо и не спрячусь за туманом.", "Шут")
+    ],
+    foolThought: "Ответственность начинается там, где заканчиваются отговорки.",
+    helperText: "Королева Мечей помогает назвать правду точно и без лишнего удара.",
+    choices: [
+      makeChoice({
+        id: "justice-weigh",
+        label: "Позвать Королеву Мечей и назвать цену выбора",
+        cardId: "queen-swords",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "Ясность и границы",
+        summaryOverride: "Точная формулировка снимает лишний туман с решения.",
+        adviceOverride: "Назови в одном предложении, что ты выбираешь и почему.",
+        tone: "thought",
+        feedback: "Весы выравниваются: Шут отвечает честно и ровно.",
+        lesson: "Честная ясность укрепляет выбор.",
+        requiredCardId: "queen-swords",
+        appliedCardId: "queen-swords",
+        helperCardId: "queen-swords"
+      }),
+      makeChoice({
+        id: "justice-avoid",
+        label: "Уйти в удобные объяснения",
+        cardId: "5-swords",
+        orientation: "upright",
+        xp: 2,
+        buttonNote: "Избежать меры",
+        summaryOverride: "Уклонение от меры оставляет решение тяжёлым и непрозрачным.",
+        adviceOverride: "Если уходишь от ответа, зафиксируй, где именно начинаются отговорки.",
+        tone: "action",
+        feedback: "Шут замечает, как удобная версия лишает решение опоры.",
+        lesson: "Без честной меры выбор быстро теряет устойчивость."
+      })
+    ],
+    resultText: "Справедливость завершает первый поворот пути зрелым ответом.",
+    lessonText: "Первый поворот пройден: Шут научился выбирать и отвечать за последствия.",
     nextStepLabel: "Продолжить историю"
   }),
   makeScene({
@@ -268,16 +640,15 @@ export const dialogueScenes = [
     sourceStepId: "empress-2-cups",
     minorCardId: "2-cups",
     locationTitle: "Дорожная встреча",
-    locationText: "После Императрицы рядом возникает тёплый обмен, который не хочется ломать.",
-    narratorText: "Две чаши помогают понять, что связь держится на взаимности.",
+    locationText: "Короткая встреча между главами проверяет, умеет ли Шут держать живой контакт.",
+    narratorText: "Две Чаши напоминают о взаимности и бережной связи.",
     speakerName: "Две Чаши",
     speakerRole: "Дорожное событие",
     dialogueLines: [
-      makeLine("narrator", "После Императрицы рядом возникает тёплый обмен."),
-      makeLine("arcana", "Связь живёт, когда в ней есть ответ с обеих сторон.", "Две Чаши"),
-      makeLine("fool", "Я не хочу брать всё себе. Я хочу разделить путь.", "Шут")
+      makeLine("arcana", "Связь держится обменом, а не контролем.", "2 Кубков"),
+      makeLine("fool", "Я выберу контакт, который не стирает границы.", "Шут")
     ],
-    foolThought: "Шут думает: поддержка важнее привычки тянуть всё одному.",
+    foolThought: "Связь помогает идти, если в ней есть взаимность.",
     choices: [
       makeChoice({
         id: "accept-support",
@@ -285,12 +656,14 @@ export const dialogueScenes = [
         cardId: "2-cups",
         orientation: "upright",
         xp: 2,
-        buttonNote: "2 Кубков: взаимность держит путь",
-        summaryOverride: "Связь усиливается, когда в ней есть обмен, а не контроль.",
-        adviceOverride: "Скажи «да» живому контакту и не прячься за автономией.",
+        buttonNote: "Взаимность",
+        summaryOverride: "Обмен усиливает путь и снижает одиночную перегрузку.",
+        adviceOverride: "Прими помощь и ответь взаимностью.",
         tone: "feeling",
-        feedback: "Две Чаши становятся мостом, а не просто знаком.",
-        lesson: "Взаимность делает дорогу теплее."
+        feedback: "Шут принимает поддержку и двигается теплее.",
+        lesson: "Взаимность экономит силы.",
+        earnedCardId: "2-cups",
+        earnedRole: "action"
       }),
       makeChoice({
         id: "keep-distance",
@@ -298,16 +671,16 @@ export const dialogueScenes = [
         cardId: "2-cups",
         orientation: "upright",
         xp: 1,
-        buttonNote: "2 Кубков: бережная граница",
-        summaryOverride: "Граница нужна, если она помогает слышать и себя, и другого.",
-        adviceOverride: "Не отрезай контакт, но оставь себе место для дыхания.",
+        buttonNote: "Границы",
+        summaryOverride: "Дистанция полезна, когда она не разрушает контакт.",
+        adviceOverride: "Сохрани границу и не обрывай связь полностью.",
         tone: "thought",
-        feedback: "Шут сохраняет контакт, не растворяясь в нём.",
-        lesson: "Граница и связь могут жить рядом."
+        feedback: "Шут остаётся в контакте и бережёт свои границы.",
+        lesson: "Граница и связь могут работать вместе."
       })
     ],
-    resultText: "Краткая встреча учит строить связь без лишнего напряжения.",
-    lessonText: "Взаимность может быть мягкой.",
+    resultText: "Дорожная встреча укрепляет навык взаимности.",
+    lessonText: "Тёплая связь делает путь устойчивее.",
     nextStepLabel: "Продолжить историю"
   }),
   makeScene({
@@ -316,16 +689,15 @@ export const dialogueScenes = [
     sourceStepId: "emperor-4-pentacles",
     minorCardId: "4-pentacles",
     locationTitle: "Проверка опоры",
-    locationText: "Когда порядок уже есть, возникает соблазн сжать его слишком крепко.",
-    narratorText: "Четыре Пентакля проверяют, умеешь ли ты держать без зажима.",
+    locationText: "Когда опора уже есть, важно не превратить её в зажим.",
+    narratorText: "Четыре Пентакля проверяют баланс между порядком и гибкостью.",
     speakerName: "Четыре Пентакля",
     speakerRole: "Дорожное событие",
     dialogueLines: [
-      makeLine("narrator", "Когда порядок уже есть, возникает соблазн сжать его слишком крепко."),
-      makeLine("arcana", "Опора полезна, пока она не становится страхом потери.", "Четыре Пентакля"),
-      makeLine("fool", "Я могу держать бережно, а не судорожно.", "Шут")
+      makeLine("arcana", "Держать бережно — не значит держать мёртвой хваткой.", "4 Пентаклей"),
+      makeLine("fool", "Я сохраню опору, не замораживая движение.", "Шут")
     ],
-    foolThought: "Шут думает: беречь ресурсы и прятать их — не одно и то же.",
+    foolThought: "Опора нужна для движения, а не вместо него.",
     choices: [
       makeChoice({
         id: "order-resources",
@@ -333,12 +705,14 @@ export const dialogueScenes = [
         cardId: "4-pentacles",
         orientation: "upright",
         xp: 2,
-        buttonNote: "4 Пентаклей: порядок без зажима",
-        summaryOverride: "Порядок полезен, если он не замораживает движение.",
-        adviceOverride: "Разложи ресурсы по местам и оставь им рабочий запас.",
+        buttonNote: "Ресурсный каркас",
+        summaryOverride: "Порядок снижает хаос и поддерживает темп.",
+        adviceOverride: "Оставь только рабочую опору, убрав лишний контроль.",
         tone: "resource",
-        feedback: "Император и Четыре Пентакля находят общий язык.",
-        lesson: "Опора не должна душить."
+        feedback: "Шут укрепляет ресурс и не зажимает маршрут.",
+        lesson: "Порядок полезен, когда он живой.",
+        earnedCardId: "4-pentacles",
+        earnedRole: "resource"
       }),
       makeChoice({
         id: "cling-tight",
@@ -346,16 +720,16 @@ export const dialogueScenes = [
         cardId: "4-pentacles",
         orientation: "upright",
         xp: 1,
-        buttonNote: "4 Пентаклей: страх дефицита",
-        summaryOverride: "Слишком крепкий хват быстро превращает опору в зажим.",
-        adviceOverride: "Заметь, что именно ты боишься потерять, и ослабь хват.",
+        buttonNote: "Страх потери",
+        summaryOverride: "Жёсткий контроль быстро превращает опору в тормоз.",
+        adviceOverride: "Ослабь хватку там, где страх притворяется дисциплиной.",
         tone: "thought",
-        feedback: "Шут замечает, как страх делает руки напряжённее.",
-        lesson: "Зажим не равен безопасности."
+        feedback: "Шут видит, как зажим крадёт гибкость.",
+        lesson: "Контроль без доверия сужает путь."
       })
     ],
-    resultText: "Четыре Пентакля помогают увидеть разницу между опорой и хваткой.",
-    lessonText: "Ресурс полезно держать бережно.",
+    resultText: "Короткая проверка учит бережной устойчивости.",
+    lessonText: "Опора и гибкость должны идти рядом.",
     nextStepLabel: "Продолжить историю"
   }),
   makeScene({
@@ -363,17 +737,18 @@ export const dialogueScenes = [
     type: "minor-event",
     sourceStepId: "hierophant-page-swords",
     minorCardId: "page-swords",
+    helperCardId: "page-swords",
     locationTitle: "Новый вопрос",
-    locationText: "После урока приходит свежий сигнал. Его не нужно повторять, его нужно услышать.",
-    narratorText: "Паж Мечей приносит вопрос, который режет туман.",
+    locationText: "После урока приходит короткий сигнал: время для точного вопроса.",
+    narratorText: "Паж Мечей приносит свежий угол зрения.",
     speakerName: "Паж Мечей",
-    speakerRole: "Дорожное событие",
+    speakerRole: "Дорожное событие и помощник",
     dialogueLines: [
-      makeLine("narrator", "После урока приходит свежий сигнал."),
-      makeLine("helper", "Паж Мечей: задай вопрос короче, чем привычка сомневаться.", "Паж Мечей"),
-      makeLine("fool", "Тогда я спрошу прямо и без лишних украшений.", "Шут")
+      makeLine("helper", "Сформулируй вопрос короче, чем привычка сомневаться.", "Паж Мечей"),
+      makeLine("fool", "Я задам вопрос прямо и без лишних украшений.", "Шут")
     ],
-    foolThought: "Шут думает: свежий вопрос иногда полезнее старого ответа.",
+    foolThought: "Иногда один точный вопрос меняет весь маршрут.",
+    helperText: "Паж Мечей показывает, как короткая ясность разрезает туман.",
     choices: [
       makeChoice({
         id: "write-note",
@@ -381,12 +756,15 @@ export const dialogueScenes = [
         cardId: "page-swords",
         orientation: "upright",
         xp: 2,
-        buttonNote: "Паж Мечей: поймать мысль",
-        summaryOverride: "Сначала зафиксируй сигнал, потом уже объясняй его.",
-        adviceOverride: "Запиши коротко то, что прозвучало, и не усложняй формулировку.",
+        buttonNote: "Зафиксировать сигнал",
+        summaryOverride: "Записанный сигнал легче превратить в действие.",
+        adviceOverride: "Поймай мысль короткой фразой без усложнения.",
         tone: "thought",
-        feedback: "Паж Мечей держит мысль на острие.",
-        lesson: "Сигнал лучше ловить сразу."
+        feedback: "Шут фиксирует сигнал, пока он ещё живой.",
+        lesson: "Короткая фиксация сохраняет ясность.",
+        earnedCardId: "page-swords",
+        earnedRole: "lesson",
+        helperCardId: "page-swords"
       }),
       makeChoice({
         id: "ask-directly",
@@ -394,16 +772,16 @@ export const dialogueScenes = [
         cardId: "page-swords",
         orientation: "upright",
         xp: 1,
-        buttonNote: "Паж Мечей: прояснить без обхода",
-        summaryOverride: "Прямой вопрос экономит силы, если он задан без нападения.",
-        adviceOverride: "Сформулируй один ясный вопрос и оставь место для ответа.",
+        buttonNote: "Честный вопрос",
+        summaryOverride: "Прямой вопрос экономит путь к ответу.",
+        adviceOverride: "Спроси одну вещь так, чтобы на неё можно было ответить честно.",
         tone: "action",
-        feedback: "Шут не прячется за туманом и говорит прямо.",
-        lesson: "Честный вопрос открывает путь быстрее."
+        feedback: "Шут выбирает прямоту и сокращает путь до сути.",
+        lesson: "Ясный вопрос — тоже действие."
       })
     ],
-    resultText: "Паж Мечей показывает, как короткий сигнал превращается в ясное действие.",
-    lessonText: "Вопрос может быть действием.",
+    resultText: "Паж Мечей укрепляет привычку к точному вопросу.",
+    lessonText: "Честная формулировка ускоряет обучение в пути.",
     nextStepLabel: "Продолжить историю"
   })
 ] as const satisfies readonly DialogueScene[];

@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- SU-008: расширен диалоговый блок major-сцен до `Иерофант → Справедливость`, добавлен минимальный слой карт-инвентаря (`earnedCards`, `inventoryCards`, `knownCards`) и UI-метки `Получено` / `Применено` / `Помощник`.
 - SU-007: `Путь Шута` переведён на single-screen flow `home → scene → result → next scene`.
 - SU-006A: `Путь Шута` укреплён mobile layout для кнопок, choices и route cards.
 - SU-006: добавлен dialogue-based text quest vertical slice для Пути Шута.
