@@ -141,8 +141,13 @@ describe("renderAppShell", () => {
     });
 
     expect(html).toContain("dialogue-panel");
+    expect(html).toContain("scene-status");
+    expect(html).toContain("scene-question");
+    expect(html).toContain("scene-speaker");
     expect(html).toContain("data-choice-id=\"fool-step\"");
     expect(html).toContain("choice-grid");
+    expect(html).not.toContain("choice-card-name");
+    expect(html).not.toContain("choice-keywords");
     expect(html).not.toContain("mode-grid");
   });
 
@@ -212,8 +217,40 @@ describe("renderAppShell", () => {
     });
 
     expect(html).toContain("chips-status");
+    expect(html).toContain("result-choice");
+    expect(html).toContain("dialogue-reaction");
+    expect(html).toContain("reading-grid");
+    expect(html).toContain("data-action=\"advance\"");
     expect(resolved.lastAppliedCardId).toBeTruthy();
     expect(resolved.lastHelperCardId).toBeTruthy();
+  });
+
+  it("keeps the quest flow on separate scene and result screens", () => {
+    const initial = createInitialPlayerState();
+    const encounter = encounters[0];
+    const choice = encounter.choices[0];
+    const effect = resolveDialogueInventoryEffect(encounter.id, choice.id);
+
+    const sceneHtml = renderAppShell({
+      screen: "scene",
+      player: initial
+    });
+    const resolved = recordEncounterChoice(initial, encounter.id, choice, "flow result", effect);
+    const resultHtml = renderAppShell({
+      screen: "result",
+      player: resolved
+    });
+    const advanced = advanceJourney(resolved);
+    const nextSceneHtml = renderAppShell({
+      screen: "scene",
+      player: advanced
+    });
+
+    expect(sceneHtml).toContain("scene-question");
+    expect(resultHtml).toContain("result-choice");
+    expect(resultHtml).toContain("data-action=\"advance\"");
+    expect(nextSceneHtml).toContain("scene-status");
+    expect(nextSceneHtml).toContain("choice-grid");
   });
 
   it("renders the completion screen after the World scene", () => {
@@ -250,6 +287,8 @@ describe("renderAppShell", () => {
     });
 
     expect(html).toContain("dialogue-panel");
+    expect(html).toContain("scene-status");
+    expect(html).toContain("scene-question");
     expect(html).toContain("data-choice-id=\"hanged-man-reframe\"");
     expect(html).toContain("dialogue-log");
   });
