@@ -7,7 +7,7 @@
 ## 2. Ветка и PR
 
 - Ветка: `feature/su-009-complete-dialogue-arc`
-- PR: будет добавлен после публикации ветки
+- PR: [#26](https://github.com/KostGame/fool-journey/pull/26)
 
 ## 3. Что реализовано
 
@@ -40,6 +40,7 @@
 - `npm test`
 - `npm run build`
 - `git diff --check`
+- GitHub Actions CI по PR #26: `success`
 - Ручной browser smoke-test был запланирован, но локальная browser policy заблокировала доступ к localhost/file URL в этом окружении.
 
 ## 6. Что не сделано
@@ -64,15 +65,15 @@
 
 ## 9. Можно ли переводить PR в Ready for review
 
-Пока PR ещё не создан.
+Да, PR открыт как обычный Open PR и уже готов к проверке.
 
 Отдельно:
 
-- PR: будет добавлен после публикации ветки
+- PR: [#26](https://github.com/KostGame/fool-journey/pull/26)
 - ветка: `feature/su-009-complete-dialogue-arc`
-- коммит: `36ad177`
+- коммит: `d594096`
 - Pages URL: будет проверено после публикации
-- статус Pages: не проверен
+- статус Pages: не проверен, публикация ожидается после merge
 - какие проверки запускались: `npm run check`, `npm test`, `npm run build`, `git diff --check`
 - какие режимы пока placeholder: `Живой расклад`, `Карта дня`, `Аркана-диалоги`, `Собери трактовку`, `Справочник`
-- можно ли переводить PR в Ready for review: после публикации и финальной проверки CI
+- можно ли переводить PR в Ready for review: да
