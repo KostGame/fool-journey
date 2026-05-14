@@ -440,7 +440,7 @@ function renderDialogueSceneScreen(
     {
       cardId: card.id,
       label: card.name,
-      className: "scene-card-thumb",
+      className: "scene-card-thumb quest-card-hero",
       loading: "eager"
     },
     ...(helperCard
@@ -448,7 +448,7 @@ function renderDialogueSceneScreen(
           {
             cardId: helperCard.id,
             label: helperCard.name,
-            className: "scene-helper-thumb",
+            className: "scene-helper-thumb quest-card-assist",
             loading: "eager" as const
           }
         ]
@@ -456,54 +456,82 @@ function renderDialogueSceneScreen(
   ]);
 
   return `
-    <section class="panel journey-panel dialogue-panel">
-      <div class="section-head">
-        <p class="eyebrow">${escapeHtml(scene.type === "major-scene" ? "Глава пути" : "Дорожное событие")}</p>
-        <h2>${escapeHtml(scene.locationTitle)}</h2>
-        <p>${escapeHtml(scene.locationText)}</p>
-      </div>
-
-      ${cardArtStrip}
-      ${renderJourneyStatusLine(progress, chapter.title)}
-
-      <article class="dialogue-card quest-card card-${card.id}">
-        <div class="scene-title-block">
-          <p class="card-kicker">${escapeHtml(scene.speakerRole)}</p>
-          <h3>${escapeHtml(stepTitle)}</h3>
-          <p class="scene-speaker">${escapeHtml(scene.speakerName)}</p>
+    <section class="panel journey-panel dialogue-panel quest-layout">
+      <header class="quest-header">
+        <div class="quest-location-bar">
+          <p class="eyebrow">${escapeHtml(scene.type === "major-scene" ? "Глава пути" : "Дорожное событие")}</p>
+          <h2>${escapeHtml(scene.locationTitle)}</h2>
+          <p class="quest-location-subtitle">${escapeHtml(chapter.title)} · ${escapeHtml(stepTitle)}</p>
         </div>
+        ${renderJourneyStatusLine(progress, chapter.title)}
+      </header>
 
-        <p class="scene-location">${escapeHtml(scene.locationText)}</p>
-        <p class="scene-question">${escapeHtml(questionText || scene.nextStepLabel)}</p>
-        <p class="dialogue-narrator">${escapeHtml(scene.narratorText)}</p>
+      <div class="quest-body">
+        <aside class="quest-visual-panel" aria-label="Карта и опора сцены">
+          <p class="card-kicker">Визуальная зона</p>
+          ${cardArtStrip}
+          <p class="quest-visual-caption">${escapeHtml(scene.locationText)}</p>
+          ${
+            scene.helperCardId
+              ? renderDialogueHelperCallout(scene)
+              : ""
+          }
+        </aside>
 
-        <div class="dialogue-log">
-          ${scene.dialogueLines.map((line) => renderDialogueLine(line)).join("")}
+        <div class="quest-text-panel">
+          <article class="dialogue-card quest-card card-${card.id}">
+            <div class="scene-title-block">
+              <p class="card-kicker">${escapeHtml(scene.speakerRole)}</p>
+              <h3>${escapeHtml(questionText || scene.nextStepLabel)}</h3>
+              <p class="scene-speaker">${escapeHtml(scene.speakerName)}</p>
+            </div>
+
+            <p class="scene-location">${escapeHtml(scene.locationText)}</p>
+            <p class="dialogue-narrator">${escapeHtml(scene.narratorText)}</p>
+
+            <div class="dialogue-log">
+              ${scene.dialogueLines.map((line) => renderDialogueLine(line)).join("")}
+            </div>
+
+            <p class="dialogue-thought">Мысль Шута: ${escapeHtml(scene.foolThought)}</p>
+            <p class="dialogue-next-step">${escapeHtml(scene.nextStepLabel)}</p>
+            ${
+              player.inventoryCards.length > 0
+                ? `<p class="inventory-note">Карты Шута: ${escapeHtml(player.inventoryCards.map((cardId) => getCard(cardId)?.name ?? cardId).join(" · "))}</p>`
+                : ""
+            }
+          </article>
+
+          <section class="quest-actions-panel" aria-labelledby="quest-actions-title">
+            <div class="section-head">
+              <p class="eyebrow">Действия</p>
+              <h3 id="quest-actions-title">${escapeHtml(questionText || "Что сделает Шут?")}</h3>
+            </div>
+            <div class="choice-grid">
+              ${scene.choices.map((choice) => renderDialogueChoiceButton(player, choice)).join("")}
+            </div>
+          </section>
         </div>
-
-        <p class="dialogue-thought">Мысль Шута: ${escapeHtml(scene.foolThought)}</p>
-
-        ${
-          scene.helperCardId
-            ? renderDialogueHelperCallout(scene)
-            : ""
-        }
-
-        <p class="dialogue-next-step">${escapeHtml(scene.nextStepLabel)}</p>
-        ${
-          player.inventoryCards.length > 0
-            ? `<p class="inventory-note">Карты Шута: ${escapeHtml(player.inventoryCards.map((cardId) => getCard(cardId)?.name ?? cardId).join(" · "))}</p>`
-            : ""
-        }
-      </article>
-
-      <div class="choice-grid">
-        ${scene.choices.map((choice) => renderDialogueChoiceButton(player, choice)).join("")}
       </div>
 
-      <div class="journey-actions">
-        <button class="ghost-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
-      </div>
+      <footer class="quest-footer">
+        <div class="quest-inventory-panel">
+          <div class="quest-inventory-copy">
+            <p class="eyebrow">Инвентарь и дневник</p>
+            <p>Карты помогают помнить, что уже получено, применено и кто помог Шуту на пути.</p>
+          </div>
+          <div class="quest-inventory-meta">
+            <div class="scene-status-item">
+              <span>Карты</span>
+              <strong>${escapeHtml(player.inventoryCards.length > 0 ? player.inventoryCards.map((cardId) => getCard(cardId)?.name ?? cardId).slice(-4).join(" · ") : "Пока нет")}</strong>
+            </div>
+            <div class="quest-inventory-links">
+              <button class="ghost-button" type="button" data-action="screen" data-screen="journal">Дневник Шута</button>
+              <button class="ghost-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
+            </div>
+          </div>
+        </div>
+      </footer>
     </section>
   `;
 }
@@ -531,7 +559,7 @@ function renderDialogueResultScreen(
     {
       cardId: card.id,
       label: card.name,
-      className: "result-card-thumb",
+      className: "result-card-thumb quest-card-hero",
       loading: "eager"
     },
     ...(helperCard
@@ -539,7 +567,7 @@ function renderDialogueResultScreen(
           {
             cardId: helperCard.id,
             label: helperCard.name,
-            className: "result-helper-thumb",
+            className: "result-helper-thumb quest-card-assist",
             loading: "eager" as const
           }
         ]
@@ -547,56 +575,75 @@ function renderDialogueResultScreen(
   ]);
 
   return `
-    <section class="panel journey-panel dialogue-panel">
-      <div class="section-head">
-        <p class="eyebrow">${escapeHtml(scene.type === "major-scene" ? "Глава пути" : "Дорожное событие")}</p>
-        <h2>${escapeHtml(scene.locationTitle)}</h2>
-        <p>${escapeHtml(scene.locationText)}</p>
-      </div>
-
-      ${renderJourneyStatusLine(progress, chapter.title)}
-
-      ${cardArtStrip}
-      <article class="result-card dialogue-result quest-card card-${card.id}">
-        <p class="card-kicker">Ответ собран</p>
-        <h3>${escapeHtml(scene.resultText)}</h3>
-        <p class="result-choice">${escapeHtml(choice.label)}</p>
-        <p class="card-summary">${escapeHtml(choice.feedback)}</p>
-        <p class="dialogue-reaction">${escapeHtml(choice.lesson)}</p>
-
-        <div class="chips">
-          <span>${escapeHtml(stepTitle)}</span>
-          <span>${escapeHtml(progress.stepKindLabel)}</span>
-          <span>${escapeHtml(scene.nextStepLabel)}</span>
+    <section class="panel journey-panel dialogue-panel quest-layout">
+      <header class="quest-header">
+        <div class="quest-location-bar">
+          <p class="eyebrow">${escapeHtml(scene.type === "major-scene" ? "Глава пути" : "Дорожное событие")}</p>
+          <h2>${escapeHtml(scene.locationTitle)}</h2>
+          <p class="quest-location-subtitle">${escapeHtml(chapter.title)} · ${escapeHtml(stepTitle)}</p>
         </div>
-        ${renderChoiceOutcomeBadges(player)}
+        ${renderJourneyStatusLine(progress, chapter.title)}
+      </header>
 
-        <dl class="reading-grid">
-          <div>
-            <dt>Выбор</dt>
-            <dd>${escapeHtml(choice.label)}</dd>
-          </div>
-          <div>
-            <dt>Итог</dt>
-            <dd>${escapeHtml(scene.resultText)}</dd>
-          </div>
-          <div>
-            <dt>Совет</dt>
-            <dd>${escapeHtml(choice.adviceOverride)}</dd>
-          </div>
-          <div>
-            <dt>Дальше</dt>
-            <dd>${escapeHtml(scene.nextStepLabel)}</dd>
-          </div>
-        </dl>
+      <div class="quest-body">
+        <aside class="quest-visual-panel" aria-label="Результат и опора сцены">
+          <p class="card-kicker">Результат действия</p>
+          ${cardArtStrip}
+          <p class="quest-visual-caption">${escapeHtml(choice.label)}</p>
+          ${renderChoiceOutcomeBadges(player)}
+          ${
+            scene.helperCardId
+              ? renderDialogueHelperCallout(scene)
+              : ""
+          }
+        </aside>
 
-        ${scene.helperCardId ? renderDialogueHelperCallout(scene) : ""}
-      </article>
+        <div class="quest-text-panel">
+          <article class="result-card dialogue-result quest-card card-${card.id}">
+            <p class="card-kicker">Ответ собран</p>
+            <h3>${escapeHtml(scene.resultText)}</h3>
+            <p class="result-choice">${escapeHtml(choice.label)}</p>
+            <p class="card-summary">${escapeHtml(choice.feedback)}</p>
+            <p class="dialogue-reaction">${escapeHtml(choice.lesson)}</p>
 
-      <div class="journey-actions">
-        <button class="primary-button" type="button" data-action="advance">
-          ${escapeHtml(getJourneyAdvanceActionLabel(player))}
-        </button>
+            <div class="chips">
+              <span>${escapeHtml(stepTitle)}</span>
+              <span>${escapeHtml(progress.stepKindLabel)}</span>
+              <span>${escapeHtml(scene.nextStepLabel)}</span>
+            </div>
+
+            <dl class="reading-grid">
+              <div>
+                <dt>Выбор</dt>
+                <dd>${escapeHtml(choice.label)}</dd>
+              </div>
+              <div>
+                <dt>Итог</dt>
+                <dd>${escapeHtml(scene.resultText)}</dd>
+              </div>
+              <div>
+                <dt>Совет</dt>
+                <dd>${escapeHtml(choice.adviceOverride)}</dd>
+              </div>
+              <div>
+                <dt>Дальше</dt>
+                <dd>${escapeHtml(scene.nextStepLabel)}</dd>
+              </div>
+            </dl>
+          </article>
+
+          <section class="quest-actions-panel" aria-labelledby="result-actions-title">
+            <div class="section-head">
+              <p class="eyebrow">Что дальше</p>
+              <h3 id="result-actions-title">${escapeHtml(getJourneyAdvanceActionLabel(player))}</h3>
+            </div>
+            <div class="journey-actions quest-result-actions">
+              <button class="primary-button" type="button" data-action="advance">
+                ${escapeHtml(getJourneyAdvanceActionLabel(player))}
+              </button>
+            </div>
+          </section>
+        </div>
       </div>
     </section>
   `;

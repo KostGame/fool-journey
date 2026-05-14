@@ -26,6 +26,7 @@
 - thumbnails карт видны в `scene`, `result` и `journal`;
 - fallback не показывает битую картинку, если ассет отсутствует;
 - в текстах нет replacement character `U+FFFD` и явных mojibake-паттернов;
+- scene/result выглядят как classic quest layout с отдельными зонами;
 - completion screen остаётся читаемым;
 - после перезагрузки прогресс восстанавливается;
 - reset работает предсказуемо;

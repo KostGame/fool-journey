@@ -17,6 +17,7 @@
 - SU-010 - `Дневник Шута` и card collection.
 - SU-011 - quest UI language overhaul.
 - SU-012 - локальные миниатюры карт Таро.
+- SU-015 - classic text quest interface overhaul.
 
 ## Beta status
 
@@ -30,6 +31,7 @@
 
 - поддерживать beta-версию как стабильный mobile-first text quest;
 - выносить новые задачи в отдельные SU-ветки и Open PR;
+- развивать классический quest layout без возврата к длинной ленте карточек;
 - сохранять проверки Pages, журнала, thumbnails, inventory и кодировки.
 
 ## Что не планируется
