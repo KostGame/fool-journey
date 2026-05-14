@@ -1,4 +1,5 @@
 import { getCard } from "./data/cards";
+import { getCardImageAsset } from "./data/cardImages";
 import { encounters, getEncounter } from "./data/encounters";
 import { getDialogueSceneByEncounterId, getDialogueSceneByMinorEventId } from "./data/dialogueScenes";
 import { getMinorEventAfterChapter, minorArcanaEvents } from "./data/minorArcanaEvents";
@@ -428,11 +429,31 @@ function renderDialogueSceneScreen(
   }
 
   const card = getCard(scene.majorCardId ?? scene.minorCardId ?? chapter.cardId);
+  const helperCard = scene.helperCardId ? getCard(scene.helperCardId) : undefined;
   const progress = buildProgressSnapshot(player);
 
   if (!card) {
     return renderCorruptedState();
   }
+
+  const cardArtStrip = renderCardArtStrip([
+    {
+      cardId: card.id,
+      label: card.name,
+      className: "scene-card-thumb",
+      loading: "eager"
+    },
+    ...(helperCard
+      ? [
+          {
+            cardId: helperCard.id,
+            label: helperCard.name,
+            className: "scene-helper-thumb",
+            loading: "eager" as const
+          }
+        ]
+      : [])
+  ]);
 
   return `
     <section class="panel journey-panel dialogue-panel">
@@ -442,6 +463,7 @@ function renderDialogueSceneScreen(
         <p>${escapeHtml(scene.locationText)}</p>
       </div>
 
+      ${cardArtStrip}
       ${renderJourneyStatusLine(progress, chapter.title)}
 
       <article class="dialogue-card quest-card card-${card.id}">
@@ -498,11 +520,31 @@ function renderDialogueResultScreen(
 
   const choice = scene.choices.find((item) => item.id === player.lastChoiceId);
   const card = getCard(scene.majorCardId ?? scene.minorCardId ?? chapter.cardId);
+  const helperCard = scene.helperCardId ? getCard(scene.helperCardId) : undefined;
   const progress = buildProgressSnapshot(player);
 
   if (!choice || !card) {
     return renderCorruptedState();
   }
+
+  const cardArtStrip = renderCardArtStrip([
+    {
+      cardId: card.id,
+      label: card.name,
+      className: "result-card-thumb",
+      loading: "eager"
+    },
+    ...(helperCard
+      ? [
+          {
+            cardId: helperCard.id,
+            label: helperCard.name,
+            className: "result-helper-thumb",
+            loading: "eager" as const
+          }
+        ]
+      : [])
+  ]);
 
   return `
     <section class="panel journey-panel dialogue-panel">
@@ -514,6 +556,7 @@ function renderDialogueResultScreen(
 
       ${renderJourneyStatusLine(progress, chapter.title)}
 
+      ${cardArtStrip}
       <article class="result-card dialogue-result quest-card card-${card.id}">
         <p class="card-kicker">Ответ собран</p>
         <h3>${escapeHtml(scene.resultText)}</h3>
@@ -559,6 +602,53 @@ function renderDialogueResultScreen(
   `;
 }
 
+function renderCardArtStrip(
+  items: readonly { cardId: string; label: string; className?: string; loading?: "lazy" | "eager" }[],
+): string {
+  if (items.length === 0) {
+    return "";
+  }
+
+  return `
+    <div class="card-art-strip">
+      ${items
+        .map((item) => renderCardThumbnail(item.cardId, item.label, item.className, item.loading))
+        .join("")}
+    </div>
+  `;
+}
+
+function renderCardThumbnail(
+  cardId: string,
+  label: string,
+  className = "",
+  loading: "lazy" | "eager" = "lazy",
+): string {
+  const image = getCardImageAsset(cardId);
+  const classes = ["card-thumbnail", className].filter(Boolean).join(" ");
+  const fallbackLabel = `${label} · изображение недоступно`;
+
+  if (image.available && image.src) {
+    return `
+      <figure class="${escapeAttribute(classes)}" aria-label="${escapeAttribute(image.alt)}">
+        <img
+          src="${escapeAttribute(image.src)}"
+          alt="${escapeAttribute(image.alt)}"
+          loading="${escapeAttribute(loading)}"
+          decoding="async"
+        />
+      </figure>
+    `;
+  }
+
+  return `
+    <div class="${escapeAttribute(classes)} card-thumbnail-fallback" role="img" aria-label="${escapeAttribute(fallbackLabel)}">
+      <span>Миниатюра</span>
+      <strong>${escapeHtml(label)}</strong>
+    </div>
+  `;
+}
+
 function renderDialogueHelperCallout(scene: DialogueScene): string {
   if (!scene.helperCardId) {
     return "";
@@ -573,6 +663,7 @@ function renderDialogueHelperCallout(scene: DialogueScene): string {
   return `
     <aside class="helper-callout card-${helperCard.id}">
       <p class="card-kicker">Помощник</p>
+      ${renderCardThumbnail(helperCard.id, helperCard.name, "helper-callout-thumb", "lazy")}
       <h4>${escapeHtml(helperCard.name)}</h4>
       <p>${escapeHtml(scene.helperText ?? "Помощник помогает прочитать ситуацию мягче и точнее.")}</p>
     </aside>
@@ -1034,6 +1125,7 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
 
       <article class="result-card card-${card.id}">
         <p class="card-kicker">Итог пути</p>
+        ${renderCardThumbnail(card.id, card.name, "completion-card-thumb", "eager")}
         <h3>Что показал полный круг</h3>
         <p class="card-summary">${escapeHtml(interpretation.summary)}</p>
         <p class="result-feedback">Финальный ответ собран. Теперь можно увидеть весь путь сразу, как цельную историю, а затем пройти его снова уже с новым опытом.</p>
@@ -1202,23 +1294,30 @@ function renderJournalCardList(
         .map((entry) => {
           return `
             <article class="journal-item card-${escapeAttribute(entry.cardId)}">
-              <p class="card-kicker">${kind === "received" ? "Получено" : "Применено"}</p>
-              <h3>${escapeHtml(entry.name)}</h3>
-              <p>${escapeHtml(entry.summary)}</p>
-              <dl class="journal-meta">
-                <div>
-                  <dt>Источник</dt>
-                  <dd>${escapeHtml(entry.sourceLabel)}</dd>
+              <div class="journal-item-layout">
+                <div class="journal-item-media">
+                  ${renderCardThumbnail(entry.cardId, entry.name, "journal-thumb", "lazy")}
                 </div>
-                <div>
-                  <dt>Роль</dt>
-                  <dd>${escapeHtml(entry.role)}</dd>
+                <div class="journal-item-body">
+                  <p class="card-kicker">${kind === "received" ? "Получено" : "Применено"}</p>
+                  <h3>${escapeHtml(entry.name)}</h3>
+                  <p>${escapeHtml(entry.summary)}</p>
+                  <dl class="journal-meta">
+                    <div>
+                      <dt>Источник</dt>
+                      <dd>${escapeHtml(entry.sourceLabel)}</dd>
+                    </div>
+                    <div>
+                      <dt>Роль</dt>
+                      <dd>${escapeHtml(entry.role)}</dd>
+                    </div>
+                    <div>
+                      <dt>Использований</dt>
+                      <dd>${entry.uses}</dd>
+                    </div>
+                  </dl>
                 </div>
-                <div>
-                  <dt>Использований</dt>
-                  <dd>${entry.uses}</dd>
-                </div>
-              </dl>
+              </div>
             </article>
           `;
         })
@@ -1241,12 +1340,19 @@ function renderJournalHelperList(
         .map((entry) => {
           return `
             <article class="journal-item card-${escapeAttribute(entry.cardId)}">
-              <p class="card-kicker">Помощник</p>
-              <h3>${escapeHtml(entry.name)}</h3>
-              <p>${escapeHtml(entry.note)}</p>
-              <p class="journal-count">Появлений: ${entry.appearances}</p>
-              <div class="chips journal-chips">
-                ${entry.sceneTitles.map((sceneTitle) => `<span>${escapeHtml(sceneTitle)}</span>`).join("")}
+              <div class="journal-item-layout">
+                <div class="journal-item-media">
+                  ${renderCardThumbnail(entry.cardId, entry.name, "journal-thumb", "lazy")}
+                </div>
+                <div class="journal-item-body">
+                  <p class="card-kicker">Помощник</p>
+                  <h3>${escapeHtml(entry.name)}</h3>
+                  <p>${escapeHtml(entry.note)}</p>
+                  <p class="journal-count">Появлений: ${entry.appearances}</p>
+                  <div class="chips journal-chips">
+                    ${entry.sceneTitles.map((sceneTitle) => `<span>${escapeHtml(sceneTitle)}</span>`).join("")}
+                  </div>
+                </div>
               </div>
             </article>
           `;
@@ -1268,11 +1374,18 @@ function renderJournalChapterList(
 
           return `
             <article class="journal-item journal-chapter journal-chapter-${escapeAttribute(entry.status)} card-${escapeAttribute(entry.cardId)}">
-              <p class="card-kicker">${statusLabel}</p>
-              <span class="journal-index">${String(index + 1).padStart(2, "0")}</span>
-              <h3>${escapeHtml(entry.title)}</h3>
-              <p>${escapeHtml(entry.summary)}</p>
-              <p class="journal-prompt">${escapeHtml(entry.prompt)}</p>
+              <div class="journal-item-layout">
+                <div class="journal-item-media">
+                  ${renderCardThumbnail(entry.cardId, entry.title, "journal-thumb", "lazy")}
+                </div>
+                <div class="journal-item-body">
+                  <p class="card-kicker">${statusLabel}</p>
+                  <span class="journal-index">${String(index + 1).padStart(2, "0")}</span>
+                  <h3>${escapeHtml(entry.title)}</h3>
+                  <p>${escapeHtml(entry.summary)}</p>
+                  <p class="journal-prompt">${escapeHtml(entry.prompt)}</p>
+                </div>
+              </div>
             </article>
           `;
         })

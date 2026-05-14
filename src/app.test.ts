@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderAppShell } from "./app";
+import { getCardImageAsset } from "./data/cardImages";
 import { getDialogueSceneByEncounterId } from "./data/dialogueScenes";
 import { encounters } from "./data/encounters";
 import { getMinorEventAfterChapter } from "./data/minorArcanaEvents";
@@ -132,6 +133,34 @@ describe("renderAppShell", () => {
     expect(html).toContain("Получено");
     expect(html).toContain("Применено");
     expect(html).toContain("Помощник");
+  });
+
+  it("renders tarot thumbnails in scene, result and journal screens", () => {
+    const initialSceneHtml = renderAppShell({
+      screen: "scene",
+      player: createInitialPlayerState()
+    });
+    const encounter = encounters[0];
+    const choice = encounter.choices[0];
+    const effect = resolveDialogueInventoryEffect(encounter.id, choice.id);
+    const resolved = recordEncounterChoice(createInitialPlayerState(), encounter.id, choice, "thumbnail result", effect);
+    const resultHtml = renderAppShell({
+      screen: "result",
+      player: resolved
+    });
+    const journalState = buildJournalTestState();
+    const journal = buildJournalSnapshot(journalState);
+    const journalHtml = renderAppShell({
+      screen: "journal",
+      player: journalState
+    });
+
+    expect(initialSceneHtml).toContain("card-art-strip");
+    expect(initialSceneHtml).toContain(getCardImageAsset("fool").src ?? "");
+    expect(resultHtml).toContain("card-art-strip");
+    expect(resultHtml).toContain(getCardImageAsset(choice.cardId).src ?? "");
+    expect(journalHtml).toContain("journal-item-layout");
+    expect(journalHtml).toContain(getCardImageAsset(journal.receivedCards[0].cardId).src ?? "");
   });
 
   it("renders the scene screen at the start of the journey", () => {

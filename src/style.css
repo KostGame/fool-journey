@@ -327,6 +327,59 @@ button:focus-visible {
   background: rgba(144, 185, 255, 0.1);
 }
 
+.card-art-strip {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+  align-items: start;
+}
+
+.card-thumbnail {
+  width: min(9rem, 100%);
+  min-width: 0;
+  margin: 0;
+  padding: 0.45rem;
+  aspect-ratio: 5 / 8;
+  display: grid;
+  align-items: stretch;
+  justify-self: start;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.12));
+  box-shadow: inset 0 0 0 1px rgba(225, 175, 103, 0.04);
+}
+
+.card-thumbnail img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 0.7rem;
+  background: rgba(11, 8, 9, 0.82);
+}
+
+.card-thumbnail-fallback {
+  align-content: center;
+  justify-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  color: var(--text);
+}
+
+.card-thumbnail-fallback span {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+
+.card-thumbnail-fallback strong {
+  display: block;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
 .route-summary {
   margin: 0;
   padding: 0.95rem;
@@ -675,6 +728,10 @@ button:focus-visible {
   gap: 0.35rem;
 }
 
+.helper-callout .card-thumbnail {
+  width: min(6.5rem, 100%);
+}
+
 .helper-callout h4 {
   margin: 0.2rem 0 0.35rem;
   font-size: 1rem;
@@ -841,6 +898,25 @@ button:focus-visible {
   display: grid;
   gap: 0.5rem;
   padding: 0.95rem;
+}
+
+.journal-item-layout {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.journal-item-media {
+  min-width: 0;
+}
+
+.journal-item-media .card-thumbnail {
+  width: min(7rem, 100%);
+}
+
+.journal-item-body {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
 }
 
 .journal-item p,
@@ -1036,6 +1112,10 @@ button:focus-visible {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .card-art-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .journal-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1062,6 +1142,11 @@ button:focus-visible {
 
   .journal-sections {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .journal-item-layout {
+    grid-template-columns: minmax(5.5rem, 6.5rem) minmax(0, 1fr);
+    align-items: start;
   }
 
   .home-actions,
