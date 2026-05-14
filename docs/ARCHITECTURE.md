@@ -1,95 +1,54 @@
 # ARCHITECTURE
 
-## Слои
+## Слои приложения
 
-- `src/data` хранит карты, главы, полный major path, 56 младших карт и curated minor events.
-- `src/domain` собирает модель состояния, трактовки, прогресс и `localStorage`.
-- `src/app.ts` рендерит экран и переключает игрока между major и minor шагами.
-- `src/style.css` отвечает за мобильную оболочку.
-- `src/main.ts` монтирует приложение в DOM.
+- `src/data` хранит карты, главы, сцены, minor events и helper data.
+- `src/domain` содержит player state, progress helpers, storage helpers и доменные преобразования.
+- `src/app.ts` собирает экраны, state machine и обработку действий.
+- `src/style.css` отвечает за мобильную вёрстку, читаемые карточки и визуальные роли реплик.
+- `src/main.ts` только монтирует приложение в DOM.
 
-## Доменная модель
+## Доменные сущности
 
-- `PlayerState` хранит XP, текущую главу, текущий шаг, результат выбора и прогресс по minor events.
-- `PlayerState` также хранит минимальный слой инвентаря карт: `earnedCards`, `inventoryCards`, `knownCards`, `lastEarnedCardId`, `lastAppliedCardId`, `lastHelperCardId`.
-- `TarotCard` описывает базовую карту, а для младших арканов добавляет `suit`, `rank`, `elementMeaning` и `rankMeaning`.
-- `StoryChapter` задаёт большую главу пути.
-- `StoryEncounter` описывает сцену старшего аркана.
-- `MinorArcanaEvent` описывает короткое дорожное событие младшего аркана.
-- `JourneyStepId` и `JourneyStepKind` помогают работать с major и minor шагами единообразно.
+- `PlayerState` хранит прогресс, выборы, inventory state и текущий экран.
+- `TarotCard` описывает базовую карту.
+- `StoryChapter` описывает большую главу пути.
+- `DialogueScene` и `DialogueChoice` описывают сцену text quest.
+- `JournalSnapshot` собирается из уже существующего состояния игрока.
 
-## Принцип сборки смысла
+## UI-архитектура
 
-Трактовка строится композиционно:
+Экраны строятся отдельными блоками:
+
+- `home` - главный экран с CTA и вторичным доступом к журналу;
+- `scene` - чистая игровая сцена с вопросом и действиями;
+- `result` - экран обратной связи после выбора;
+- `journal` - отдельный экран следов пути;
+- `completion` - финальный экран пути.
+
+## Порядок сборки смысла
+
+Текст сцены собирается из нескольких слоёв:
 
 - базовая карта;
-- позиция или контекст сцены;
-- ориентация;
-- точечные overrides.
+- контекст главы или события;
+- speaker role;
+- orientation;
+- точечные overrides;
+- inventory state, если выбор зависит от ранее полученной карты.
 
-Это позволяет сохранять один общий слой интерпретации для majors и minors.
+## Сохранение и совместимость
 
-## Совместимость сохранений
-
-- Ключ `localStorage` сохранён прежним, чтобы не терять старые данные SU-002.
-- `normalizePlayerState` умеет поднимать старые сохранения до новой структуры.
-- Если в сохранении нет minor-данных, игра продолжает работать как major-only путь и мягко достраивает новую модель.
-
-## Текущая структура данных
-
-- `src/data/cards.ts`
-- `src/data/storyChapters.ts`
-- `src/data/encounters.ts`
-- `src/data/minorArcana.ts`
-- `src/data/minorArcanaEvents.ts`
-- `src/data/journeySteps.ts`
-- `src/domain/meaning.ts`
-- `src/domain/progress.ts`
-- `src/domain/storage.ts`
-- `src/app.ts`
-- `src/main.ts`
-- `src/style.css`
+- `localStorage` остаётся единственным способом хранения прогресса;
+- старые сохранения должны мягко нормализоваться;
+- отсутствие части данных не должно ломать рендер;
+- fallback-экраны нужны для непереведённых или неподготовленных сцен.
 
 ## Ограничения
 
-- Без backend.
-- Без внешних API.
-- Без авторизации.
-- Без серверного хранения.
-- Без тяжёлых зависимостей.
-
-
-## SU-004
-
-- `ProgressSnapshot` дополнен полями route progress и remaining steps, чтобы home, result screens и completion не дублировали логику подсчёта.
-- `route-panel` на home screen показывает ближайшую точку пути и различает major/minor/finish шаги без новых режимов.
-- Completion screen использует отдельный `restart` action для повторного прохождения, а reset остаётся явным действием с подтверждением.
-- Manual smoke-test Pages строится вокруг mobile-first маршрута: открыть, пройти, завершить, перезапустить, сбросить и проверить сохранение.
-
-## SU-006
-
-- Добавлен отдельный слой `DialogueScene` для vertical slice пути Шута, чтобы диалоги можно было рендерить поверх текущих major/minor шагов.
-- Старые encounter и minor-event структуры остаются fallback-слоем для непереведённых сцен и совместимости со старым прогрессом.
-- `DialogueScene` собирает локацию, реплики, мысль Шута, помощника, набор выборов и текст результата в одном месте.
-- `DialogueChoice` расширяет choice-данные для мягкой обратной связи и учебного вывода без изменения базового прогресса.
-
-## SU-007
-
-- `AppViewState.screen` разделяет `home`, `scene`, `result` и placeholder-экраны.
-- `renderAppShell` больше не строит активную сцену внутри длинного общего экрана.
-- Flow экрана пути живёт как отдельный слой: `home → scene → result → next scene`.
-- `result` открывается как отдельный экран после выбора, а `advance` переводит игрока к следующей сцене сверху.
-- `localStorage` и fallback-совместимость остаются без изменений, чтобы старые сохранения не ломались.
-
-## SU-008
-
-- `DialogueChoice` расширен полями инвентарной механики: `earnedCardId`, `earnedRole`, `requiredCardId`, `appliedCardId`.
-- В `progress.ts` добавлен слой `ChoiceInventoryEffect`: выдача карты, применение карты и учёт `uses` в `earnedCards`.
-- В `storage.ts` добавлена нормализация новых инвентарных полей и мягкая миграция старых сохранений.
-- В `app.ts` выборы в dialogue-сценах фильтруются по `requiredCardId`, а на result-экране показываются короткие статусы `Получено`, `Применено`, `Помощник`.
-- ## SU-010
--
-- - Добавлен отдельный слой `src/domain/journal.ts`, который вычисляет journal snapshot из существующего `PlayerState`.
-- - Дневник не хранит отдельную копию данных: он собирает полученные карты, применённые карты, помощников и главы пути из `earnedCards`, `completedEncounterIds`, `completedMinorEventIds` и dialogue scene metadata.
-- - В `app.ts` появился отдельный экран `journal`, а `home` и completion получили вторичный вход в дневник.
-- - `storage.ts` и `ScreenId` обновлены так, чтобы новый экран был валидным и безопасно восстанавливался.
+- нет backend;
+- нет внешних API;
+- нет авторизации;
+- нет server-side storage;
+- нет тяжёлых зависимостей;
+- нет большой RPG-экономики.
