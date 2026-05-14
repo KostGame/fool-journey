@@ -6,8 +6,10 @@
 
 ## 2. Ветка и PR
 
-- PR: будет добавлен после публикации ветки
+- PR: [#29](https://github.com/KostGame/fool-journey/pull/29)
 - ветка: `feature/su-010-fool-journal-card-collection`
+- head commit: `cb4a576`
+- merge commit: `c758f2fe5c0b69b5353c8ef72c18518e5e44a367`
 
 ## 3. Что реализовано
 
@@ -15,6 +17,7 @@
 - Derived journal snapshot на основе существующего `PlayerState`.
 - Секции полученных карт, применённых карт, помощников и глав пути.
 - Empty states для новых сохранений.
+- Совместимость со старыми сохранениями и валидатором экрана `journal`.
 
 ## 4. Что изменено по файлам
 
@@ -39,8 +42,9 @@
 
 - `npm run check` - success
 - `npm test` - success
-- `npm run build` - pending final verification
-- `git diff --check` - pending final verification
+- `npm run build` - success
+- `git diff --check` - success
+- GitHub Actions CI - success
 
 ## 6. Что не сделано
 
@@ -63,5 +67,16 @@
 
 ## 9. Можно ли переводить PR в Ready for review
 
-- Пока нет: требуется завершить локальные проверки, открыть PR и проверить Pages smoke-test.
+- Да, основной PR уже был открыт как обычный Open PR, CI зелёный, а дальнейший docs cleanup уже завершает хвост отчёта.
+
+## Итоговые поля
+
+- PR: [#29](https://github.com/KostGame/fool-journey/pull/29)
+- ветка: `feature/su-010-fool-journal-card-collection`
+- head commit: `cb4a576`
+- merge commit: `c758f2fe5c0b69b5353c8ef72c18518e5e44a367`
+- Pages URL: [https://kostgame.github.io/fool-journey/](https://kostgame.github.io/fool-journey/)
+- Pages status: `built`
+- CI: `success`
+- PR смержен: `да`
 
