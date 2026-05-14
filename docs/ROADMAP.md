@@ -16,10 +16,10 @@
 - SU-008 - расширение dialogue arc и inventory state.
 - SU-010 - `Дневник Шута` и card collection.
 - SU-011 - quest UI language overhaul.
+- SU-012 - локальные миниатюры карт Таро.
 
 ## Текущий beta-переход
 
-- `SU-012` - локальные миниатюры карт Таро.
 - `SU-013` - аудит кодировки и качества контента.
 - `SU-014` - финальный beta smoke pass.
 

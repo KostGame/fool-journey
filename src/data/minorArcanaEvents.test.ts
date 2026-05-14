@@ -31,6 +31,7 @@ describe("minorArcanaEvents", () => {
     const chapterIds = new Set(storyChapters.map((chapter) => chapter.id));
 
     for (const event of minorArcanaEvents) {
+      expect(event.question.startsWith("Как ")).toBe(true);
       expect(chapterIds.has(event.majorChapterId)).toBe(true);
       expect(getMinorEventAfterChapter(event.majorChapterId)?.id).toBe(event.id);
       expect(event.choices.length).toBeGreaterThanOrEqual(2);
@@ -38,6 +39,8 @@ describe("minorArcanaEvents", () => {
 
       for (const choice of event.choices) {
         expect(choice.cardId).toBe(event.cardId);
+        expect(choice.label).not.toContain(":");
+        expect(choice.label).not.toContain("·");
       }
     }
   });

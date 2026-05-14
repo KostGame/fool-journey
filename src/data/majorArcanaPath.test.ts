@@ -19,9 +19,12 @@ describe("majorArcanaPath", () => {
 
   it("gives each major arcana a short playable encounter", () => {
     for (const step of majorArcanaPath) {
+      expect(/^Как |^Какой |^Что |^На что /.test(step.encounter.question)).toBe(true);
       expect(step.encounter.choices.length).toBeGreaterThanOrEqual(2);
       for (const choice of step.encounter.choices) {
         expect(choice.cardId).toBe(step.card.id);
+        expect(choice.label).not.toContain(":");
+        expect(choice.label).not.toContain("·");
       }
     }
   });

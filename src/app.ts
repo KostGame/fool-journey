@@ -741,11 +741,11 @@ function renderChoiceOutcomeBadges(player: PlayerState): string {
 function getDialogueToneLabel(tone?: DialogueChoice["tone"]): string {
   switch (tone) {
     case "feeling":
-      return "Чувство";
+      return "Отклик";
     case "thought":
-      return "Мысль";
+      return "Размышление";
     case "resource":
-      return "Ресурс";
+      return "Опора";
     case "action":
     default:
       return "Действие";
