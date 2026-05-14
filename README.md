@@ -4,7 +4,7 @@
 
 ## Состояние проекта
 
-- текущий beta-шаг: `SU-012`;
+- текущий beta-шаг: `SU-013`;
 - базовый ориентир beta-перехода: [docs/BETA_TRANSITION.md](docs/BETA_TRANSITION.md);
 - главный поток уже работает как экранная история `home → scene → result → next scene → completion`;
 - прогресс хранится локально в `localStorage`;
@@ -24,6 +24,7 @@
 - `npm install`
 - `npm run dev`
 - `npm run check`
+- `npm run check:encoding`
 - `npm test`
 - `npm run build`
 - `npm run preview`

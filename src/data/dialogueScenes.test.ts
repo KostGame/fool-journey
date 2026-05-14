@@ -44,6 +44,9 @@ describe("dialogueScenes", () => {
     expect(earnedChoices.length).toBeGreaterThanOrEqual(10);
     expect(requiredChoices.length).toBeGreaterThanOrEqual(8);
     expect(requiredChoices.every((choice) => Boolean(choice.appliedCardId))).toBe(true);
+    expect(choices.every((choice) => !choice.label.includes(":"))).toBe(true);
+    expect(choices.every((choice) => !choice.label.includes("·"))).toBe(true);
+    expect(choices.every((choice) => choice.buttonNote.length > 0)).toBe(true);
     expect(choices.every((choice) => typeof choice.feedback === "string" && choice.feedback.length > 0)).toBe(true);
     expect(choices.every((choice) => typeof choice.lesson === "string" && choice.lesson.length > 0)).toBe(true);
     expect(choices.every((choice) => choice.xp > 0)).toBe(true);

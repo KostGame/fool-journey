@@ -136,7 +136,7 @@ export const dialogueScenes = [
         cardId: "high-priestess",
         orientation: "upright",
         xp: 3,
-        buttonNote: "Пауза ради ясности",
+        buttonNote: "Слушать тише",
         summaryOverride: "Жрица удерживает тишину, пока не проявится смысл.",
         adviceOverride: "Замедлись и дай вопросу созреть.",
         tone: "feeling",
@@ -149,7 +149,7 @@ export const dialogueScenes = [
         cardId: "high-priestess",
         orientation: "upright",
         xp: 2,
-        buttonNote: "Собрать мысль",
+        buttonNote: "Назвать главное",
         summaryOverride: "Точная формулировка закрепляет интуицию.",
         adviceOverride: "Собери одну ясную фразу и не спорь с ней раньше времени.",
         tone: "thought",
@@ -283,7 +283,7 @@ export const dialogueScenes = [
         cardId: "2-cups",
         orientation: "upright",
         xp: 2,
-        buttonNote: "2 Кубков: связь через вопрос",
+        buttonNote: "Связь через вопрос",
         summaryOverride: "Вопрос открывает живой контакт и уточняет правило.",
         adviceOverride: "Сначала спроси, потом спорь.",
         tone: "action",
@@ -298,7 +298,7 @@ export const dialogueScenes = [
         cardId: "4-pentacles",
         orientation: "upright",
         xp: 2,
-        buttonNote: "4 Пентаклей: каркас и ресурс",
+        buttonNote: "Крепкая опора",
         summaryOverride: "Правило даёт устойчивость, когда не становится тюрьмой.",
         adviceOverride: "Оставь правило там, где оно защищает ресурс.",
         tone: "resource",
@@ -333,7 +333,7 @@ export const dialogueScenes = [
     choices: [
       makeChoice({
         id: "lovers-heart",
-        label: "Применить 2 Кубков: сначала услышать другого",
+        label: "Принять взаимность",
         cardId: "2-cups",
         orientation: "upright",
         xp: 2,
@@ -352,7 +352,7 @@ export const dialogueScenes = [
         cardId: "7-wands",
         orientation: "upright",
         xp: 2,
-        buttonNote: "7 Жезлов: граница без войны",
+        buttonNote: "Граница без войны",
         summaryOverride: "Граница может быть твёрдой и уважительной одновременно.",
         adviceOverride: "Сформулируй свою позицию коротко и спокойно.",
         tone: "thought",
@@ -387,7 +387,7 @@ export const dialogueScenes = [
     choices: [
       makeChoice({
         id: "chariot-hold",
-        label: "Применить 7 Жезлов: держать направление под давлением",
+        label: "Держать направление",
         cardId: "7-wands",
         orientation: "upright",
         xp: 2,
@@ -445,7 +445,7 @@ export const dialogueScenes = [
         cardId: "8-pentacles",
         orientation: "upright",
         xp: 2,
-        buttonNote: "8 Пентаклей: устойчивый ритм",
+        buttonNote: "Устойчивый ритм",
         summaryOverride: "Повторяемый ритм укрощает хаос лучше грубой силы.",
         adviceOverride: "Сделай короткий и устойчивый шаг, затем повтори.",
         tone: "resource",
@@ -460,7 +460,7 @@ export const dialogueScenes = [
         cardId: "5-swords",
         orientation: "upright",
         xp: 2,
-        buttonNote: "5 Мечей: спор ценой связи",
+        buttonNote: "Не спорить ценой связи",
         summaryOverride: "Жёсткий нажим даёт быстрый эффект, но ослабляет связь.",
         adviceOverride: "Если давишь, сразу проверяй цену этого выигрыша.",
         tone: "thought",
@@ -493,7 +493,7 @@ export const dialogueScenes = [
     choices: [
       makeChoice({
         id: "hermit-seek",
-        label: "Применить 6 Мечей: сменить точку зрения",
+        label: "Сменить точку зрения",
         cardId: "6-swords",
         orientation: "upright",
         xp: 2,
@@ -548,7 +548,7 @@ export const dialogueScenes = [
     choices: [
       makeChoice({
         id: "wheel-ride",
-        label: "Применить 8 Пентаклей: удержать ритм в повороте",
+        label: "Удержать ритм",
         cardId: "8-pentacles",
         orientation: "upright",
         xp: 2,
