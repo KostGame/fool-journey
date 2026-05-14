@@ -176,6 +176,7 @@ describe("renderAppShell", () => {
     expect(html).toContain("quest-inventory-panel");
     expect(html).toContain("scene-status");
     expect(html).toContain("scene-speaker");
+    expect(html).toContain("Карты Шута");
     expect(html).toContain("Как войти в новый этап без лишней тяжести?");
     expect(html).toContain("data-choice-id=\"fool-step\"");
     expect(html).toContain("choice-grid");
@@ -194,6 +195,7 @@ describe("renderAppShell", () => {
     expect(html).toContain("dialogue-panel");
     expect(html).toContain("data-choice-id=\"lovers-heart\"");
     expect(html).toContain("data-choice-id=\"lovers-balance\"");
+    expect(html).toContain("Можно применить:");
   });
 
   it("shows locked choice when required inventory card is missing", () => {
@@ -225,7 +227,7 @@ describe("renderAppShell", () => {
     expect(html).not.toContain("choice-lock-note");
   });
 
-  it("renders result status badges for applied/helper inventory cards", () => {
+  it("renders explicit result feedback and reward labels for applied/helper inventory cards", () => {
     const stateAtJustice = advanceToEncounter("justice-scales", {
       "hierophant-hall": "hierophant-ask",
       "lovers-crossroads": "lovers-balance",
@@ -249,13 +251,45 @@ describe("renderAppShell", () => {
       player: resolved
     });
 
-    expect(html).toContain("chips-status");
-    expect(html).toContain("result-choice");
+    expect(html).toContain("Результат выбора");
+    expect(html).toContain("Шут выбрал:");
+    expect(html).toContain("result-tone");
+    expect(html).toContain("Что изменилось");
+    expect(html).toContain("Применено из Карт Шута");
+    expect(html).toContain("Помощник пути");
     expect(html).toContain("dialogue-reaction");
     expect(html).toContain("reading-grid");
     expect(html).toContain("data-action=\"advance\"");
     expect(resolved.lastAppliedCardId).toBeTruthy();
     expect(resolved.lastHelperCardId).toBeTruthy();
+  });
+
+  it("renders explicit earned reward labels for received inventory cards", () => {
+    const stateAtLovers = advanceToEncounter("lovers-crossroads", {
+      "hierophant-hall": "hierophant-ask"
+    });
+    const encounter = encounters.find((item) => item.id === "lovers-crossroads");
+
+    expect(encounter).toBeDefined();
+
+    if (!encounter) {
+      return;
+    }
+
+    const choice = encounter.choices.find((item) => item.id === "lovers-balance") ?? encounter.choices[0];
+    const effect = resolveDialogueInventoryEffect(encounter.id, choice.id);
+    const resolved = recordEncounterChoice(stateAtLovers, encounter.id, choice, "lovers result", effect);
+    const html = renderAppShell({
+      screen: "result",
+      player: resolved
+    });
+
+    expect(html).toContain("Результат выбора");
+    expect(html).toContain("Что пополнило Карты Шута");
+    expect(html).toContain("Получено в Карты Шута");
+    expect(html).toContain("result-tone");
+    expect(html).toContain("data-action=\"advance\"");
+    expect(resolved.lastEarnedCardId).toBeTruthy();
   });
 
   it("keeps the quest flow on separate scene and result screens", () => {
@@ -281,7 +315,8 @@ describe("renderAppShell", () => {
 
     expect(sceneHtml).toContain("quest-layout");
     expect(sceneHtml).toContain("quest-actions-panel");
-    expect(resultHtml).toContain("result-choice");
+    expect(resultHtml).toContain("Результат выбора");
+    expect(resultHtml).toContain("result-tone");
     expect(resultHtml).toContain("quest-actions-panel");
     expect(resultHtml).toContain("data-action=\"advance\"");
     expect(nextSceneHtml).toContain("scene-status");

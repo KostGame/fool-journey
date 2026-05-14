@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- SU-017: result screen now shows explicit outcome tone, reward labels for Cards of the Fool, applied cards and path helpers, plus clearer inventory summaries.
 - SU-015: scene и result экраны перестроены в classic quest layout с локацией, визуальной зоной, текстом, действиями и компактным инвентарём.
 - SU-014: создан `docs/BETA_CHECKLIST.md`, проведён финальный beta smoke pass на mobile viewport, подтверждён `Project status: beta`.
 - SU-013: добавлена автоматическая проверка кодировки `npm run check:encoding`, вычитаны прямые вопросы сцен и упрощены самые техничные подсказки кнопок.

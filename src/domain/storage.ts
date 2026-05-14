@@ -104,6 +104,7 @@ export function normalizePlayerState(value: unknown): PlayerState {
     lastChoiceCardId,
     lastFeedback,
     lastEarnedCardId: isCardId(value.lastEarnedCardId) ? value.lastEarnedCardId : null,
+    lastEarnedCardWasNew: typeof value.lastEarnedCardWasNew === "boolean" ? value.lastEarnedCardWasNew : null,
     lastAppliedCardId: isCardId(value.lastAppliedCardId) ? value.lastAppliedCardId : null,
     lastHelperCardId: isCardId(value.lastHelperCardId) ? value.lastHelperCardId : null,
     completedEncounterIds: normalizeEncounterIds(value.completedEncounterIds),

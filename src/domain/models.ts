@@ -174,6 +174,7 @@ export interface PlayerState {
   lastChoiceCardId: CardId | null;
   lastFeedback: string | null;
   lastEarnedCardId: CardId | null;
+  lastEarnedCardWasNew: boolean | null;
   lastAppliedCardId: CardId | null;
   lastHelperCardId: CardId | null;
   completedEncounterIds: readonly EncounterId[];

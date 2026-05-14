@@ -24,6 +24,7 @@ interface InventoryUpdateResult {
   inventoryCards: readonly CardId[];
   knownCards: readonly CardId[];
   lastEarnedCardId: CardId | null;
+  lastEarnedCardWasNew: boolean | null;
   lastAppliedCardId: CardId | null;
   lastHelperCardId: CardId | null;
 }
@@ -55,14 +56,16 @@ function updateInventoryFromChoice(
   let knownCards = appendUniqueCardIds(player.knownCards, [choiceCardId]);
 
   let lastEarnedCardId: CardId | null = null;
+  let lastEarnedCardWasNew: boolean | null = null;
   let lastAppliedCardId: CardId | null = null;
   let lastHelperCardId: CardId | null = null;
 
   if (inventoryEffect?.earnedCardId) {
     const role = inventoryEffect.earnedRole ?? DEFAULT_EARNED_ROLE;
     const cardId = inventoryEffect.earnedCardId;
+    const hadCardBefore = earnedCards.some((entry) => entry.cardId === cardId);
 
-    if (!earnedCards.some((entry) => entry.cardId === cardId)) {
+    if (!hadCardBefore) {
       earnedCards = [
         ...earnedCards,
         {
@@ -78,6 +81,7 @@ function updateInventoryFromChoice(
     inventoryCards = [...appendUniqueCardIds(inventoryCards, [cardId])];
     knownCards = appendUniqueCardIds(knownCards, [cardId]);
     lastEarnedCardId = cardId;
+    lastEarnedCardWasNew = !hadCardBefore;
   }
 
   if (inventoryEffect?.appliedCardId) {
@@ -110,6 +114,7 @@ function updateInventoryFromChoice(
     inventoryCards,
     knownCards,
     lastEarnedCardId,
+    lastEarnedCardWasNew,
     lastAppliedCardId,
     lastHelperCardId
   };
@@ -149,6 +154,7 @@ export function createInitialPlayerState(): PlayerState {
     lastChoiceCardId: null,
     lastFeedback: null,
     lastEarnedCardId: null,
+    lastEarnedCardWasNew: null,
     lastAppliedCardId: null,
     lastHelperCardId: null,
     completedEncounterIds: [],
@@ -236,6 +242,7 @@ export function recordEncounterChoice(
     lastChoiceCardId: choice.cardId,
     lastFeedback: feedback,
     lastEarnedCardId: inventoryUpdate.lastEarnedCardId,
+    lastEarnedCardWasNew: inventoryUpdate.lastEarnedCardWasNew,
     lastAppliedCardId: inventoryUpdate.lastAppliedCardId,
     lastHelperCardId: inventoryUpdate.lastHelperCardId,
     completedEncounterIds,
@@ -270,6 +277,7 @@ export function recordMinorEventChoice(
     lastChoiceCardId: choice.cardId,
     lastFeedback: feedback,
     lastEarnedCardId: inventoryUpdate.lastEarnedCardId,
+    lastEarnedCardWasNew: inventoryUpdate.lastEarnedCardWasNew,
     lastAppliedCardId: inventoryUpdate.lastAppliedCardId,
     lastHelperCardId: inventoryUpdate.lastHelperCardId,
     completedMinorEventIds,

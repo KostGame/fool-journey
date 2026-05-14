@@ -24,6 +24,7 @@ describe("storage helpers", () => {
       inventoryCards: [],
       completedMinorEventIds: []
     });
+    expect(restored.lastEarnedCardWasNew).toBeNull();
   });
 
   it("loads an old save and fills the new inventory fields", () => {
@@ -56,6 +57,7 @@ describe("storage helpers", () => {
     expect(restored.earnedCards).toEqual([]);
     expect(restored.inventoryCards).toEqual([]);
     expect(restored.knownCards).toEqual([]);
+    expect(restored.lastEarnedCardWasNew).toBeNull();
     expect(restored.completedMinorEventIds).toEqual([]);
   });
 
@@ -121,6 +123,7 @@ describe("storage helpers", () => {
     expect(restored.earnedCards).toHaveLength(1);
     expect(restored.earnedCards[0].cardId).toBe("2-cups");
     expect(restored.earnedCards[0].role).toBe("action");
+    expect(restored.lastEarnedCardWasNew).toBeNull();
   });
 
   it("accepts the journal screen id for navigation without affecting old saves", () => {

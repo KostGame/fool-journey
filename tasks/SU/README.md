@@ -11,3 +11,4 @@
 - для SU-014 используется `SU-014-beta-readiness-mobile-smoke-pass.md`;
 - для SU-015 используется `SU-015-classic-text-quest-interface.md`;
 - для SU-012 используется `SU-012-tarot-card-thumbnails.md`.
+- для SU-017 используется `SU-017-result-feedback-card-rewards.md`.

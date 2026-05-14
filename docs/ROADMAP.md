@@ -18,6 +18,7 @@
 - SU-011 - quest UI language overhaul.
 - SU-012 - локальные миниатюры карт Таро.
 - SU-015 - classic text quest interface overhaul.
+- SU-017 - explicit result feedback and card rewards.
 
 ## Beta status
 
@@ -25,6 +26,7 @@
 - `SU-012` - локальные миниатюры карт Таро.
 - `SU-013` - аудит кодировки и качества контента.
 - `SU-014` - финальный beta smoke pass.
+- `SU-017` - explicit result feedback and card rewards.
 - `Project status: beta`.
 
 ## Ближайший смысловой шаг

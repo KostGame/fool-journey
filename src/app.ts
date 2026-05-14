@@ -30,7 +30,8 @@ import type {
   PlayerState,
   ProgressSnapshot,
   ScreenId,
-  StorageLike
+  StorageLike,
+  TarotCard
 } from "./domain/models";
 
 const modeCatalog = [
@@ -516,19 +517,10 @@ function renderDialogueSceneScreen(
 
       <footer class="quest-footer">
         <div class="quest-inventory-panel">
-          <div class="quest-inventory-copy">
-            <p class="eyebrow">Инвентарь и дневник</p>
-            <p>Карты помогают помнить, что уже получено, применено и кто помог Шуту на пути.</p>
-          </div>
-          <div class="quest-inventory-meta">
-            <div class="scene-status-item">
-              <span>Карты</span>
-              <strong>${escapeHtml(player.inventoryCards.length > 0 ? player.inventoryCards.map((cardId) => getCard(cardId)?.name ?? cardId).slice(-4).join(" · ") : "Пока нет")}</strong>
-            </div>
-            <div class="quest-inventory-links">
-              <button class="ghost-button" type="button" data-action="screen" data-screen="journal">Дневник Шута</button>
-              <button class="ghost-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
-            </div>
+          ${renderSceneInventorySummary(player, scene)}
+          <div class="quest-inventory-links">
+            <button class="ghost-button" type="button" data-action="screen" data-screen="journal">Дневник Шута</button>
+            <button class="ghost-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
           </div>
         </div>
       </footer>
@@ -555,6 +547,7 @@ function renderDialogueResultScreen(
     return renderCorruptedState();
   }
 
+  const outcome = getChoiceOutcomeSummary(choice);
   const cardArtStrip = renderCardArtStrip([
     {
       cardId: card.id,
@@ -590,7 +583,7 @@ function renderDialogueResultScreen(
           <p class="card-kicker">Результат действия</p>
           ${cardArtStrip}
           <p class="quest-visual-caption">${escapeHtml(choice.label)}</p>
-          ${renderChoiceOutcomeBadges(player)}
+          <p class="result-tone result-tone-${escapeAttribute(outcome.toneClass)}">${escapeHtml(outcome.label)}</p>
           ${
             scene.helperCardId
               ? renderDialogueHelperCallout(scene)
@@ -600,33 +593,53 @@ function renderDialogueResultScreen(
 
         <div class="quest-text-panel">
           <article class="result-card dialogue-result quest-card card-${card.id}">
-            <p class="card-kicker">Ответ собран</p>
-            <h3>${escapeHtml(scene.resultText)}</h3>
-            <p class="result-choice">${escapeHtml(choice.label)}</p>
-            <p class="card-summary">${escapeHtml(choice.feedback)}</p>
-            <p class="dialogue-reaction">${escapeHtml(choice.lesson)}</p>
+            <div class="result-section">
+              <p class="card-kicker">Результат выбора</p>
+              <h3>Шут выбрал: ${escapeHtml(choice.label)}</h3>
+              <p class="result-tone result-tone-${escapeAttribute(outcome.toneClass)}">${escapeHtml(outcome.label)}</p>
+              <p class="result-tone-note">${escapeHtml(outcome.description)}</p>
+            </div>
 
-            <div class="chips">
-              <span>${escapeHtml(stepTitle)}</span>
-              <span>${escapeHtml(progress.stepKindLabel)}</span>
-              <span>${escapeHtml(scene.nextStepLabel)}</span>
+            <div class="result-section">
+              <p class="result-section-label">Что изменилось</p>
+              <p class="card-summary">${escapeHtml(scene.resultText)}</p>
+              <p class="result-feedback">${escapeHtml(choice.feedback)}</p>
             </div>
 
             <dl class="reading-grid">
               <div>
-                <dt>Выбор</dt>
-                <dd>${escapeHtml(choice.label)}</dd>
+                <dt>Карта главы</dt>
+                <dd>${escapeHtml(card.name)}</dd>
               </div>
               <div>
-                <dt>Итог</dt>
+                <dt>Оценка</dt>
+                <dd>${escapeHtml(outcome.label)}</dd>
+              </div>
+              <div>
+                <dt>Что изменилось</dt>
                 <dd>${escapeHtml(scene.resultText)}</dd>
               </div>
               <div>
-                <dt>Совет</dt>
-                <dd>${escapeHtml(choice.adviceOverride)}</dd>
+                <dt>Дальше</dt>
+                <dd>${escapeHtml(scene.nextStepLabel)}</dd>
+              </div>
+            </dl>
+
+            ${renderResultRewardSummary(player)}
+
+            <div class="result-section">
+              <p class="result-section-label">Зачем это нужно</p>
+              <p class="dialogue-reaction">${escapeHtml(choice.lesson)}</p>
+              <p class="result-reward-note">${escapeHtml(choice.adviceOverride)}</p>
+            </div>
+
+            <dl class="reading-grid">
+              <div>
+                <dt>Выбранное действие</dt>
+                <dd>${escapeHtml(choice.label)}</dd>
               </div>
               <div>
-                <dt>Дальше</dt>
+                <dt>Следующий шаг</dt>
                 <dd>${escapeHtml(scene.nextStepLabel)}</dd>
               </div>
             </dl>
@@ -717,6 +730,199 @@ function renderDialogueHelperCallout(scene: DialogueScene): string {
   `;
 }
 
+type ResultRewardRole = "earned" | "applied" | "helper";
+
+interface ResultRewardItem {
+  card: TarotCard;
+  labels: string[];
+  notes: string[];
+  roles: ResultRewardRole[];
+}
+
+interface OutcomeToneSummary {
+  label: string;
+  description: string;
+  toneClass: string;
+}
+
+function getChoiceOutcomeSummary(choice: EncounterChoice | DialogueChoice): OutcomeToneSummary {
+  if (choice.orientation === "reversed") {
+    return {
+      label: "Рискованный ход",
+      description: "Шут действует на грани: ход открывает неожиданный поворот и требует внимания к деталям.",
+      toneClass: "risky"
+    };
+  }
+
+  switch (choice.tone) {
+    case "feeling":
+      return {
+        label: "Осторожный ход",
+        description: "Шут не давит на сцену, а слушает её, поэтому результат мягче и точнее.",
+        toneClass: "careful"
+      };
+    case "thought":
+      return {
+        label: "Новый опыт",
+        description: "Ход не даёт мгновенной победы, зато открывает новый способ читать карту и сцену.",
+        toneClass: "learning"
+      };
+    case "resource":
+      return {
+        label: "Удачный ход",
+        description: "Шут опирается на ресурс и собирает путь в рабочую форму.",
+        toneClass: "strong"
+      };
+    case "action":
+    default:
+      return {
+        label: "Удачный ход",
+        description: "Шут действует прямо и получает ясный отклик сцены.",
+        toneClass: "strong"
+      };
+  }
+}
+
+function getRewardRoleLabel(role: ResultRewardRole, wasNew?: boolean): string {
+  switch (role) {
+    case "earned":
+      return wasNew === false ? "Уже есть в Картах Шута" : "Получено в Карты Шута";
+    case "applied":
+      return "Применено из Карт Шута";
+    case "helper":
+    default:
+      return "Помощник пути";
+  }
+}
+
+function getRewardBenefitText(card: TarotCard, role: ResultRewardRole): string {
+  if (role === "helper") {
+    return card.storyRole || card.advice;
+  }
+
+  return card.advice || card.lightMeaning || card.dailyMeaning;
+}
+
+function buildResultRewardItems(player: PlayerState): ResultRewardItem[] {
+  const items = new Map<string, ResultRewardItem>();
+
+  const addItem = (cardId: string | null, role: ResultRewardRole, wasNew?: boolean): void => {
+    if (!cardId) {
+      return;
+    }
+
+    const card = getCard(cardId);
+
+    if (!card) {
+      return;
+    }
+
+    const existing = items.get(cardId);
+    const label = getRewardRoleLabel(role, wasNew);
+    const note = getRewardBenefitText(card, role);
+
+    if (existing) {
+      if (!existing.labels.includes(label)) {
+        existing.labels.push(label);
+      }
+
+      if (!existing.notes.includes(note)) {
+        existing.notes.push(note);
+      }
+
+      if (!existing.roles.includes(role)) {
+        existing.roles.push(role);
+      }
+
+      return;
+    }
+
+    items.set(cardId, {
+      card,
+      labels: [label],
+      notes: [note],
+      roles: [role]
+    });
+  };
+
+  addItem(player.lastEarnedCardId, "earned", player.lastEarnedCardWasNew ?? undefined);
+  addItem(player.lastAppliedCardId, "applied");
+  addItem(player.lastHelperCardId, "helper");
+
+  return [...items.values()];
+}
+
+function renderResultRewardItems(player: PlayerState): string {
+  const items = buildResultRewardItems(player);
+
+  if (items.length === 0) {
+    return "";
+  }
+
+  return `
+    <div class="result-reward-stack">
+      ${items.map((item) => renderResultRewardItem(item)).join("")}
+    </div>
+  `;
+}
+
+function renderResultRewardItem(item: ResultRewardItem): string {
+  return `
+    <article class="result-reward-item card-${item.card.id}">
+      ${renderCardThumbnail(item.card.id, item.card.name, "result-reward-thumb", "eager")}
+      <div class="result-reward-copy">
+        <p class="result-reward-label">${escapeHtml(item.labels.join(" · "))}</p>
+        <h4>${escapeHtml(item.card.name)}</h4>
+        <p class="result-reward-note">${escapeHtml(item.notes.join(" "))}</p>
+      </div>
+    </article>
+  `;
+}
+
+function renderResultRewardSummary(player: PlayerState): string {
+  const items = buildResultRewardItems(player);
+
+  if (items.length === 0) {
+    return "";
+  }
+
+  return `
+    <section class="result-reward-section">
+      <div class="section-head">
+        <p class="eyebrow">Карты</p>
+        <h3>Что пополнило Карты Шута</h3>
+      </div>
+      ${renderResultRewardItems(player)}
+    </section>
+  `;
+}
+
+function renderSceneInventorySummary(player: PlayerState, scene: DialogueScene): string {
+  const inventoryCards = player.inventoryCards
+    .map((cardId) => getCard(cardId)?.name ?? cardId)
+    .slice(-4);
+  const availableCards = [...new Set(
+    scene.choices
+      .map((choice) => choice.requiredCardId)
+      .filter((cardId): cardId is string => Boolean(cardId && player.inventoryCards.includes(cardId)))
+      .map((cardId) => getCard(cardId)?.name ?? cardId)
+  )];
+
+  return `
+    <div class="quest-inventory-meta">
+      <p class="quest-inventory-summary">
+        <strong>Карты Шута</strong>
+        <span>${escapeHtml(inventoryCards.length > 0 ? inventoryCards.join(" · ") : "Пока пусто")}</span>
+      </p>
+      ${
+        availableCards.length > 0
+          ? `<p class="quest-inventory-available">Можно применить: ${escapeHtml(availableCards.join(" · "))}</p>`
+          : `<p class="quest-inventory-hint">Полученные карты появятся здесь и помогут в следующих сценах.</p>`
+      }
+    </div>
+  `;
+}
+
 function renderDialogueLine(line: DialogueLine): string {
   const label =
     line.speaker === "narrator"
@@ -758,31 +964,6 @@ function renderDialogueChoiceButton(player: PlayerState, choice: DialogueChoice)
       ${!isAvailable && requiredCard ? `<span class="choice-lock-note">Нужна карта: ${escapeHtml(requiredCard.name)}</span>` : ""}
     </button>
   `;
-}
-
-function renderChoiceOutcomeBadges(player: PlayerState): string {
-  const badges: string[] = [];
-
-  if (player.lastEarnedCardId) {
-    const card = getCard(player.lastEarnedCardId);
-    badges.push(`<span>Получено: ${escapeHtml(card?.name ?? player.lastEarnedCardId)}</span>`);
-  }
-
-  if (player.lastAppliedCardId) {
-    const card = getCard(player.lastAppliedCardId);
-    badges.push(`<span>Применено: ${escapeHtml(card?.name ?? player.lastAppliedCardId)}</span>`);
-  }
-
-  if (player.lastHelperCardId) {
-    const card = getCard(player.lastHelperCardId);
-    badges.push(`<span>Помощник: ${escapeHtml(card?.name ?? player.lastHelperCardId)}</span>`);
-  }
-
-  if (badges.length === 0) {
-    return "";
-  }
-
-  return `<div class="chips chips-status">${badges.join("")}</div>`;
 }
 
 function getDialogueToneLabel(tone?: DialogueChoice["tone"]): string {
@@ -937,6 +1118,7 @@ function renderMajorJourneyResultScreen(
     return renderCorruptedState();
   }
 
+  const outcome = getChoiceOutcomeSummary(choice);
   const interpretation = composeEncounterInterpretation(card, encounter, choice);
   const nextMinorEvent = getMinorEventAfterChapter(chapter.id);
 
@@ -949,22 +1131,30 @@ function renderMajorJourneyResultScreen(
       </div>
 
       <article class="result-card card-${card.id}">
-        <p class="card-kicker">Ответ собран</p>
-        <h3>${escapeHtml(interpretation.title)}</h3>
-        <p class="card-summary">${escapeHtml(interpretation.summary)}</p>
+        <div class="result-section">
+          <p class="card-kicker">Результат выбора</p>
+          <h3>Шут выбрал: ${escapeHtml(choice.label)}</h3>
+          <p class="result-tone result-tone-${escapeAttribute(outcome.toneClass)}">${escapeHtml(outcome.label)}</p>
+          <p class="result-tone-note">${escapeHtml(outcome.description)}</p>
+        </div>
 
-        <div class="chips">
-          ${interpretation.keywords.map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("")}
+        <div class="result-section">
+          <p class="result-section-label">Что изменилось</p>
+          <p class="card-summary">${escapeHtml(interpretation.summary)}</p>
+          <p class="result-feedback">
+            ${escapeHtml(player.lastFeedback ?? "")}
+            ${nextMinorEvent ? ` После этой главы может появиться дорожное событие ${escapeHtml(nextMinorEvent.title)}.` : ""}
+          </p>
         </div>
 
         <dl class="reading-grid">
           <div>
-            <dt>Тип шага</dt>
-            <dd>${escapeHtml(progress.stepKindLabel)}</dd>
+            <dt>Карта главы</dt>
+            <dd>${escapeHtml(card.name)}</dd>
           </div>
           <div>
-            <dt>Активный шаг</dt>
-            <dd>${escapeHtml(progress.encounterTitle)}</dd>
+            <dt>Качество хода</dt>
+            <dd>${escapeHtml(outcome.label)}</dd>
           </div>
           <div>
             <dt>Эпизод</dt>
@@ -973,6 +1163,10 @@ function renderMajorJourneyResultScreen(
           <div>
             <dt>Дорожные события</dt>
             <dd>${escapeHtml(progress.minorEventProgressLabel)}</dd>
+          </div>
+          <div>
+            <dt>Следующий шаг</dt>
+            <dd>${escapeHtml(nextMinorEvent ? nextMinorEvent.title : "Дальше по пути")}</dd>
           </div>
           <div>
             <dt>Совет</dt>
@@ -992,10 +1186,14 @@ function renderMajorJourneyResultScreen(
           </div>
         </dl>
 
-        <p class="result-feedback">
-          ${escapeHtml(player.lastFeedback ?? "")}
-          ${nextMinorEvent ? ` После этой главы может появиться дорожное событие ${escapeHtml(nextMinorEvent.title)}.` : ""}
-        </p>
+        ${renderResultRewardSummary(player)}
+
+        <div class="result-section">
+          <p class="result-section-label">Зачем это нужно</p>
+          <p class="dialogue-reaction">${escapeHtml(choice.lesson ?? "")}</p>
+          <p class="result-reward-note">${escapeHtml(choice.adviceOverride ?? "")}</p>
+        </div>
+
         <p class="xp-badge">+${choice.xp} XP · ${escapeHtml(choice.buttonNote)}</p>
       </article>
 
@@ -1067,6 +1265,7 @@ function renderMinorJourneyResultScreen(
     return renderCorruptedState();
   }
 
+  const outcome = getChoiceOutcomeSummary(choice);
   const interpretation = composeEncounterInterpretation(card, minorEvent, choice);
 
   return `
@@ -1078,15 +1277,28 @@ function renderMinorJourneyResultScreen(
       </div>
 
       <article class="result-card card-${card.id}">
-        <p class="card-kicker">Младший аркан</p>
-        <h3>${escapeHtml(interpretation.title)}</h3>
-        <p class="card-summary">${escapeHtml(interpretation.summary)}</p>
+        <div class="result-section">
+          <p class="card-kicker">Результат выбора</p>
+          <h3>Шут выбрал: ${escapeHtml(choice.label)}</h3>
+          <p class="result-tone result-tone-${escapeAttribute(outcome.toneClass)}">${escapeHtml(outcome.label)}</p>
+          <p class="result-tone-note">${escapeHtml(outcome.description)}</p>
+        </div>
 
-        <div class="chips">
-          ${interpretation.keywords.map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("")}
+        <div class="result-section">
+          <p class="result-section-label">Что изменилось</p>
+          <p class="card-summary">${escapeHtml(interpretation.summary)}</p>
+          <p class="result-feedback">${escapeHtml(player.lastFeedback ?? "")} После ответа история продолжится.</p>
         </div>
 
         <dl class="reading-grid">
+          <div>
+            <dt>Карта события</dt>
+            <dd>${escapeHtml(card.name)}</dd>
+          </div>
+          <div>
+            <dt>Качество хода</dt>
+            <dd>${escapeHtml(outcome.label)}</dd>
+          </div>
           <div>
             <dt>Тип шага</dt>
             <dd>${escapeHtml(progress.stepKindLabel)}</dd>
@@ -1121,7 +1333,14 @@ function renderMinorJourneyResultScreen(
           </div>
         </dl>
 
-        <p class="result-feedback">${escapeHtml(player.lastFeedback ?? "")} После ответа история продолжится.</p>
+        ${renderResultRewardSummary(player)}
+
+        <div class="result-section">
+          <p class="result-section-label">Зачем это нужно</p>
+          <p class="dialogue-reaction">${escapeHtml(choice.lesson ?? "")}</p>
+          <p class="result-reward-note">${escapeHtml(choice.adviceOverride ?? "")}</p>
+        </div>
+
         <p class="xp-badge">+${choice.xp} XP · ${escapeHtml(choice.buttonNote)}</p>
       </article>
 
@@ -1146,6 +1365,7 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
   }
 
   const interpretation = composeEncounterInterpretation(card, encounter, choice);
+  const journal = buildJournalSnapshot(player);
   const completedMinorEvents = minorArcanaEvents.filter((event) => player.completedMinorEventIds.includes(event.id));
   const suitOrder = ["wands", "cups", "swords", "pentacles"] as const;
   const suitLabels: Record<(typeof suitOrder)[number], string> = {
@@ -1199,12 +1419,16 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
             <dd>${escapeHtml(inventorySummary || "Пока нет карт в инвентаре")}</dd>
           </div>
           <div>
+            <dt>Помощники пути</dt>
+            <dd>${journal.summary.helperCards}</dd>
+          </div>
+          <div>
             <dt>Смысл круга</dt>
             <dd>От первого импульса к собранной целостности, а младшие арканы соединяют большие главы с повседневной жизнью.</dd>
           </div>
           <div>
             <dt>Дальше</dt>
-            <dd>Дорожные события уже работают как слой бытовых проверок; дальше они будут расширяться и связывать новые сцены пути.</dd>
+            <dd>Путь завершён</dd>
           </div>
         </dl>
 
@@ -1267,7 +1491,7 @@ function renderJournalScreen(player: PlayerState): string {
             <dd>${journal.summary.appliedCards}</dd>
           </div>
           <div>
-            <dt>Помощников</dt>
+            <dt>Помощники пути</dt>
             <dd>${journal.summary.helperCards}</dd>
           </div>
           <div>
