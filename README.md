@@ -1,23 +1,26 @@
 # Путь Шута
 
-Статический mobile-first браузерный квест про путь Шута через старшие арканы Таро.
+Статический mobile-first браузерный квест по Таро.
 
 ## Состояние проекта
 
-- текущий beta-шаг: `SU-013`;
-- базовый ориентир beta-перехода: [docs/BETA_TRANSITION.md](docs/BETA_TRANSITION.md);
-- главный поток уже работает как экранная история `home → scene → result → next scene → completion`;
-- прогресс хранится локально в `localStorage`;
-- отдельный экран `Дневник Шута` использует существующий inventory state;
-- локальные миниатюры карт подключены через `public/assets/cards/`.
+- Project status: beta
+- Финальный beta-pass: `SU-014`
+- Базовый ориентир перехода: [docs/BETA_TRANSITION.md](docs/BETA_TRANSITION.md)
+- Beta checklist: [docs/BETA_CHECKLIST.md](docs/BETA_CHECKLIST.md)
+- Публичный Pages-адрес: [https://kostgame.github.io/fool-journey/](https://kostgame.github.io/fool-journey/)
 
 ## Что уже есть
 
 - Vite + TypeScript + Vitest;
-- главный экран с CTA `Продолжить историю`;
-- диалоговый путь старших арканов;
-- слой карточек-инвентаря и дневник;
-- GitHub Actions CI и GitHub Pages.
+- главный экран `Путь Шута`;
+- основной flow `home → scene → result → next scene → completion`;
+- `Дневник Шута` со следами пути;
+- inventory state с статусами `Получено`, `Применено`, `Помощник`;
+- локальные thumbnails карт;
+- проверка кодировки `npm run check:encoding`;
+- статический хостинг на GitHub Pages;
+- отсутствие backend, внешних API и серверного хранения.
 
 ## Команды
 
@@ -29,32 +32,21 @@
 - `npm run build`
 - `npm run preview`
 
-## Структура
-
-- `src/data` - карты, сцены, события и mapping изображений;
-- `src/domain` - state, progress, storage и journal helpers;
-- `src/app.ts` - сборка экранов и обработка действий;
-- `src/style.css` - mobile-first визуальная оболочка;
-- `public/assets/cards` - локальные миниатюры карт;
-- `docs` - проектная документация;
-- `tasks/SU` - карточки крупных задач;
-- `reports` - отчёты Codex по PR.
-
 ## Рабочий процесс
 
-1. Задача оформляется в GitHub Issue.
-2. Для крупной задачи создаётся файл в `tasks/SU/`.
+1. Задача оформляется через GitHub Issue.
+2. Для крупной задачи создаётся отдельный файл в `tasks/SU/`.
 3. Работа идёт в отдельной feature-ветке от актуального `main`.
 4. Codex открывает обычный Open PR, не Draft.
-5. После визуальной проверки пользователь решает, можно ли мержить.
+5. Пользователь вручную проверяет визуальные изменения на Pages.
 6. Итоговый отчёт кладётся в `reports/`.
 
-## Публикация
+## Ограничения
 
-GitHub Pages: [https://kostgame.github.io/fool-journey/](https://kostgame.github.io/fool-journey/)
-
-## Ближайший фокус
-
-- `SU-012` - локальные миниатюры карт Таро;
-- `SU-013` - аудит кодировки и качества текста;
-- `SU-014` - финальный beta smoke pass.
+- без backend;
+- без авторизации;
+- без внешних API;
+- без серверного хранения прогресса;
+- без тяжёлой RPG-экономики;
+- без Draft PR;
+- без слова `шпаргалка` в интерфейсе.

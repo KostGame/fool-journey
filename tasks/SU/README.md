@@ -8,4 +8,5 @@
 - файл описывает цель, scope, проверки и риски до старта реализации;
 - для PR-000 используется `SU-000-bootstrap.md`;
 - для SU-010 используется `SU-010-fool-journal-card-collection.md`;
+- для SU-014 используется `SU-014-beta-readiness-mobile-smoke-pass.md`;
 - для SU-012 используется `SU-012-tarot-card-thumbnails.md`.

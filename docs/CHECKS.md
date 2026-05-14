@@ -48,3 +48,13 @@
 - пройти несколько сцен и проверить, что вопросы звучат прямо;
 - убедиться, что action labels остаются короткими и без технических формулировок;
 - проверить, что `Дневник Шута`, result screen и thumbnails не ломаются от текстовых правок.
+
+## SU-014 beta readiness mobile smoke pass
+
+- открыть [docs/BETA_CHECKLIST.md](BETA_CHECKLIST.md) и пройти его как финальный beta smoke-test;
+- открыть Pages на мобильной ширине 360-430 px;
+- пройти основной flow `home → scene → result → next scene → completion`;
+- проверить `Дневник Шута`, inventory statuses, thumbnails и fallback;
+- убедиться, что `npm run check:encoding` проходит и в интерфейсе нет `U+FFFD` или явных mojibake-паттернов;
+- если найден крупный blocker, остановиться, создать follow-up Issue и не ставить beta status;
+- если все проверки зелёные, зафиксировать `Project status: beta` в документации.
