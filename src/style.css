@@ -632,6 +632,17 @@ button:focus-visible {
   gap: 0.75rem;
 }
 
+.quest-visual-panel,
+.quest-inventory-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.quest-actions-panel {
+  background: rgba(225, 175, 103, 0.06);
+  border-color: rgba(225, 175, 103, 0.16);
+}
+
 .quest-visual-panel .card-art-strip {
   margin: 0;
 }
@@ -661,55 +672,38 @@ button:focus-visible {
   overflow-wrap: anywhere;
 }
 
-.scene-location {
-  margin: 0;
-  padding: 0.85rem 0.9rem;
-  border-radius: 0.95rem;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(247, 239, 230, 0.82);
-  line-height: 1.55;
-  overflow-wrap: anywhere;
-}
-
-.scene-question {
-  margin: 0;
-  padding: 0.9rem 0.95rem;
-  border-radius: 1rem;
-  background: rgba(225, 175, 103, 0.09);
-  border: 1px solid rgba(225, 175, 103, 0.18);
-  color: var(--text);
-  line-height: 1.55;
-  overflow-wrap: anywhere;
-}
-
 .scene-status {
-  display: grid;
-  gap: 0.6rem;
-  grid-template-columns: 1fr;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.35rem;
 }
 
-.scene-status-item {
-  padding: 0.75rem 0.8rem;
-  border-radius: 0.95rem;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.scene-status-line {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.35rem;
+  color: rgba(247, 239, 230, 0.72);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
-.scene-status-item span {
-  display: block;
+.scene-status-line span {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--accent);
 }
 
-.scene-status-item strong {
-  display: block;
-  margin-top: 0.28rem;
+.scene-status-line strong {
   color: var(--text);
-  line-height: 1.4;
-  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
+.scene-status-separator {
+  opacity: 0.5;
 }
 
 .dialogue-log {
@@ -719,30 +713,25 @@ button:focus-visible {
 
 .dialogue-line {
   display: grid;
-  gap: 0.25rem;
-  padding: 0.8rem 0.85rem;
-  border-radius: 0.95rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 0.2rem;
+  padding-left: 0.8rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .dialogue-line-narrator {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-left-color: rgba(255, 255, 255, 0.12);
 }
 
 .dialogue-line-arcana {
-  border-color: rgba(225, 175, 103, 0.24);
-  background: rgba(225, 175, 103, 0.09);
+  border-left-color: rgba(225, 175, 103, 0.32);
 }
 
 .dialogue-line-helper {
-  border-color: rgba(145, 210, 168, 0.22);
-  background: rgba(145, 210, 168, 0.08);
+  border-left-color: rgba(145, 210, 168, 0.3);
 }
 
 .dialogue-line-fool {
-  border-color: rgba(144, 185, 255, 0.2);
-  background: rgba(144, 185, 255, 0.07);
+  border-left-color: rgba(144, 185, 255, 0.3);
 }
 
 .dialogue-speaker {
@@ -766,11 +755,10 @@ button:focus-visible {
 }
 
 .dialogue-thought {
-  padding: 0.8rem 0.9rem;
-  border-radius: 0.95rem;
-  border: 1px solid rgba(144, 185, 255, 0.18);
-  background: rgba(144, 185, 255, 0.08);
+  padding-left: 0.8rem;
+  border-left: 2px solid rgba(144, 185, 255, 0.28);
   font-style: italic;
+  color: rgba(247, 239, 230, 0.86);
 }
 
 .quest-footer {
@@ -808,10 +796,10 @@ button:focus-visible {
 }
 
 .helper-callout {
-  padding: 0.85rem;
-  border-radius: 0.95rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.75rem;
+  border-radius: 0.9rem;
+  background: rgba(145, 210, 168, 0.06);
+  border: 1px solid rgba(145, 210, 168, 0.14);
   display: grid;
   gap: 0.35rem;
 }
@@ -831,11 +819,9 @@ button:focus-visible {
 
 .result-choice {
   margin: 0;
-  padding: 0.75rem 0.85rem;
-  border-radius: 0.95rem;
-  background: rgba(225, 175, 103, 0.1);
-  border: 1px solid rgba(225, 175, 103, 0.18);
-  color: var(--text);
+  padding-left: 0.8rem;
+  border-left: 2px solid rgba(225, 175, 103, 0.26);
+  color: rgba(247, 239, 230, 0.92);
   line-height: 1.45;
   font-weight: 700;
   overflow-wrap: anywhere;
@@ -857,6 +843,7 @@ button:focus-visible {
 
 .dialogue-result .card-summary {
   font-size: 1rem;
+  color: rgba(247, 239, 230, 0.9);
 }
 
 .choice-label {
@@ -915,6 +902,17 @@ button:focus-visible {
 .result-card {
   display: grid;
   gap: 0.85rem;
+}
+
+.quest-text-panel .dialogue-card,
+.quest-text-panel .dialogue-result,
+.journey-panel .encounter-card,
+.journey-panel .result-card {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .journal-panel {
@@ -1121,10 +1119,9 @@ button:focus-visible {
 }
 
 .reading-grid div {
-  padding: 0.75rem;
-  border-radius: 0.9rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.65rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
 }
 
 .xp-badge {

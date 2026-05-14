@@ -3,6 +3,8 @@ import { cards } from "./cards";
 import { cardImageCoverage, cardImageEntries, cardImageSource, getCardImageAsset } from "./cardImages";
 
 describe("cardImage assets", () => {
+  const assetBase = `${import.meta.env.BASE_URL}assets/cards/`;
+
   it("covers every tarot card with a local thumbnail", () => {
     expect(cardImageCoverage).toBe(cards.length);
     expect(cardImageEntries).toHaveLength(cards.length);
@@ -12,22 +14,22 @@ describe("cardImage assets", () => {
   it("maps major and minor cards to the expected local asset files", () => {
     expect(getCardImageAsset("fool")).toMatchObject({
       available: true,
-      src: "/assets/cards/major-00-fool.jpg"
+      src: `${assetBase}major-00-fool.jpg`
     });
 
     expect(getCardImageAsset("high-priestess")).toMatchObject({
       available: true,
-      src: "/assets/cards/major-02-high-priestess.jpg"
+      src: `${assetBase}major-02-high-priestess.jpg`
     });
 
     expect(getCardImageAsset("ace-cups")).toMatchObject({
       available: true,
-      src: "/assets/cards/cups-01-ace.jpg"
+      src: `${assetBase}cups-01-ace.jpg`
     });
 
     expect(getCardImageAsset("king-wands")).toMatchObject({
       available: true,
-      src: "/assets/cards/wands-14-king.jpg"
+      src: `${assetBase}wands-14-king.jpg`
     });
   });
 

@@ -61,6 +61,8 @@ const minorRankFileSlugs: Record<MinorRank, string> = {
   king: "14-king"
 };
 
+const cardAssetsBaseUrl = `${import.meta.env.BASE_URL}assets/cards/`;
+
 const cardImageMap = new Map<CardId, CardImageAsset>();
 
 for (const card of cards) {
@@ -73,7 +75,7 @@ export const cardImageCoverage = cardImageEntries.length;
 function buildCardImagePath(card: TarotCard): string | undefined {
   if (card.group === "major") {
     const fileName = majorCardFileNames[card.id as keyof typeof majorCardFileNames];
-    return fileName ? `/assets/cards/${fileName}` : undefined;
+    return fileName ? `${cardAssetsBaseUrl}${fileName}` : undefined;
   }
 
   if (!card.suit || !card.rank) {
@@ -81,7 +83,7 @@ function buildCardImagePath(card: TarotCard): string | undefined {
   }
 
   const rankSlug = minorRankFileSlugs[card.rank];
-  return rankSlug ? `/assets/cards/${card.suit}-${rankSlug}.jpg` : undefined;
+  return rankSlug ? `${cardAssetsBaseUrl}${card.suit}-${rankSlug}.jpg` : undefined;
 }
 
 function buildCardImageAsset(card: TarotCard): CardImageAsset {
