@@ -6,9 +6,10 @@ SU-016 разгружает классический quest UI после SU-015:
 
 ## 2. Ветка и PR
 
-- PR: будет добавлен после публикации ветки
+- PR: [#46](https://github.com/KostGame/fool-journey/pull/46)
+- PR URL: https://github.com/KostGame/fool-journey/pull/46
 - ветка: `feature/su-016-declutter-classic-quest-ui`
-- head commit: будет добавлен после финального коммита
+- head commit: `a9f183fa90edbf0b927cba868fedafae934a1f97`
 - merge commit: не применимо
 
 ## 3. Что реализовано
@@ -67,7 +68,7 @@ SU-016 разгружает классический quest UI после SU-015:
 
 ## Дополнительно
 
-- Pages URL: будет добавлен после публикации PR
-- Pages status: будет обновлён после CI
-- CI status: будет обновлён после CI
+- Pages URL: https://kostgame.github.io/fool-journey/
+- Pages status: built
+- CI status: success
 - PR смержен: нет
