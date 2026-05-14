@@ -7,12 +7,12 @@ describe("dialogueScenes", () => {
     const minorScenes = dialogueScenes.filter((scene) => scene.type === "minor-event");
     const helperAppearances = dialogueScenes.filter((scene) => Boolean(scene.helperCardId));
 
-    expect(majorScenes).toHaveLength(12);
+    expect(majorScenes).toHaveLength(22);
     expect(minorScenes).toHaveLength(3);
-    expect(helperAppearances.length).toBeGreaterThanOrEqual(7);
+    expect(helperAppearances.length).toBeGreaterThanOrEqual(10);
   });
 
-  it("exposes dialogue scenes for Hierophant through Justice", () => {
+  it("exposes dialogue scenes through the full major arcana finale", () => {
     expect(getDialogueSceneByEncounterId("hierophant-hall")).toBeDefined();
     expect(getDialogueSceneByEncounterId("lovers-crossroads")).toBeDefined();
     expect(getDialogueSceneByEncounterId("chariot-road")).toBeDefined();
@@ -20,10 +20,19 @@ describe("dialogueScenes", () => {
     expect(getDialogueSceneByEncounterId("hermit-path")).toBeDefined();
     expect(getDialogueSceneByEncounterId("wheel-turn")).toBeDefined();
     expect(getDialogueSceneByEncounterId("justice-scales")).toBeDefined();
+    expect(getDialogueSceneByEncounterId("hanged-man-pause")).toBeDefined();
+    expect(getDialogueSceneByEncounterId("death-release")).toBeDefined();
+    expect(getDialogueSceneByEncounterId("temperance-flow")).toBeDefined();
+    expect(getDialogueSceneByEncounterId("devil-chains")).toBeDefined();
+    expect(getDialogueSceneByEncounterId("tower-shock")).toBeDefined();
+    expect(getDialogueSceneByEncounterId("star-garden")).toBeDefined();
+    expect(getDialogueSceneByEncounterId("moon-path")).toBeDefined();
+    expect(getDialogueSceneByEncounterId("sun-field")).toBeDefined();
+    expect(getDialogueSceneByEncounterId("judgment-call")).toBeDefined();
+    expect(getDialogueSceneByEncounterId("world-circle")).toBeDefined();
   });
 
   it("keeps fallback gaps for non-converted major scenes", () => {
-    expect(getDialogueSceneByEncounterId("hanged-man-pause")).toBeUndefined();
     expect(getDialogueSceneByMinorEventId("empress-2-cups")).toBeDefined();
   });
 
@@ -32,8 +41,8 @@ describe("dialogueScenes", () => {
     const earnedChoices = choices.filter((choice) => Boolean(choice.earnedCardId));
     const requiredChoices = choices.filter((choice) => Boolean(choice.requiredCardId));
 
-    expect(earnedChoices.length).toBeGreaterThanOrEqual(6);
-    expect(requiredChoices.length).toBeGreaterThanOrEqual(4);
+    expect(earnedChoices.length).toBeGreaterThanOrEqual(10);
+    expect(requiredChoices.length).toBeGreaterThanOrEqual(8);
     expect(requiredChoices.every((choice) => Boolean(choice.appliedCardId))).toBe(true);
     expect(choices.every((choice) => typeof choice.feedback === "string" && choice.feedback.length > 0)).toBe(true);
     expect(choices.every((choice) => typeof choice.lesson === "string" && choice.lesson.length > 0)).toBe(true);

@@ -596,12 +596,12 @@ function renderDialogueChoiceButton(player: PlayerState, choice: DialogueChoice)
     >
       <span class="choice-label">${escapeHtml(choice.label)}</span>
       <span class="choice-tone">${escapeHtml(getDialogueToneLabel(choice.tone))}</span>
-      <span class="choice-card-name">${escapeHtml(card.name)} · ${escapeHtml(choice.orientation === "upright" ? "������" : "�����������")}</span>
+      <span class="choice-card-name">${escapeHtml(card.name)} · ${escapeHtml(choice.orientation === "upright" ? "прямая" : "перевёрнутая")}</span>
       <span class="choice-note">${escapeHtml(choice.buttonNote)}</span>
-      ${earnedCard ? `<span class="choice-inventory-tag">��������: ${escapeHtml(earnedCard.name)}</span>` : ""}
-      ${appliedCard ? `<span class="choice-inventory-tag">���������: ${escapeHtml(appliedCard.name)}</span>` : ""}
-      ${helperCard ? `<span class="choice-inventory-tag">��������: ${escapeHtml(helperCard.name)}</span>` : ""}
-      ${!isAvailable && requiredCard ? `<span class="choice-lock-note">����� ��������: ${escapeHtml(requiredCard.name)}</span>` : ""}
+      ${earnedCard ? `<span class="choice-inventory-tag">Получено: ${escapeHtml(earnedCard.name)}</span>` : ""}
+      ${appliedCard ? `<span class="choice-inventory-tag">Применено: ${escapeHtml(appliedCard.name)}</span>` : ""}
+      ${helperCard ? `<span class="choice-inventory-tag">Помощник: ${escapeHtml(helperCard.name)}</span>` : ""}
+      ${!isAvailable && requiredCard ? `<span class="choice-lock-note">Нужно получить: ${escapeHtml(requiredCard.name)}</span>` : ""}
       <span class="choice-keywords">${card.keywords.map((keyword) => escapeHtml(keyword)).join(" · ")}</span>
     </button>
   `;
@@ -612,17 +612,17 @@ function renderChoiceOutcomeBadges(player: PlayerState): string {
 
   if (player.lastEarnedCardId) {
     const card = getCard(player.lastEarnedCardId);
-    badges.push(`<span>��������: ${escapeHtml(card?.name ?? player.lastEarnedCardId)}</span>`);
+    badges.push(`<span>Получено: ${escapeHtml(card?.name ?? player.lastEarnedCardId)}</span>`);
   }
 
   if (player.lastAppliedCardId) {
     const card = getCard(player.lastAppliedCardId);
-    badges.push(`<span>���������: ${escapeHtml(card?.name ?? player.lastAppliedCardId)}</span>`);
+    badges.push(`<span>Применено: ${escapeHtml(card?.name ?? player.lastAppliedCardId)}</span>`);
   }
 
   if (player.lastHelperCardId) {
     const card = getCard(player.lastHelperCardId);
-    badges.push(`<span>��������: ${escapeHtml(card?.name ?? player.lastHelperCardId)}</span>`);
+    badges.push(`<span>Помощник: ${escapeHtml(card?.name ?? player.lastHelperCardId)}</span>`);
   }
 
   if (badges.length === 0) {
@@ -986,11 +986,14 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
     .filter((suit) => completedMinorEvents.some((event) => getCard(event.cardId)?.suit === suit))
     .map((suit) => suitLabels[suit])
     .join(" · ");
+  const inventorySummary = player.inventoryCards
+    .map((cardId) => getCard(cardId)?.name ?? cardId)
+    .join(" · ");
 
   return `
     <section class="panel journey-panel">
       <div class="section-head">
-        <p class="eyebrow">Путь Шута</p>
+        <p class="eyebrow">Финал пути</p>
         <h2>Путь старших арканов завершён</h2>
         <p>Ты прошёл 22 архетипических этапа: от импульса Шута до целостности Мира.</p>
       </div>
@@ -999,6 +1002,7 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
         <p class="card-kicker">Итог пути</p>
         <h3>Что показал полный круг</h3>
         <p class="card-summary">${escapeHtml(interpretation.summary)}</p>
+        <p class="result-feedback">Финальный ответ собран. Теперь можно увидеть весь путь сразу, как цельную историю, а затем пройти его снова уже с новым опытом.</p>
 
         <dl class="reading-grid">
           <div>
@@ -1018,6 +1022,10 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
             <dd>${player.xp} XP</dd>
           </div>
           <div>
+            <dt>Карты Шута</dt>
+            <dd>${escapeHtml(inventorySummary || "Пока нет карт в инвентаре")}</dd>
+          </div>
+          <div>
             <dt>Смысл круга</dt>
             <dd>От первого импульса к собранной целостности, а младшие арканы соединяют большие главы с повседневной жизнью.</dd>
           </div>
@@ -1027,7 +1035,6 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
           </div>
         </dl>
 
-        <p class="result-feedback">Теперь можно вернуться к главному экрану или пройти путь ещё раз.</p>
         <p class="xp-badge">+${choice.xp} XP · ${escapeHtml(choice.buttonNote)}</p>
       </article>
 
