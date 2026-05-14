@@ -10,4 +10,5 @@
 - для SU-010 используется `SU-010-fool-journal-card-collection.md`;
 - для SU-014 используется `SU-014-beta-readiness-mobile-smoke-pass.md`;
 - для SU-015 используется `SU-015-classic-text-quest-interface.md`;
+- для SU-016 используется `SU-016-declutter-classic-quest-ui.md`;
 - для SU-012 используется `SU-012-tarot-card-thumbnails.md`.

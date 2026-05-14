@@ -482,11 +482,9 @@ function renderDialogueSceneScreen(
           <article class="dialogue-card quest-card card-${card.id}">
             <div class="scene-title-block">
               <p class="card-kicker">${escapeHtml(scene.speakerRole)}</p>
-              <h3>${escapeHtml(questionText || scene.nextStepLabel)}</h3>
               <p class="scene-speaker">${escapeHtml(scene.speakerName)}</p>
             </div>
 
-            <p class="scene-location">${escapeHtml(scene.locationText)}</p>
             <p class="dialogue-narrator">${escapeHtml(scene.narratorText)}</p>
 
             <div class="dialogue-log">
@@ -495,11 +493,6 @@ function renderDialogueSceneScreen(
 
             <p class="dialogue-thought">Мысль Шута: ${escapeHtml(scene.foolThought)}</p>
             <p class="dialogue-next-step">${escapeHtml(scene.nextStepLabel)}</p>
-            ${
-              player.inventoryCards.length > 0
-                ? `<p class="inventory-note">Карты Шута: ${escapeHtml(player.inventoryCards.map((cardId) => getCard(cardId)?.name ?? cardId).join(" · "))}</p>`
-                : ""
-            }
           </article>
 
           <section class="quest-actions-panel" aria-labelledby="quest-actions-title">
@@ -516,15 +509,8 @@ function renderDialogueSceneScreen(
 
       <footer class="quest-footer">
         <div class="quest-inventory-panel">
-          <div class="quest-inventory-copy">
-            <p class="eyebrow">Инвентарь и дневник</p>
-            <p>Карты помогают помнить, что уже получено, применено и кто помог Шуту на пути.</p>
-          </div>
           <div class="quest-inventory-meta">
-            <div class="scene-status-item">
-              <span>Карты</span>
-              <strong>${escapeHtml(player.inventoryCards.length > 0 ? player.inventoryCards.map((cardId) => getCard(cardId)?.name ?? cardId).slice(-4).join(" · ") : "Пока нет")}</strong>
-            </div>
+            <p class="quest-inventory-summary">Карты Шута: ${escapeHtml(player.inventoryCards.length > 0 ? player.inventoryCards.map((cardId) => getCard(cardId)?.name ?? cardId).slice(-4).join(" · ") : "пока нет")}</p>
             <div class="quest-inventory-links">
               <button class="ghost-button" type="button" data-action="screen" data-screen="journal">Дневник Шута</button>
               <button class="ghost-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
@@ -802,18 +788,16 @@ function getDialogueToneLabel(tone?: DialogueChoice["tone"]): string {
 function renderJourneyStatusLine(progress: ProgressSnapshot, chapterTitle: string): string {
   return `
     <div class="scene-status" aria-label="Текущий статус пути">
-      <div class="scene-status-item">
-        <span>Глава</span>
+      <p class="scene-status-line">
+        <span>Глава пути</span>
         <strong>${escapeHtml(chapterTitle)}</strong>
-      </div>
-      <div class="scene-status-item">
+        <span class="scene-status-separator">·</span>
         <span>Шаг</span>
         <strong>${escapeHtml(progress.stepKindLabel)}</strong>
-      </div>
-      <div class="scene-status-item">
+        <span class="scene-status-separator">·</span>
         <span>Прогресс</span>
         <strong>${escapeHtml(progress.routeProgressLabel)}</strong>
-      </div>
+      </p>
     </div>
   `;
 }
