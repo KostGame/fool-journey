@@ -87,3 +87,9 @@
 - В `progress.ts` добавлен слой `ChoiceInventoryEffect`: выдача карты, применение карты и учёт `uses` в `earnedCards`.
 - В `storage.ts` добавлена нормализация новых инвентарных полей и мягкая миграция старых сохранений.
 - В `app.ts` выборы в dialogue-сценах фильтруются по `requiredCardId`, а на result-экране показываются короткие статусы `Получено`, `Применено`, `Помощник`.
+- ## SU-010
+-
+- - Добавлен отдельный слой `src/domain/journal.ts`, который вычисляет journal snapshot из существующего `PlayerState`.
+- - Дневник не хранит отдельную копию данных: он собирает полученные карты, применённые карты, помощников и главы пути из `earnedCards`, `completedEncounterIds`, `completedMinorEventIds` и dialogue scene metadata.
+- - В `app.ts` появился отдельный экран `journal`, а `home` и completion получили вторичный вход в дневник.
+- - `storage.ts` и `ScreenId` обновлены так, чтобы новый экран был валидным и безопасно восстанавливался.

@@ -7,6 +7,7 @@ export type ScreenId =
   | "home"
   | "scene"
   | "result"
+  | "journal"
   | "journey"
   | "live-spread"
   | "card-of-day"

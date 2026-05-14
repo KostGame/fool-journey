@@ -5,6 +5,7 @@ import { getMinorEventAfterChapter, minorArcanaEvents } from "./data/minorArcana
 import { getJourneyStepById } from "./data/journeySteps";
 import { storyChapters, getStoryChapter } from "./data/storyChapters";
 import { composeEncounterInterpretation } from "./domain/meaning";
+import { buildJournalSnapshot } from "./domain/journal";
 import {
   advanceJourney,
   buildProgressSnapshot,
@@ -202,6 +203,10 @@ export function renderAppShell(view: AppViewState): string {
     return renderHomeShell(view.player);
   }
 
+  if (view.screen === "journal") {
+    return renderJournalScreen(view.player);
+  }
+
   if (view.screen === "scene" || view.screen === "result" || view.screen === "journey") {
     return renderFlowScreen(view.player, view.screen);
   }
@@ -319,6 +324,7 @@ function renderHomeShell(player: PlayerState): string {
           >
             ${escapeHtml(homeActionLabel)}
           </button>
+          <button class="ghost-button" type="button" data-action="screen" data-screen="journal">Дневник Шута</button>
           <button class="ghost-button" type="button" data-action="reset">Сбросить и начать заново</button>
         </div>
 
@@ -360,6 +366,10 @@ function renderFlowScreen(player: PlayerState, screen: ScreenId): string {
 }
 
 function renderScreen(view: AppViewState): string {
+  if (view.screen === "journal") {
+    return renderJournalScreen(view.player);
+  }
+
   if (view.screen === "scene" || view.screen === "result" || view.screen === "journey") {
     return renderJourneyScreen(view.player);
   }
@@ -1040,9 +1050,210 @@ function renderJourneyCompletionScreen(player: PlayerState): string {
 
       <div class="journey-actions">
         <button class="primary-button" type="button" data-action="restart">Повторить историю</button>
+        <button class="ghost-button" type="button" data-action="screen" data-screen="journal">Открыть дневник</button>
         <button class="ghost-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
       </div>
     </section>
+  `;
+}
+
+function renderJournalScreen(player: PlayerState): string {
+  const journal = buildJournalSnapshot(player);
+
+  return `
+    <main class="app-shell journal-shell">
+      <div class="ambient ambient-a" aria-hidden="true"></div>
+      <div class="ambient ambient-b" aria-hidden="true"></div>
+
+      <section class="panel journal-panel">
+        <div class="section-head">
+          <p class="eyebrow">Дневник Шута</p>
+          <h1>След путешествия</h1>
+          <p>
+            Здесь видно, какие карты Шут получил, какие применил, каких помощников встретил и какие главы пути уже открыты.
+          </p>
+        </div>
+
+        <dl class="journal-summary-grid">
+          <div>
+            <dt>Путь</dt>
+            <dd>${escapeHtml(journal.progressLabel)}</dd>
+          </div>
+          <div>
+            <dt>Текущая глава</dt>
+            <dd>${escapeHtml(journal.currentChapterTitle)}</dd>
+          </div>
+          <div>
+            <dt>Глав пройдено</dt>
+            <dd>${journal.summary.completedMajorChapters} / ${journal.summary.totalMajorChapters}</dd>
+          </div>
+          <div>
+            <dt>Малых событий</dt>
+            <dd>${journal.summary.completedMinorEvents} / ${journal.summary.totalMinorEvents}</dd>
+          </div>
+          <div>
+            <dt>Карт в инвентаре</dt>
+            <dd>${journal.summary.inventoryCards}</dd>
+          </div>
+          <div>
+            <dt>Получено карт</dt>
+            <dd>${journal.summary.receivedCards}</dd>
+          </div>
+          <div>
+            <dt>Применено карт</dt>
+            <dd>${journal.summary.appliedCards}</dd>
+          </div>
+          <div>
+            <dt>Помощников</dt>
+            <dd>${journal.summary.helperCards}</dd>
+          </div>
+          <div>
+            <dt>Известных карт</dt>
+            <dd>${journal.summary.knownCards}</dd>
+          </div>
+        </dl>
+
+        <div class="journal-sections">
+          <section class="journal-section">
+            <div class="section-head">
+              <p class="eyebrow">Карты</p>
+              <h2>Полученные карты</h2>
+            </div>
+            ${renderJournalCardList(
+              journal.receivedCards,
+              "Пока нет полученных карт.",
+              "received"
+            )}
+          </section>
+
+          <section class="journal-section">
+            <div class="section-head">
+              <p class="eyebrow">Ритуал</p>
+              <h2>Применённые карты</h2>
+            </div>
+            ${renderJournalCardList(
+              journal.appliedCards,
+              "Пока нет карт, которые были активно применены.",
+              "applied"
+            )}
+          </section>
+
+          <section class="journal-section">
+            <div class="section-head">
+              <p class="eyebrow">Помощники</p>
+              <h2>Кто помог Шуту</h2>
+            </div>
+            ${renderJournalHelperList(journal.helpers, "Пока нет встреч помощников.")}
+          </section>
+
+          <section class="journal-section">
+            <div class="section-head">
+              <p class="eyebrow">Главы</p>
+              <h2>Путь старших арканов</h2>
+            </div>
+            ${renderJournalChapterList(journal.chapters)}
+          </section>
+        </div>
+
+        <div class="journey-actions">
+          <button class="primary-button" type="button" data-action="screen" data-screen="home">К главному экрану</button>
+        </div>
+      </section>
+    </main>
+  `;
+}
+
+function renderJournalCardList(
+  entries: readonly { cardId: string; name: string; role: string; uses: number; sourceLabel: string; summary: string }[],
+  emptyLabel: string,
+  kind: "received" | "applied",
+): string {
+  if (entries.length === 0) {
+    return `<div class="journal-empty">${escapeHtml(emptyLabel)}</div>`;
+  }
+
+  return `
+    <div class="journal-list journal-list-${kind}">
+      ${entries
+        .map((entry) => {
+          return `
+            <article class="journal-item card-${escapeAttribute(entry.cardId)}">
+              <p class="card-kicker">${kind === "received" ? "Получено" : "Применено"}</p>
+              <h3>${escapeHtml(entry.name)}</h3>
+              <p>${escapeHtml(entry.summary)}</p>
+              <dl class="journal-meta">
+                <div>
+                  <dt>Источник</dt>
+                  <dd>${escapeHtml(entry.sourceLabel)}</dd>
+                </div>
+                <div>
+                  <dt>Роль</dt>
+                  <dd>${escapeHtml(entry.role)}</dd>
+                </div>
+                <div>
+                  <dt>Использований</dt>
+                  <dd>${entry.uses}</dd>
+                </div>
+              </dl>
+            </article>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function renderJournalHelperList(
+  entries: readonly { cardId: string; name: string; appearances: number; sceneTitles: readonly string[]; note: string }[],
+  emptyLabel: string,
+): string {
+  if (entries.length === 0) {
+    return `<div class="journal-empty">${escapeHtml(emptyLabel)}</div>`;
+  }
+
+  return `
+    <div class="journal-list journal-list-helpers">
+      ${entries
+        .map((entry) => {
+          return `
+            <article class="journal-item card-${escapeAttribute(entry.cardId)}">
+              <p class="card-kicker">Помощник</p>
+              <h3>${escapeHtml(entry.name)}</h3>
+              <p>${escapeHtml(entry.note)}</p>
+              <p class="journal-count">Появлений: ${entry.appearances}</p>
+              <div class="chips journal-chips">
+                ${entry.sceneTitles.map((sceneTitle) => `<span>${escapeHtml(sceneTitle)}</span>`).join("")}
+              </div>
+            </article>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function renderJournalChapterList(
+  entries: readonly { chapterId: string; title: string; summary: string; prompt: string; status: "completed" | "current" | "upcoming"; cardId: string }[],
+): string {
+  return `
+    <div class="journal-list journal-list-chapters">
+      ${entries
+        .map((entry, index) => {
+          const statusLabel =
+            entry.status === "completed" ? "Пройдено" : entry.status === "current" ? "Сейчас" : "Впереди";
+
+          return `
+            <article class="journal-item journal-chapter journal-chapter-${escapeAttribute(entry.status)} card-${escapeAttribute(entry.cardId)}">
+              <p class="card-kicker">${statusLabel}</p>
+              <span class="journal-index">${String(index + 1).padStart(2, "0")}</span>
+              <h3>${escapeHtml(entry.title)}</h3>
+              <p>${escapeHtml(entry.summary)}</p>
+              <p class="journal-prompt">${escapeHtml(entry.prompt)}</p>
+            </article>
+          `;
+        })
+        .join("")}
+    </div>
   `;
 }
 
@@ -1140,6 +1351,7 @@ function updateDocumentTitle(screen: ScreenId, player: PlayerState): void {
 
   const titles: Record<ScreenId, string> = {
     home: "Путь Шута",
+    journal: "Путь Шута · Дневник",
     scene:
       player.journeyPhase === "complete"
         ? "Путь Шута · Сцена завершена"
@@ -1173,6 +1385,7 @@ function isScreenId(value: string | undefined): value is ScreenId {
     value === "home" ||
     value === "scene" ||
     value === "result" ||
+    value === "journal" ||
     value === "journey" ||
     value === "live-spread" ||
     value === "card-of-day" ||
