@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- SU-015: scene и result экраны перестроены в classic quest layout с локацией, визуальной зоной, текстом, действиями и компактным инвентарём.
 - SU-014: создан `docs/BETA_CHECKLIST.md`, проведён финальный beta smoke pass на mobile viewport, подтверждён `Project status: beta`.
 - SU-013: добавлена автоматическая проверка кодировки `npm run check:encoding`, вычитаны прямые вопросы сцен и упрощены самые техничные подсказки кнопок.
 - SU-012: добавлены локальные миниатюры карт Rider–Waite–Smith, mapping `cardId -> image`, fallback для отсутствующих изображений и вывод миниатюр в `scene`, `result` и `Дневник Шута`.

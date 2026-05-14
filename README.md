@@ -15,6 +15,7 @@
 - Vite + TypeScript + Vitest;
 - главный экран `Путь Шута`;
 - основной flow `home → scene → result → next scene → completion`;
+- classic quest layout с локацией, визуальной зоной, текстом сцены, действиями и инвентарём;
 - `Дневник Шута` со следами пути;
 - inventory state с статусами `Получено`, `Применено`, `Помощник`;
 - локальные thumbnails карт;

@@ -170,9 +170,13 @@ describe("renderAppShell", () => {
     });
 
     expect(html).toContain("dialogue-panel");
+    expect(html).toContain("quest-layout");
+    expect(html).toContain("quest-visual-panel");
+    expect(html).toContain("quest-actions-panel");
+    expect(html).toContain("quest-inventory-panel");
     expect(html).toContain("scene-status");
-    expect(html).toContain("scene-question");
     expect(html).toContain("scene-speaker");
+    expect(html).toContain("Как войти в новый этап без лишней тяжести?");
     expect(html).toContain("data-choice-id=\"fool-step\"");
     expect(html).toContain("choice-grid");
     expect(html).not.toContain("choice-card-name");
@@ -275,8 +279,10 @@ describe("renderAppShell", () => {
       player: advanced
     });
 
-    expect(sceneHtml).toContain("scene-question");
+    expect(sceneHtml).toContain("quest-layout");
+    expect(sceneHtml).toContain("quest-actions-panel");
     expect(resultHtml).toContain("result-choice");
+    expect(resultHtml).toContain("quest-actions-panel");
     expect(resultHtml).toContain("data-action=\"advance\"");
     expect(nextSceneHtml).toContain("scene-status");
     expect(nextSceneHtml).toContain("choice-grid");
@@ -317,7 +323,7 @@ describe("renderAppShell", () => {
 
     expect(html).toContain("dialogue-panel");
     expect(html).toContain("scene-status");
-    expect(html).toContain("scene-question");
+    expect(html).toContain("quest-actions-panel");
     expect(html).toContain("data-choice-id=\"hanged-man-reframe\"");
     expect(html).toContain("dialogue-log");
   });

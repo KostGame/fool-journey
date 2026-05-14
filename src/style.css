@@ -583,6 +583,71 @@ button:focus-visible {
   gap: 0.85rem;
 }
 
+.quest-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+.quest-header {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.quest-location-bar {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.quest-location-bar h2 {
+  font-size: clamp(1.35rem, 5vw, 2rem);
+}
+
+.quest-location-subtitle {
+  margin: 0;
+  color: rgba(247, 239, 230, 0.78);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.quest-body {
+  display: grid;
+  gap: 1rem;
+}
+
+.quest-visual-panel,
+.quest-text-panel,
+.quest-actions-panel,
+.quest-inventory-panel {
+  min-width: 0;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.quest-visual-panel,
+.quest-actions-panel,
+.quest-inventory-panel {
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.quest-visual-panel .card-art-strip {
+  margin: 0;
+}
+
+.quest-visual-caption {
+  margin: 0;
+  color: rgba(247, 239, 230, 0.78);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.quest-text-panel {
+  display: grid;
+  gap: 0.85rem;
+}
+
 .scene-title-block {
   display: grid;
   gap: 0.25rem;
@@ -706,6 +771,29 @@ button:focus-visible {
   border: 1px solid rgba(144, 185, 255, 0.18);
   background: rgba(144, 185, 255, 0.08);
   font-style: italic;
+}
+
+.quest-footer {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.quest-inventory-copy p:last-child {
+  color: var(--muted);
+}
+
+.quest-inventory-meta {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.quest-inventory-links {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.quest-result-actions {
+  margin: 0;
 }
 
 .dialogue-next-step {
@@ -1128,6 +1216,25 @@ button:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .quest-body {
+    grid-template-columns: minmax(16rem, 0.9fr) minmax(0, 1.4fr);
+    align-items: start;
+  }
+
+  .quest-visual-panel {
+    position: sticky;
+    top: 1rem;
+  }
+
+  .quest-inventory-panel {
+    grid-template-columns: minmax(0, 1.15fr) minmax(15rem, 0.85fr);
+    align-items: start;
+  }
+
+  .quest-inventory-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .mode-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1178,6 +1285,14 @@ button:focus-visible {
 
   .choice-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .quest-location-bar h2 {
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+  }
+
+  .quest-layout {
+    gap: 1.15rem;
   }
 }
 
