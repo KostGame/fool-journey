@@ -6,9 +6,9 @@ SU-015 переводит основной UI `Путь Шута` ближе к 
 
 ## 2. Ветка и PR
 
-- PR: будет добавлен после публикации ветки
+- PR: [#44](https://github.com/KostGame/fool-journey/pull/44)
 - ветка: `feature/su-015-classic-text-quest-interface`
-- head commit: будет добавлен после коммита
+- head commit: `b16be5c1918f3929f198650108a0e947e648a670`
 - merge commit: не применимо
 
 ## 3. Что реализовано
@@ -37,11 +37,11 @@ SU-015 переводит основной UI `Путь Шута` ближе к 
 
 ## 5. Проверки
 
-- `npm run check` - pending
-- `npm run check:encoding` - pending
-- `npm test` - pending
-- `npm run build` - pending
-- `git diff --check` - pending
+- `npm run check` - success
+- `npm run check:encoding` - success
+- `npm test` - success
+- `npm run build` - success
+- `git diff --check` - success
 
 ## 6. Что не сделано
 
@@ -72,7 +72,7 @@ SU-015 переводит основной UI `Путь Шута` ближе к 
 
 - Pages URL: [https://kostgame.github.io/fool-journey/](https://kostgame.github.io/fool-journey/)
 - Pages status: built
-- CI status: pending
+- CI status: success
 - used assets from `KostGame/Tarot/assets`: not verified, fallback retained
 - beta verdict: not ready for review yet
 - PR смержен: нет
