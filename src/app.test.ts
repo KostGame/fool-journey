@@ -162,15 +162,41 @@ describe("renderAppShell", () => {
     expect(resolved.lastHelperCardId).toBeTruthy();
   });
 
-  it("keeps fallback for non-converted scenes", () => {
+  it("renders the completion screen after the World scene", () => {
+    const stateAtWorld = advanceToEncounter("world-circle");
+    const encounter = encounters.find((item) => item.id === "world-circle");
+
+    expect(encounter).toBeDefined();
+
+    if (!encounter) {
+      return;
+    }
+
+    const choice = encounter.choices.find((item) => item.id === "world-integrate") ?? encounter.choices[0];
+    const effect = resolveDialogueInventoryEffect(encounter.id, choice.id);
+    const resolved = recordEncounterChoice(stateAtWorld, encounter.id, choice, "world result", effect);
+    const completed = advanceJourney(resolved);
+    const html = renderAppShell({
+      screen: "result",
+      player: completed
+    });
+
+    expect(completed.journeyPhase).toBe("complete");
+    expect(html).toContain("Путь старших арканов завершён");
+    expect(html).toContain("Карты Шута");
+    expect(html).toContain("Повторить историю");
+  });
+
+  it("renders dialogue flow for the Hanged Man scene", () => {
     const stateAtFallback = advanceToEncounter("hanged-man-pause");
     const html = renderAppShell({
       screen: "scene",
       player: stateAtFallback
     });
 
-    expect(html).toContain("encounter-card");
-    expect(html).not.toContain("dialogue-log");
+    expect(html).toContain("dialogue-panel");
+    expect(html).toContain("data-choice-id=\"hanged-man-reframe\"");
+    expect(html).toContain("dialogue-log");
   });
 
   it("renders placeholder modes without crashing", () => {
