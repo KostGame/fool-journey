@@ -3,6 +3,7 @@ import { renderAppShell } from "./app";
 import { getDialogueSceneByEncounterId } from "./data/dialogueScenes";
 import { encounters } from "./data/encounters";
 import { getMinorEventAfterChapter } from "./data/minorArcanaEvents";
+import { buildJournalSnapshot } from "./domain/journal";
 import { advanceJourney, createInitialPlayerState, recordEncounterChoice, recordMinorEventChoice } from "./domain/progress";
 import type { ChoiceInventoryEffect } from "./domain/models";
 
@@ -68,6 +69,25 @@ function resolveDialogueInventoryEffect(encounterId: string, choiceId: string): 
   };
 }
 
+function buildJournalTestState() {
+  const stateAtLovers = advanceToEncounter("lovers-crossroads", {
+    "hierophant-hall": "hierophant-ask"
+  });
+  const encounter = encounters.find((item) => item.id === "lovers-crossroads");
+
+  expect(encounter).toBeDefined();
+
+  if (!encounter) {
+    return stateAtLovers;
+  }
+
+  const choice = encounter.choices.find((item) => item.id === "lovers-heart") ?? encounter.choices[0];
+  const effect = resolveDialogueInventoryEffect(encounter.id, choice.id);
+  const resolved = recordEncounterChoice(stateAtLovers, encounter.id, choice, "lovers result", effect);
+
+  return resolved;
+}
+
 describe("renderAppShell", () => {
   it("renders the home shell without crashing on an initial state", () => {
     const html = renderAppShell({
@@ -77,7 +97,41 @@ describe("renderAppShell", () => {
 
     expect(html).toContain("mode-grid");
     expect(html).toContain("home-actions");
+    expect(html).toContain("Дневник Шута");
     expect(html).not.toContain("choice-grid");
+  });
+
+  it("renders the journal as a separate screen from an empty state", () => {
+    const html = renderAppShell({
+      screen: "journal",
+      player: createInitialPlayerState()
+    });
+
+    expect(html).toContain("journal-panel");
+    expect(html).toContain("Дневник Шута");
+    expect(html).toContain("Пока нет полученных карт");
+    expect(html).toContain("Пока нет встреч помощников");
+    expect(html).toContain("Путь старших арканов");
+  });
+
+  it("shows received, applied and helper cards in the journal after progress", () => {
+    const state = buildJournalTestState();
+    const journal = buildJournalSnapshot(state);
+    const html = renderAppShell({
+      screen: "journal",
+      player: state
+    });
+
+    expect(journal.receivedCards.length).toBeGreaterThan(0);
+    expect(journal.appliedCards.length).toBeGreaterThan(0);
+    expect(journal.helpers.length).toBeGreaterThan(0);
+    expect(html).toContain("Полученные карты");
+    expect(html).toContain("Применённые карты");
+    expect(html).toContain("Кто помог Шуту");
+    expect(html).toContain("Развилка Влюблённых");
+    expect(html).toContain("Получено");
+    expect(html).toContain("Применено");
+    expect(html).toContain("Помощник");
   });
 
   it("renders the scene screen at the start of the journey", () => {
@@ -185,6 +239,7 @@ describe("renderAppShell", () => {
     expect(html).toContain("Путь старших арканов завершён");
     expect(html).toContain("Карты Шута");
     expect(html).toContain("Повторить историю");
+    expect(html).toContain("Открыть дневник");
   });
 
   it("renders dialogue flow for the Hanged Man scene", () => {

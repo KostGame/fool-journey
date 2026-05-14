@@ -223,6 +223,7 @@ export function isSafeScreenId(value: unknown): value is ScreenId {
     value === "home" ||
     value === "scene" ||
     value === "result" ||
+    value === "journal" ||
     value === "journey" ||
     value === "live-spread" ||
     value === "card-of-day" ||

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createInitialPlayerState } from "./progress";
-import { createMemoryStorage, loadPlayerState, resetStoredPlayerState, savePlayerState, STORAGE_KEY } from "./storage";
+import { createMemoryStorage, isSafeScreenId, loadPlayerState, resetStoredPlayerState, savePlayerState, STORAGE_KEY } from "./storage";
 
 describe("storage helpers", () => {
   it("saves and loads the current player state shape", () => {
@@ -121,6 +121,10 @@ describe("storage helpers", () => {
     expect(restored.earnedCards).toHaveLength(1);
     expect(restored.earnedCards[0].cardId).toBe("2-cups");
     expect(restored.earnedCards[0].role).toBe("action");
+  });
+
+  it("accepts the journal screen id for navigation without affecting old saves", () => {
+    expect(isSafeScreenId("journal")).toBe(true);
   });
 
   it("clears stored progress", () => {
