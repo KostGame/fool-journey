@@ -20,13 +20,13 @@
 
 ## Фактические поля
 
-- PR URL: будет добавлен после публикации ветки
+- PR URL: [https://github.com/KostGame/fool-journey/pull/38](https://github.com/KostGame/fool-journey/pull/38)
 - ветка: `feature/su-013-encoding-content-quality-audit`
-- head commit: будет добавлен после коммита
-- merge commit: будет добавлен после merge
+- head commit: `3fd41df04183d64e5200a2b95c9c3d0f3fd8a604`
+- merge commit: не применимо, PR не смержен
 - Pages URL: [https://kostgame.github.io/fool-journey/](https://kostgame.github.io/fool-journey/)
-- Pages status: будет обновлено после merge
-- CI status: будет обновлено после CI
+- Pages status: built
+- CI status: pending
 - найдено ли replacement character / double replacement sequence: нет
 - какие группы текстов вычитаны: сцены, minor events, button labels, tone badges
 - PR смержен: нет
